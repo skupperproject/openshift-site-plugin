@@ -1,2 +1,3 @@
-# skupper-site-console
-Web tool for managing the setup of a Skupper Network.
+# Red Hat Service Interconnect OpenShift Console Plugin
+
+Work in progress
