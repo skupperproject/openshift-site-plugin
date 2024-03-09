@@ -5,7 +5,6 @@ import {
   DescriptionListTerm,
   DescriptionListGroup,
   DescriptionListDescription,
-  PageSection,
   Card,
   CardHeader,
   CardBody,
@@ -22,15 +21,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace, skupperSiteConfigMapName } from '@config/config';
+import { I18nNamespace } from '@config/config';
+import { createSiteInfo } from '@config/db';
+import { TooltipInfoButton } from '@core/components/HelpTooltip';
 
-import SiteForm from './components/CreateSiteForm';
 import DeleteSiteButton from './components/DeleteSiteButton';
+import SiteForm from './components/SiteForm';
 
-const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: (name: undefined) => void }> = function ({
-  onGoTo,
-  onDeleteSite
-}) {
+const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: () => void }> = function ({ onGoTo, onDeleteSite }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,7 +36,7 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: (name: undefin
 
   const { data: site, refetch } = useQuery({
     queryKey: ['find-site-query'],
-    queryFn: () => RESTApi.findSite()
+    queryFn: () => RESTApi.findSiteView()
   });
 
   const handleOpenModal = (props: Record<string, boolean>) => {
@@ -47,11 +45,10 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: (name: undefin
   };
 
   const handleSubmit = () => {
+    handleClose();
     setTimeout(() => {
       refetch();
-    }, 0);
-
-    handleClose();
+    }, 500);
   };
 
   const handleClose = () => {
@@ -62,8 +59,10 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: (name: undefin
     return null;
   }
 
+  createSiteInfo({ name: site.name, resourceVersion: site.resourceVersion });
+
   return (
-    <PageSection>
+    <>
       <Card isPlain>
         <CardHeader>
           <Flex style={{ width: '100%' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
@@ -83,16 +82,15 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: (name: undefin
             }}
           >
             <DescriptionListGroup>
-              <DescriptionListTerm>Name</DescriptionListTerm>
-              <DescriptionListDescription>
-                {site.name}{' '}
-                <Button variant="plain" onClick={() => handleOpenModal({ name: true })} icon={<PenIcon />} />
-              </DescriptionListDescription>
+              <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
+              <DescriptionListDescription>{site.name} </DescriptionListDescription>
             </DescriptionListGroup>
             <DescriptionListGroup>
-              <DescriptionListTerm>Ingress</DescriptionListTerm>
+              <DescriptionListTerm>
+                {t('Link access')} <TooltipInfoButton content={t('tooltipSiteLinkAccessValue')} />
+              </DescriptionListTerm>
               <DescriptionListDescription>
-                {site.ingress}{' '}
+                {site.linkAccess || t('default')}{' '}
                 <Button variant="plain" onClick={() => handleOpenModal({ ingress: true })} icon={<PenIcon />} />
               </DescriptionListDescription>
             </DescriptionListGroup>
@@ -150,16 +148,16 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: (name: undefin
         </CardBody>
       </Card>
 
-      <Modal title={t('Edit site')} variant={ModalVariant.medium} isOpen={isModalOpen} onClose={handleClose}>
+      <Modal title={t('Edit site')} variant={ModalVariant.medium} isOpen={isModalOpen} aria-label="Form edit site">
         <SiteForm
           show={visibleModalPros}
           onSubmit={handleSubmit}
           onCancel={handleClose}
-          properties={{ name: site.name as string, ingress: site.ingress as string }}
-          siteName={skupperSiteConfigMapName}
+          properties={{ name: site.name, ingress: site.linkAccess }}
+          siteName={site.name}
         />
       </Modal>
-    </PageSection>
+    </>
   );
 };
 

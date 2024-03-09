@@ -1,6 +1,6 @@
 import { FC, Suspense } from 'react';
 
-import { Bullseye, Page, PageSection, Spinner } from '@patternfly/react-core';
+import { Bullseye, PageSection, Spinner } from '@patternfly/react-core';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -8,7 +8,7 @@ import AppContent from 'console/AppContent';
 
 import { Wrapper } from './Wrapper';
 
-import '@patternfly/patternfly/patternfly-addons.css';
+import '@patternfly/patternfly/patternfly.css';
 
 import './App.css';
 
@@ -25,25 +25,21 @@ const ErrorConsole: FC<ErrorConsoleProps> = function ({ error }) {
 const App = function () {
   return (
     <Wrapper>
-      <Page
-        additionalGroupedContent={
-          <QueryErrorResetBoundary>
-            {({ reset }) => (
-              <ErrorBoundary onReset={reset} FallbackComponent={ErrorConsole}>
-                <Suspense
-                  fallback={
-                    <Bullseye>
-                      <Spinner size="xl" />
-                    </Bullseye>
-                  }
-                >
-                  <AppContent />
-                </Suspense>
-              </ErrorBoundary>
-            )}
-          </QueryErrorResetBoundary>
-        }
-      />
+      <QueryErrorResetBoundary>
+        {({ reset }) => (
+          <ErrorBoundary onReset={reset} FallbackComponent={ErrorConsole}>
+            <Suspense
+              fallback={
+                <Bullseye>
+                  <Spinner size="xl" />
+                </Bullseye>
+              }
+            >
+              <AppContent />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </QueryErrorResetBoundary>
     </Wrapper>
   );
 };

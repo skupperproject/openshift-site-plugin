@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 
 import { MSG_TIMEOUT_ERROR } from '@config/config';
 
-import { FetchWithOptions, HTTPError } from './REST.interfaces';
+import { FetchWithOptions, HTTPError } from '../interfaces/REST.interfaces';
 
 function handleStatusError(e: AxiosError<{ message: string }>) {
   const error: HTTPError = { ...e };
@@ -29,6 +29,7 @@ export async function axiosFetch<T = unknown>(url: string, options: FetchWithOpt
     // avoid 403 error in openshift console
     xsrfCookieName: 'csrf-token',
     xsrfHeaderName: 'X-Csrftoken',
+    validateStatus: (status) => (status >= 200 && status < 300) || status === 404,
     ...options
   });
 

@@ -15,7 +15,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "noEmit": true,
+    "noEmit": false,
     "skipLibCheck": true,
     "downlevelIteration": true,
     "strictNullChecks": true,
@@ -25,6 +25,13 @@
     "noUnusedLocals": false,
     "strictPropertyInitialization": true
   },
-  "include": ["src", "./webpack.config.ts", "webpack.config.local.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src", "./webpack.config.ts"],
+  "ts-node": {
+    "files": true,
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
 }
+

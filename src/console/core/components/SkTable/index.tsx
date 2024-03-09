@@ -18,7 +18,7 @@ import {
 import { getValueFromNestedProperty } from '@core/utils/getValueFromNestedProperty';
 
 import SkPagination from './SkPagination';
-import { NonNullableValue, SKTableProps } from './SkTable.interfaces';
+import { NonNullableValue, SKTableProps } from '../../../interfaces/SkTable.interfaces';
 import EmptyData from '../EmptyData';
 
 const FIRST_PAGE_NUMBER = 1;
@@ -140,7 +140,7 @@ const SkTable = function <T>({
     [alwaysShowPagination, pagination, paginationPageSize, paginationTotalRows]
   );
 
-  const { shouldSort = true, isFullHeight = false, isPlain, ...restProps } = props;
+  const { shouldSort = false, isFullHeight = false, isPlain, ...restProps } = props;
 
   return (
     <Card isFullHeight={isFullHeight} isPlain={isPlain || true}>

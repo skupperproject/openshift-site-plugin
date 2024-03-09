@@ -2,19 +2,29 @@ import { getSkupperNamespace } from '@config/db';
 
 const K8S_PREFIX_PATH = `/api/kubernetes/`;
 
-const OPERATOR_GROUP_PATH = `${K8S_PREFIX_PATH}apis/operators.coreos.com/v1/namespaces/`;
-export const operatorGroupsPath = () => `${OPERATOR_GROUP_PATH}${getSkupperNamespace()}/operatorgroups`;
-
-const SUBSCRIPTION_PATH = `${K8S_PREFIX_PATH}apis/operators.coreos.com/v1alpha1/namespaces/`;
-export const subscriptionsPath = () => `${SUBSCRIPTION_PATH}${getSkupperNamespace()}/subscriptions`;
-
 const CONFIG_MAP_PATH = `${K8S_PREFIX_PATH}api/v1/namespaces/`;
-export const configMapPath = () => `${CONFIG_MAP_PATH}${getSkupperNamespace()}/configmaps`;
+const configMapPath = () => `${CONFIG_MAP_PATH}${getSkupperNamespace()}/configmaps`;
 export const configMapPathItem = (name: string) => `${configMapPath()}/${name}`;
 
-const SECRETS_PATH = `${K8S_PREFIX_PATH}api/v1/namespaces/`;
-export const secretsPath = () => `${SECRETS_PATH}${getSkupperNamespace()}/secrets`;
-export const secretPathItem = (name: string) => `${secretsPath()}/${name}`;
+const DEPLOYMENT_PATH = `${K8S_PREFIX_PATH}apis/apps/v1/namespaces/`;
+const deploymentsPath = () => `${DEPLOYMENT_PATH}${getSkupperNamespace()}/deployments`;
+export const deploymentPath = (name: string) => `${deploymentsPath()}/${name}`;
 
-const POD_PATH = `${K8S_PREFIX_PATH}api/v1/namespaces/`;
-export const podPath = () => `${POD_PATH}${getSkupperNamespace()}/pods`;
+const BASE_CR_PATH = `${K8S_PREFIX_PATH}apis/skupper.io/v1alpha1/namespaces/`;
+export const sitesPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/sites`;
+export const sitePath = (name: string) => `${sitesPath()}/${name}`;
+
+export const grantsPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/grants`;
+export const grantPath = (name: string) => `${grantsPath()}/${name}`;
+
+export const claimsPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/claims`;
+export const claimPath = (name: string) => `${claimsPath()}/${name}`;
+
+export const linksPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/links`;
+export const linkPath = (name: string) => `${linksPath()}/${name}`;
+
+export const listenersPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/listeners`;
+export const listenerPath = (name: string) => `${listenersPath()}/${name}`;
+
+export const connectorsPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/connectors`;
+export const connectorPath = (name: string) => `${connectorsPath()}/${name}`;

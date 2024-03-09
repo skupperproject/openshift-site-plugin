@@ -1,5 +1,7 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 
+import { GrantCrdResponse, ISO8601Timestamp } from './CRD.interfaces';
+
 export type FetchWithOptions = AxiosRequestConfig;
 
 export interface HTTPError extends AxiosError {
@@ -8,30 +10,33 @@ export interface HTTPError extends AxiosError {
   descriptionMessage?: string;
 }
 
-export interface Site {
+export interface SiteView {
   identity: string;
   name: string;
-  ingress: string;
+  linkAccess: string;
   routerVersion: string;
   controllerVersion: string;
   linkCount: number;
   creationTimestamp: number;
+  resourceVersion: string;
 }
 
-export interface Token {
+export interface Grant {
   id: string;
   name: string;
   creationTimestamp: string;
-  claimsMade?: string;
-  claimsRemaining: string;
-  claimExpiration: string;
+  status?: string;
+  claims?: number;
+  claimed?: number;
+  expiration?: ISO8601Timestamp;
+  data: GrantCrdResponse;
 }
 
 export interface Link {
   id: string;
   name: string;
   creationTimestamp: string;
-  status: string | undefined;
+  status?: string;
   cost: string;
   connectedTo: string;
 }
@@ -42,16 +47,15 @@ export type Listener = {
   creationTimestamp: string;
   routingKey: string;
   serviceName: string;
-  port: string;
-  protocol: string;
+  port: number;
 };
 
 export type Connector = {
   id: string;
-  host: string;
+  name: string;
   creationTimestamp: string;
-  selector: string;
-  port: string;
-  protocol: string;
+  selector?: string;
+  host?: string;
+  port: number;
   routingKey: string;
 };

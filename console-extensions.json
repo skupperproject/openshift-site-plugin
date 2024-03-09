@@ -3,13 +3,13 @@
     "type": "console.tab/horizontalNav",
     "properties": {
       "model": {
-        "group": "project.openshift.io",
+        "version": "v1",
         "kind": "Project",
-        "version": "v1"
+        "group": "project.openshift.io"
       },
       "page": {
         "name": "Service Interconnect",
-        "href": "/site_console"
+        "href": "/site-console"
       },
       "component": { "$codeRef": "ProjectEntryTab" }
     }

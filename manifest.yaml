@@ -12,7 +12,6 @@ metadata:
     app: site-console
     app.kubernetes.io/component: site-console
     app.kubernetes.io/instance: site-console
-    app.kubernetes.io/name: site-console
     app.kubernetes.io/part-of: site-console
     app.openshift.io/runtime-namespace: site-console
 spec:
@@ -24,10 +23,6 @@ spec:
     metadata:
       labels:
         app: site-console
-        app.kubernetes.io/component: site-console
-        app.kubernetes.io/instance: site-console
-        app.kubernetes.io/name: site-console
-        app.kubernetes.io/part-of: site-console
     spec:
       containers:
         - name: site-console
@@ -37,7 +32,7 @@ spec:
               protocol: TCP
           imagePullPolicy: Always
           volumeMounts:
-            - name: plugin-serving-cert
+            - name: console-serving-cert
               readOnly: true
               mountPath: /var/serving-cert
             - name: nginx-conf
@@ -45,17 +40,13 @@ spec:
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
       volumes:
-        - name: plugin-serving-cert
+        - name: console-serving-cert
           secret:
-            secretName: plugin-serving-cert
+            secretName: console-serving-cert
             defaultMode: 420
         - name: nginx-conf
           configMap:
             name: nginx-conf
-            defaultMode: 420
-        - name: plugin-conf
-          configMap:
-            name: plugin-conf
             defaultMode: 420
       restartPolicy: Always
       dnsPolicy: ClusterFirst
@@ -74,7 +65,6 @@ metadata:
     app: site-console
     app.kubernetes.io/component: site-console
     app.kubernetes.io/instance: site-console
-    app.kubernetes.io/name: site-console
     app.kubernetes.io/part-of: site-console
 data:
   nginx.conf: |
@@ -100,29 +90,16 @@ data:
     }
 ---
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: plugin-conf
-  namespace: site-console
-  labels:
-    app: site-console
-    app.kubernetes.io/component: site-console
-    app.kubernetes.io/instance: site-console
-    app.kubernetes.io/name: site-console
-    app.kubernetes.io/part-of: site-console
----
-apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    service.alpha.openshift.io/serving-cert-secret-name: plugin-serving-cert
+    service.alpha.openshift.io/serving-cert-secret-name: console-serving-cert
   name: site-console
   namespace: site-console
   labels:
     app: site-console
     app.kubernetes.io/component: site-console
     app.kubernetes.io/instance: site-console
-    app.kubernetes.io/name: site-console
     app.kubernetes.io/part-of: site-console
 spec:
   ports:
@@ -138,13 +115,15 @@ spec:
 apiVersion: console.openshift.io/v1
 kind: ConsolePlugin
 metadata:
-  name: site-console
+  name: skupper-site-console
 spec:
-  displayName: 'OpenShift Service Interconnect Console'
+  displayName: 'OpenShift Service Interconnect Site Console'
   backend:
     type: Service
     service:
       name: site-console
       namespace: site-console
       port: 9443
-      basePath: '/'
+      basePath: /
+  i18n:
+    loadType: Preload
