@@ -1,0 +1,87 @@
+{
+  "name": "skupper-site-console",
+  "version": "1.0.0",
+  "private": true,
+  "repository": "git@github.com:skupperproject/skupper-site-console.git",
+  "license": "Apache-2.0",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "yarn clean && NODE_ENV=production yarn ts-node node_modules/.bin/webpack",
+    "start": "yarn clean && yarn ts-node node_modules/.bin/webpack serve",
+    "start-console": "./start-console.sh",
+    "i18n": "i18next \"src/**/*.{js,jsx,ts,tsx}\" [-oc] -c i18next-parser.config.js",
+    "ts-node": "ts-node -O '{\"module\":\"commonjs\"}'",
+    "format": "prettier --write 'src/**/*.{ts,tsx,json,css}'",
+    "lint:fix": "eslint --ext js,ts,tsx --fix src",
+    "lint": "eslint src --ext .ts,.tsx --cache",
+    "build-and-push-image": "PUSH=1 ./build-image.sh",
+    "find-deadcode": "ts-prune"
+  },
+  "dependencies": {
+    "@patternfly/patternfly": "^5.3.1",
+    "@patternfly/react-component-groups": "^5.2.0",
+    "@patternfly/react-core": "^5.3.3",
+    "@patternfly/react-icons": "^5.3.2",
+    "@patternfly/react-table": "^5.3.3",
+    "@tanstack/react-query": "4.36.1",
+    "axios": "^1.7.2",
+    "i18next-parser": "^8.13.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-error-boundary": "^4.0.13",
+    "react-i18next": "^11.18.6",
+    "react-router": "^5.3.4",
+    "react-router-dom": "^5.3.4",
+    "react-router-dom-v5-compat": "^6.23.1",
+    "yaml": "^2.4.5"
+  },
+  "devDependencies": {
+    "@openshift-console/dynamic-plugin-sdk": "1.3.0",
+    "@openshift-console/dynamic-plugin-sdk-webpack": "1.1.0",
+    "@types/node": "^20.12.12",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-router-dom": "^5.3.3",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^7.1.2",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jest": "^28.6.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.6.0",
+    "miragejs": "^0.1.48",
+    "pluralize": "^8.0.0",
+    "prettier": "^3.3.2",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "ts-prune": "^0.10.3",
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
+    "typescript": "^5.4.5",
+    "webpack": "5.75.0",
+    "webpack-cli": "5.0.2",
+    "webpack-dev-server": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=18.17.1",
+    "yarn": ">=1.22.10"
+  },
+  "consolePlugin": {
+    "name": "skupper-site-console",
+    "version": "1.0.0",
+    "displayName": "OpenShift Service Interconnect Site Plugin",
+    "description": " Service Interconnect for OpenShift console plugins.",
+    "exposedModules": {
+      "ProjectEntryTab": "./openshift/ProjectEntryTab"
+    },
+    "dependencies": {
+      "@console/pluginAPI": "*"
+    }
+  }
+}
