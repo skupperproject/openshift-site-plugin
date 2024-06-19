@@ -1,8 +1,8 @@
-import { FC, Suspense } from 'react';
+import { Suspense } from 'react';
 
-import { Bullseye, PageSection, Spinner } from '@patternfly/react-core';
+import ErrorBoundaryContent from '@patternfly/react-component-groups/dist/dynamic/ErrorBoundary';
+import { Bullseye, Spinner } from '@patternfly/react-core';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
-import { ErrorBoundary } from 'react-error-boundary';
 
 import AppContent from 'console/AppContent';
 
@@ -12,33 +12,21 @@ import '@patternfly/patternfly/patternfly.css';
 
 import './App.css';
 
-interface ErrorConsoleProps {
-  error: {
-    stack?: string;
-  };
-}
-
-const ErrorConsole: FC<ErrorConsoleProps> = function ({ error }) {
-  return <PageSection data-testid="sk-js-error-view">{JSON.stringify(error.stack)}</PageSection>;
-};
-
 const App = function () {
   return (
     <Wrapper>
       <QueryErrorResetBoundary>
-        {({ reset }) => (
-          <ErrorBoundary onReset={reset} FallbackComponent={ErrorConsole}>
-            <Suspense
-              fallback={
-                <Bullseye>
-                  <Spinner size="xl" />
-                </Bullseye>
-              }
-            >
-              <AppContent />
-            </Suspense>
-          </ErrorBoundary>
-        )}
+        <ErrorBoundaryContent errorTitle="An Error occurred" headerTitle="">
+          <Suspense
+            fallback={
+              <Bullseye>
+                <Spinner size="xl" />
+              </Bullseye>
+            }
+          >
+            <AppContent />
+          </Suspense>
+        </ErrorBoundaryContent>
       </QueryErrorResetBoundary>
     </Wrapper>
   );

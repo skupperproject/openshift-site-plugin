@@ -21,19 +21,17 @@ import { I18nNamespace } from '@config/config';
 import SiteForm from './components/SiteForm';
 
 interface InitProps {
-  onClick: () => void;
+  onSubmit: () => void;
 }
 
-const EmptySite: FC<InitProps> = function ({ onClick }) {
+const EmptySite: FC<InitProps> = function ({ onSubmit }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = () => {
     setIsModalOpen(false);
-    setTimeout(() => {
-      onClick();
-    }, 250);
+    onSubmit();
   };
 
   return (

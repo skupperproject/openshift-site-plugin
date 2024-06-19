@@ -34,11 +34,6 @@ enum Actions {
   Connector = 'connector'
 }
 
-enum GetStartedLabels {
-  Intro = 'Skupper is a layer 7 service interconnect. It enables secure communication across Kubernetes clusters with no VPNs or special firewall rules',
-  ConsoleDescription = 'Skupper site console is used during network setup. '
-}
-
 const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
   const { t } = useTranslation(I18nNamespace);
 
@@ -112,9 +107,11 @@ const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
       <PageSection>
         <TextContent>
           <Text component="p">
-            {GetStartedLabels.Intro}
+            {t(
+              'Service Interconnect is a layer 7 network. It enables secure communication across Kubernetes clusters with no VPNs or special firewall rules'
+            )}
             <br />
-            {GetStartedLabels.ConsoleDescription}
+            {t('The site console is used during network setup.')}
 
             <ExternalLink href="https://skupper.io/docs/console/index.html" text={t('Learn more about the console')} />
           </Text>
@@ -124,7 +121,7 @@ const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
       <DataList aria-label="get-started-data list">
         <DetailItem
           title="Generating tokens"
-          description="A token is required to create a link. The token contains a URL, which locates the ingress of the target site, and a secret, which represents the authority to create a link"
+          description="A grant is required to create a link. The token contains a URL, which locates the link Access of the target site, and a secret, which represents the authority to create a link"
           btnName="Generate a token"
           actionName={Actions.Token}
           onClick={handleOperation}
@@ -154,7 +151,7 @@ const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
 
       <PageSection>
         <TextContent>
-          <Text component="h1">{t('More information on using Skupper CLI')}</Text>
+          <Text component="h1">{t('More information on using the CLI')}</Text>
         </TextContent>
         <br />
         <ExternalLink

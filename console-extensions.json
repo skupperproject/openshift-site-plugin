@@ -9,7 +9,7 @@
       },
       "page": {
         "name": "Service Interconnect",
-        "href": "/site-console"
+        "href": "site-console"
       },
       "component": { "$codeRef": "ProjectEntryTab" }
     }

@@ -33,11 +33,15 @@
 }
 
 .sk-loading-page .cog-wrapper .spinning-clockwise {
-  animation: spin 4s linear infinite, pulse 6s ease-in-out infinite;
+  animation: spin 4s linear infinite, pulse 5s ease-in-out infinite;
 }
 
-.sk-loading-page .cog-wrapper .spinning-clockwise--reverse {
-  animation: spin 4s linear infinite reverse,pulse 6s ease-in-out infinite;
+.sk-loading-page .cog-wrapper .spinning-clockwise--reverse  {
+  animation: spin 4s linear infinite reverse,pulse 5s ease-in-out infinite;
+}
+
+.sk-loading-page .cog-text{
+  animation: pulse 5s ease-in-out infinite;
 }
 
 @keyframes spin {
@@ -51,7 +55,7 @@
     opacity: 1;
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.4;
   }
   100% {
     opacity: 1;

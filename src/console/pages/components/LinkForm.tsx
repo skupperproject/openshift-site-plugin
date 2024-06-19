@@ -1,4 +1,4 @@
-import { useState, FC, useCallback, useMemo, useRef, FormEvent } from 'react';
+import { useState, FC, useCallback, useMemo, useRef, FormEvent, useEffect } from 'react';
 
 import {
   Form,
@@ -21,11 +21,12 @@ import {
   WizardFooterWrapper,
   WizardHeader,
   WizardStep,
-  FormAlert,
-  Alert
+  Alert,
+  PageSectionVariants,
+  PageSection
 } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { parse } from 'yaml';
 
@@ -34,7 +35,7 @@ import step1 from '@assets/step1.png';
 import step2 from '@assets/step2.png';
 import step3 from '@assets/step3.png';
 import step4 from '@assets/step4.png';
-import { I18nNamespace } from '@config/config';
+import { CR_STATUS_OK, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import InstructionBlock from '@core/components/InstructionBlock';
 import { createClaimRequest } from '@core/utils/createCRD';
@@ -45,14 +46,8 @@ const DEFAULT_COST = '1';
 const ButtonName: string[] = ['Next', 'Create', 'Done'];
 const WizardContentHeight = '400px';
 
-type SubmitFunction = () => void;
 
-type CancelFunction = () => void;
-
-const LinkForm: FC<{ onSubmit: SubmitFunction; onCancel: CancelFunction; siteId: string }> = function ({
-  onSubmit,
-  onCancel
-}) {
+const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string }> = function ({ onSubmit, onCancel }) {
   const { t } = useTranslation(I18nNamespace);
 
   const fileContentRef = useRef<string>('');
@@ -64,19 +59,27 @@ const LinkForm: FC<{ onSubmit: SubmitFunction; onCancel: CancelFunction; siteId:
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { data: claim } = useQuery({
+    queryKey: ['get-access-token-query', nameRef.current || fileContentRef.current],
+    queryFn: () => RESTApi.findClaim(nameRef.current || fileContentRef.current),
+    enabled: isLoading && step === 3,
+    refetchInterval: REFETCH_QUERY_INTERVAL
+  });
+
   const mutationCreate = useMutation({
     mutationFn: (data: ClaimCrdParams) => RESTApi.createClaim(data),
-    onMutate: () => {
-      setIsLoading(true);
-      setStep(step + 1);
-    },
     onError: (data: HTTPError) => {
+      nameRef.current = '';
+      fileContentRef.current = '';
+
       setValidated(data.descriptionMessage);
       setIsLoading(false);
     },
     onSuccess: () => {
-      setIsLoading(false);
       setValidated(undefined);
+      setIsLoading(true);
+
+      setStep(step + 1);
     }
   });
 
@@ -111,20 +114,14 @@ const LinkForm: FC<{ onSubmit: SubmitFunction; onCancel: CancelFunction; siteId:
         return;
       }
 
-      if (!status.ca || !status.secret || !status.url) {
-        setValidated(t('Missing ca, secret or url. Please check your Grant'));
-
-        return;
-      }
-
       nameRef.current = nameRef.current || metadata.name;
-      const data = createClaimRequest({
+      const data: ClaimCrdParams = createClaimRequest({
         metadata: {
           name: nameRef.current
         },
         spec: {
           ca: status.ca,
-          secret: status.secret,
+          code: status.code,
           url: status.url
         }
       });
@@ -156,6 +153,18 @@ const LinkForm: FC<{ onSubmit: SubmitFunction; onCancel: CancelFunction; siteId:
     setStep(step + 1);
   }, [handleSubmit, onSubmit, step]);
 
+  useEffect(() => {
+    if (claim?.status?.status) {
+      if (claim?.status?.status === CR_STATUS_OK) {
+        setValidated(undefined);
+        setIsLoading(false);
+      } else if (claim?.status?.status !== CR_STATUS_OK) {
+        setValidated(claim?.status?.status);
+        setIsLoading(false);
+      }
+    }
+  }, [claim?.status?.status]);
+
   const CreateLinkWizard = function () {
     const steps = useMemo(
       () => [
@@ -172,8 +181,8 @@ const LinkForm: FC<{ onSubmit: SubmitFunction; onCancel: CancelFunction; siteId:
             <StackItem>
               <InstructionBlock
                 img={step2}
-                title={t('Step 2 - Generate a token file from the remote site')}
-                description={t('Generate the token with the web console or the CLI.')}
+                title={t('Step 2 - Generate a grant from the remote site')}
+                description={t('Generate the grant with the web console or the CLI.')}
                 link1="https://skupper.io/docs/cli/tokens.html"
                 link1Text="More information on token creation"
                 link2="https://skupper.io/docs/cli/index.html"
@@ -184,22 +193,22 @@ const LinkForm: FC<{ onSubmit: SubmitFunction; onCancel: CancelFunction; siteId:
             <StackItem>
               <InstructionBlock
                 img={step3}
-                title={t('Step 3 - Download the token file')}
-                description={t('Download the token file from the remote site after generating it.')}
+                title={t('Step 3 - Download the grant file')}
+                description={t('Download the grant file from the remote site after generating it.')}
               />
             </StackItem>
 
             <StackItem>
               <InstructionBlock
                 img={step4}
-                title={t('Step 4 - Use a token to create a link')}
-                description={t('Use the token file to create a link from the local site to the remote site.')}
+                title={t('Step 4 - Use the grant to create a link')}
+                description={t('Use the grant to create a link from the local site to the remote site.')}
               />
             </StackItem>
           </Stack>
         </WizardStep>,
         <WizardStep name={t('Create a connection')} id="2-step" key="2-step">
-          <CreateForm validated={validated} onSubmit={handleChangeData} />
+          <CreateForm onSubmit={handleChangeData} />
         </WizardStep>,
         <WizardStep name={t('Summary')} id="3-step" key="3-step">
           <Summary isLoading={isLoading} error={validated} />{' '}
@@ -215,25 +224,40 @@ const LinkForm: FC<{ onSubmit: SubmitFunction; onCancel: CancelFunction; siteId:
         header={
           <WizardHeader
             title={t('Create link')}
-            description="Links enable communication between sites. Once sites are linked, they form a Skupper network."
+            description="Links enable communication between sites. Once sites are linked, they form a network."
             isCloseHidden={true}
           />
         }
         footer={
-          <WizardFooterWrapper>
-            {(step === 2 || (step === 3 && (isLoading || validated))) && (
-              <Button variant="secondary" onClick={handlePreviousStep} isDisabled={isLoading}>
+          <>
+            {validated && step === 2 && (
+              <PageSection variant={PageSectionVariants.light}>
+                <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
+                  {validated}
+                </Alert>
+              </PageSection>
+            )}
+
+            <WizardFooterWrapper>
+              <Button
+                variant="secondary"
+                onClick={handlePreviousStep}
+                isDisabled={step === 1 || step === 3 || isLoading}
+              >
                 {t('Back')}
               </Button>
-            )}
-            <Button onClick={handleNextStep} isDisabled={isLoading || (step === 3 && !!validated)}>
-              {t(ButtonName[step - 1])}
-            </Button>
 
-            <Button variant="link" onClick={onCancel}>
-              {t('Cancel')}
-            </Button>
-          </WizardFooterWrapper>
+              <Button onClick={handleNextStep} isDisabled={isLoading || (step === 3 && !!validated)}>
+                {t(ButtonName[step - 1])}
+              </Button>
+
+              {!(step === 3 && !isLoading && !validated) && (
+                <Button variant="link" onClick={onCancel}>
+                  {step === 1 || step === 2 ? t('Cancel') : t('Dismiss')}
+                </Button>
+              )}
+            </WizardFooterWrapper>
+          </>
         }
       >
         {...steps}
@@ -246,10 +270,7 @@ const LinkForm: FC<{ onSubmit: SubmitFunction; onCancel: CancelFunction; siteId:
 
 export default LinkForm;
 
-const CreateForm: FC<{ validated: string | undefined; onSubmit: (data: Record<string, string>) => void }> = function ({
-  validated,
-  onSubmit
-}) {
+const CreateForm: FC<{ onSubmit: (data: Record<string, string>) => void }> = function ({ onSubmit }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [name, setName] = useState('');
@@ -291,19 +312,14 @@ const CreateForm: FC<{ validated: string | undefined; onSubmit: (data: Record<st
 
   return (
     <Form isHorizontal>
-      {validated && (
-        <FormAlert>
-          <Alert variant="danger" title={validated} aria-live="polite" isInline />
-        </FormAlert>
-      )}
       <FormGroup
         isRequired
         label={t('Token')}
         labelIcon={<TooltipInfoButton content="...." />}
-        fieldId="simple-form-Ingress-01"
+        fieldId="form-access-token"
       >
         <FileUpload
-          id="token-file"
+          id="access-token-file"
           type="text"
           value={fileContent}
           filename={filename}
@@ -316,10 +332,9 @@ const CreateForm: FC<{ validated: string | undefined; onSubmit: (data: Record<st
         />
       </FormGroup>
 
-      <FormGroup label={t('Name')} labelIcon={<TooltipInfoButton content="...." />} fieldId="simple-form-name-01">
+      <FormGroup label={t('Name')} labelIcon={<TooltipInfoButton content="...." />} fieldId="form-name-input">
         <TextInput
           isRequired
-          type="text"
           id="simple-form-name-01"
           name="simple-form-name-01"
           value={name}
@@ -327,13 +342,12 @@ const CreateForm: FC<{ validated: string | undefined; onSubmit: (data: Record<st
         />
       </FormGroup>
 
-      <FormGroup label={t('Cost')} labelIcon={<TooltipInfoButton content="...." />} fieldId="simple-form-cost-01">
+      <FormGroup label={t('Cost')} labelIcon={<TooltipInfoButton content="...." />} fieldId="form-cost-input">
         <TextInput
           isRequired
-          type="text"
-          id="simple-form-cost-01"
-          name="simple-form-cost-01"
-          aria-describedby="simple-form-cost-01-helper"
+          id="form-cost"
+          name="form-cost"
+          aria-describedby="form cost input"
           value={cost}
           onChange={handleChangeCost}
         />
@@ -398,7 +412,7 @@ const Summary: FC<{ isLoading: boolean; error: string | undefined }> = function 
               <Text component={TextVariants.h2} style={{ textAlign: 'center' }}>
                 {t('Link created')}
               </Text>
-              <Text>{t('Click "Done" to close the window')}</Text>
+              <Text>{t('Click Done to close the window')}</Text>
             </TextContent>
           </FlexItem>
         </Flex>

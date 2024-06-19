@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 
 import {
   DescriptionList,
@@ -14,21 +14,32 @@ import {
   Modal,
   ModalVariant,
   Flex,
-  FlexItem
+  FlexItem,
+  Label,
+  Icon
 } from '@patternfly/react-core';
-import { PenIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon, PenIcon, SyncAltIcon } from '@patternfly/react-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
+import {
+  DEFAULT_SERVICE_ACCOUNT,
+  EMPTY_LINK_ACCESS_STATUS,
+  EMPTY_VALUE_SYMBOL,
+  I18nNamespace,
+  REFETCH_QUERY_INTERVAL
+} from '@config/config';
 import { createSiteInfo } from '@config/db';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 
 import DeleteSiteButton from './components/DeleteSiteButton';
 import SiteForm from './components/SiteForm';
 
-const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: () => void }> = function ({ onGoTo, onDeleteSite }) {
+const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }> = function ({
+  onGoTo,
+  onDataUpdated
+}) {
   const { t } = useTranslation(I18nNamespace);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,7 +47,8 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: () => void }> 
 
   const { data: site, refetch } = useQuery({
     queryKey: ['find-site-query'],
-    queryFn: () => RESTApi.findSiteView()
+    queryFn: () => RESTApi.findSiteView(),
+    refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
   const handleOpenModal = (props: Record<string, boolean>) => {
@@ -46,20 +58,21 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: () => void }> 
 
   const handleSubmit = () => {
     handleClose();
-    setTimeout(() => {
-      refetch();
-    }, 500);
+    refetch();
   };
 
   const handleClose = () => {
     setIsModalOpen(false);
   };
 
-  if (!site) {
-    return null;
-  }
-
-  createSiteInfo({ name: site.name, resourceVersion: site.resourceVersion });
+  useEffect(() => {
+    if (site?.name && site?.resourceVersion) {
+      createSiteInfo({ name: site.name, resourceVersion: site.resourceVersion });
+    }
+    if (site?.isInitialized) {
+      onDataUpdated();
+    }
+  }, [site?.isInitialized, site?.name, site?.resourceVersion, onDataUpdated]);
 
   return (
     <>
@@ -67,10 +80,40 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: () => void }> 
         <CardHeader>
           <Flex style={{ width: '100%' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
             <FlexItem>
-              <Title headingLevel="h1">{t('Site settings')}</Title>
+              <Flex>
+                <FlexItem>
+                  <Title headingLevel="h1">{t('Site settings')}</Title>
+                </FlexItem>
+                {!site?.hasError && !site?.isInitialized && (
+                  <Label>
+                    <Icon isInline>{<InProgressIcon />}</Icon> {t('In progress')}
+                  </Label>
+                )}
+                {!site?.hasError && !!site?.isInitialized && !site?.isReady && (
+                  <Label>
+                    <Icon isInline status="success">
+                      {<CheckCircleIcon />}
+                    </Icon>{' '}
+                    {t('Active')}
+                  </Label>
+                )}
+                {!site?.hasError && !!site?.isInitialized && !!site?.isReady && (
+                  <Label>
+                    <Icon isInline>{<SyncAltIcon />}</Icon> {t('Running')}
+                  </Label>
+                )}
+                {!!site?.hasError && (
+                  <Label>
+                    <Icon isInline status="danger">
+                      <ExclamationCircleIcon />
+                    </Icon>{' '}
+                    {site?.status}
+                  </Label>
+                )}
+              </Flex>
             </FlexItem>
             <FlexItem>
-              <DeleteSiteButton onClick={onDeleteSite} />
+              <DeleteSiteButton onClick={onDataUpdated} />
             </FlexItem>
           </Flex>
         </CardHeader>
@@ -83,15 +126,47 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: () => void }> 
           >
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
-              <DescriptionListDescription>{site.name} </DescriptionListDescription>
+              <DescriptionListDescription>{site?.name}</DescriptionListDescription>
             </DescriptionListGroup>
+
             <DescriptionListGroup>
               <DescriptionListTerm>
-                {t('Link access')} <TooltipInfoButton content={t('tooltipSiteLinkAccessValue')} />
+                {t('Link access')} <TooltipInfoButton content={t('tooltipSiteLinkAccess')} />
               </DescriptionListTerm>
               <DescriptionListDescription>
-                {site.linkAccess || t('default')}{' '}
-                <Button variant="plain" onClick={() => handleOpenModal({ ingress: true })} icon={<PenIcon />} />
+                {site?.linkAccess || EMPTY_LINK_ACCESS_STATUS}{' '}
+                <Button
+                  variant="plain"
+                  onClick={() => handleOpenModal({ linkAccess: true })}
+                  icon={<PenIcon />}
+                  isDisabled={!site?.isReady}
+                />
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+              <DescriptionListTerm>{t('Service account')}</DescriptionListTerm>
+              <DescriptionListDescription>
+                {`${site?.serviceAccount}` || DEFAULT_SERVICE_ACCOUNT}{' '}
+                <Button
+                  variant="plain"
+                  onClick={() => handleOpenModal({ serviceAccount: true })}
+                  icon={<PenIcon />}
+                  isDisabled={!site?.isReady}
+                />
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
+              <DescriptionListTerm>{t('tooltipHighAvailability')}</DescriptionListTerm>
+              <DescriptionListDescription>
+                {`${site?.ha}`}{' '}
+                <Button
+                  variant="plain"
+                  onClick={() => handleOpenModal({ ha: true })}
+                  icon={<PenIcon />}
+                  isDisabled={!site?.isReady}
+                />
               </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>
@@ -112,8 +187,8 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: () => void }> 
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Linked sites')}</DescriptionListTerm>
               <DescriptionListDescription>
-                <Button variant="link" isInline onClick={() => onGoTo(3)}>
-                  {t('remoteSiteWithCount', { count: site.linkCount })}
+                <Button variant="link" isInline onClick={() => onGoTo(3)} isDisabled={!site?.linkCount}>
+                  {t('remoteSiteWithCount', { count: site?.linkCount })}
                 </Button>
               </DescriptionListDescription>
             </DescriptionListGroup>
@@ -123,25 +198,27 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: () => void }> 
 
       <Card isPlain>
         <CardHeader>
-          <Title headingLevel="h1">{t('Properties')}</Title>
+          <Title headingLevel="h1">{t('Details')}</Title>
         </CardHeader>
 
         <CardBody>
           <DescriptionList>
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Controller version')}</DescriptionListTerm>
-              <DescriptionListDescription>{`${site.controllerVersion}`}</DescriptionListDescription>
+              <DescriptionListDescription>
+                {`${site?.controllerVersion}` || EMPTY_VALUE_SYMBOL}
+              </DescriptionListDescription>
             </DescriptionListGroup>
 
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Router version')}</DescriptionListTerm>
-              <DescriptionListDescription>{`${site.routerVersion}`}</DescriptionListDescription>
+              <DescriptionListDescription>{`${site?.routerVersion}` || EMPTY_VALUE_SYMBOL}</DescriptionListDescription>
             </DescriptionListGroup>
 
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
               <DescriptionListDescription>
-                <Timestamp date={new Date(site.creationTimestamp)} />
+                {site?.isInitialized ? <Timestamp date={new Date(site.creationTimestamp)} /> : EMPTY_VALUE_SYMBOL}
               </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>
@@ -149,13 +226,20 @@ const Details: FC<{ onGoTo: (page: number) => void; onDeleteSite: () => void }> 
       </Card>
 
       <Modal title={t('Edit site')} variant={ModalVariant.medium} isOpen={isModalOpen} aria-label="Form edit site">
-        <SiteForm
-          show={visibleModalPros}
-          onSubmit={handleSubmit}
-          onCancel={handleClose}
-          properties={{ name: site.name, ingress: site.linkAccess }}
-          siteName={site.name}
-        />
+        {site?.isInitialized && (
+          <SiteForm
+            show={visibleModalPros}
+            onSubmit={handleSubmit}
+            onCancel={handleClose}
+            properties={{
+              name: site.name,
+              linkAccess: site.linkAccess,
+              ha: site.ha,
+              serviceAccount: site.serviceAccount
+            }}
+            siteName={site.name}
+          />
+        )}
       </Modal>
     </>
   );

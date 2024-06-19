@@ -1,80 +1,60 @@
-import { useState, FC, useCallback, FormEvent } from 'react';
+import { useState, FC } from 'react';
 
-import { Form, FormGroup, TextInput, ActionGroup, Button, FormAlert, Alert, Title } from '@patternfly/react-core';
+import {
+  Form,
+  FormGroup,
+  TextInput,
+  ActionGroup,
+  Button,
+  FormAlert,
+  Alert,
+  Title,
+  FormSelect,
+  FormSelectOption
+} from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
+import { I18nNamespace, protocolOptions } from '@config/config';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import { createListenerRequest } from '@core/utils/createCRD';
-import { validatePort, validateRFC1123Subdomain } from '@core/utils/validations';
-import { ListenerCrdParams } from '@interfaces/CRD.interfaces';
+import { ListenerCrdParams, ListenerCrdSpec } from '@interfaces/CRD.interfaces';
 import { HTTPError } from '@interfaces/REST.interfaces';
+import useValidatedInput from 'console/hooks/useValidation';
 
-type SubmitFunction = () => void;
-
-type CancelFunction = () => void;
+interface ListenerCrdAttributes extends ListenerCrdSpec {
+  name?: string;
+  resourceVersion?: string;
+}
 
 const ListenerForm: FC<{
-  onSubmit: SubmitFunction;
-  onCancel: CancelFunction;
+  onSubmit: () => void;
+  onCancel: () => void;
   listenerName?: string;
-  attributes?: { routingKey?: string; host?: string; port?: number; name?: string; resourceVersion?: string };
+  attributes?: ListenerCrdAttributes;
 }> = function ({ onSubmit, onCancel, listenerName, attributes }) {
   const { t } = useTranslation(I18nNamespace);
 
-  const [validated, setValidated] = useState<string | undefined>();
   const [name, setName] = useState(attributes?.name || '');
   const [routingKey, setRoutingKey] = useState(attributes?.routingKey || '');
   const [host, setHost] = useState(attributes?.host || '');
   const [port, setPort] = useState<string | number | undefined>(attributes?.port);
+  const [type, setType] = useState(attributes?.type || protocolOptions[0].value);
+  const [tlsCredentials, setTlsCredentials] = useState(attributes?.tlsCredentials || '');
+
+  const { validated, validateInput } = useValidatedInput();
 
   const mutationCreate = useMutation({
     mutationFn: (data: ListenerCrdParams) => RESTApi.createOrUpdateListener(data, listenerName),
     onError: (data: HTTPError) => {
-      setValidated(data.descriptionMessage);
+      validateInput(data.descriptionMessage);
     },
     onSuccess: onSubmit
   });
 
-  const validatedInput = (value: string, callback: Function) => {
-    const error = callback(value);
-
-    if (error) {
-      setValidated(t(error));
-    } else {
-      setValidated(undefined);
-    }
-  };
-
-  const isValidated = useCallback(
-    () => !!(routingKey && port && host && !validated),
-    [host, port, routingKey, validated]
-  );
-
-  const handleChangeRoutingKey = (_: FormEvent, value: string) => {
-    validatedInput(value, validateRFC1123Subdomain);
-    setRoutingKey(value);
-  };
-
-  const handleChangeServiceName = (_: FormEvent, value: string) => {
-    validatedInput(value, validateRFC1123Subdomain);
-    setHost(value);
-  };
-
-  const handleChangePort = (_: FormEvent, value: string) => {
-    validatedInput(value, validatePort);
-    setPort(value);
-  };
-
-  const handleChangeName = (_: FormEvent, value: string) => {
-    validatedInput(value, validateRFC1123Subdomain);
-    setName(value);
-  };
-
-  const handleSubmit = useCallback(() => {
-    const data = createListenerRequest({
+  const handleSubmit = () => {
+    const data: ListenerCrdParams = createListenerRequest({
       metadata: {
         name,
         resourceVersion: attributes?.resourceVersion
@@ -82,76 +62,135 @@ const ListenerForm: FC<{
       spec: {
         routingKey,
         host,
-        port: Number(port)
+        port: Number(port),
+        type,
+        tlsCredentials
       }
     });
 
     mutationCreate.mutate(data);
-  }, [name, attributes?.resourceVersion, routingKey, host, port, mutationCreate]);
-
-  const handleCancel = () => {
-    onCancel();
   };
+
+  const handleChangeRoutingKey = (value: string) => {
+    //validateInput(value, [validateRFC1123Subdomain]);
+    setRoutingKey(value);
+  };
+
+  const handleChangeServiceName = (value: string) => {
+    //validateInput(value, [validateRFC1123Subdomain]);
+    setHost(value);
+  };
+
+  const handleChangePort = (value: string) => {
+    //validateInput(value, [validatePort]);
+    setPort(value);
+  };
+
+  const handleChangeName = (value: string) => {
+    //validateInput(value, [validateRFC1123Subdomain]);
+    setName(value);
+  };
+
+  const handleChangeType = (value: string) => {
+    setType(value);
+  };
+
+  const handleChangeTlsCredentials = (value: string) => {
+    //validateInput(value, [validateRFC1123Subdomain]);
+    setTlsCredentials(value);
+  };
+
+  const canSubmit = !!(name && routingKey && port && host); //&& !validated;
 
   return (
     <Form isHorizontal className="pf-v5-u-p-xl">
       <Title headingLevel="h1">{t('Create a listener')}</Title>
 
+      <FormGroup fieldId="name-input" isRequired label={t('Name')} title="">
+        <TextInput
+          isDisabled={!!listenerName}
+          aria-label="form name input"
+          value={name}
+          onChange={(_, value) => handleChangeName(value)}
+        />
+      </FormGroup>
+
+      <FormGroup
+        fieldId="routing-key-input"
+        isRequired
+        label={t('Routing key')}
+        labelIcon={<TooltipInfoButton content={t('tooltipRoutingKey')} />}
+        title=""
+      >
+        <TextInput
+          aria-label="form routing key input"
+          value={routingKey}
+          onChange={(_, value) => handleChangeRoutingKey(value)}
+        />
+      </FormGroup>
+
+      <FormGroup
+        fieldId="service-name-input"
+        isRequired
+        label={t('Service name')}
+        labelIcon={<TooltipInfoButton content={t('tooltipListenerHost')} />}
+      >
+        <TextInput
+          aria-label="form service name input"
+          value={host}
+          onChange={(_, value) => handleChangeServiceName(value)}
+        />
+      </FormGroup>
+
+      <FormGroup
+        fieldId="port-input"
+        isRequired
+        label={t('Port')}
+        labelIcon={<TooltipInfoButton content={t('tooltipPort')} />}
+        title=""
+      >
+        <TextInput aria-label="form port input" value={port} onChange={(_, value) => handleChangePort(value)} />
+      </FormGroup>
+
+      <FormGroup
+        fieldId="form-type"
+        label={t('Type')}
+        labelIcon={<TooltipInfoButton content={t('tooltipProtocolType')} />}
+        title=""
+      >
+        <FormSelect aria-label="form type select" value={type} onChange={(_, value) => handleChangeType(value)}>
+          {protocolOptions.map((option, index) => (
+            <FormSelectOption key={index} value={option.value} label={option.label} />
+          ))}
+        </FormSelect>
+      </FormGroup>
+
+      <FormGroup
+        fieldId="tls-secret-input"
+        label={t('TLS secret')}
+        labelIcon={<TooltipInfoButton content={t('tooltipTlsCredentials')} />}
+        title=""
+      >
+        <TextInput
+          aria-label="form TLS secret input"
+          value={tlsCredentials}
+          onChange={(_, value) => handleChangeTlsCredentials(value)}
+        />
+      </FormGroup>
+
       {validated && (
         <FormAlert>
-          <Alert variant="danger" title={validated} aria-live="polite" isInline />
+          <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
+            {validated}
+          </Alert>
         </FormAlert>
       )}
 
-      <FormGroup fieldId="form-name-input" isRequired label={t('Name')} labelIcon={<TooltipInfoButton content="..." />}>
-        <TextInput
-          type="text"
-          value={name}
-          onChange={handleChangeName}
-          aria-label="form name input"
-          isDisabled={!!listenerName}
-        />
-      </FormGroup>
-
-      <FormGroup
-        fieldId="form-routing-key-input"
-        isRequired
-        label={t('Routing key')}
-        labelIcon={<TooltipInfoButton content="..." />}
-      >
-        <TextInput
-          isRequired
-          type="text"
-          value={routingKey}
-          onChange={handleChangeRoutingKey}
-          aria-label="form routing key input"
-        />
-      </FormGroup>
-
-      <FormGroup
-        fieldId="form-service-name-input"
-        isRequired
-        label={t('Service name')}
-        labelIcon={<TooltipInfoButton content="..." />}
-      >
-        <TextInput
-          isRequired
-          type="text"
-          value={host}
-          onChange={handleChangeServiceName}
-          aria-label="form service name input"
-        />
-      </FormGroup>
-
-      <FormGroup fieldId="form-port-input" isRequired label={t('Port')} labelIcon={<TooltipInfoButton content="..." />}>
-        <TextInput isRequired value={port} onChange={handleChangePort} aria-label="form port input" />
-      </FormGroup>
-
       <ActionGroup style={{ display: 'flex' }}>
-        <Button variant="primary" onClick={handleSubmit} isDisabled={!isValidated()}>
+        <Button variant="primary" onClick={handleSubmit} isDisabled={!canSubmit}>
           {t('Submit')}
         </Button>
-        <Button variant="link" onClick={handleCancel}>
+        <Button variant="link" onClick={onCancel}>
           {t('Cancel')}
         </Button>
       </ActionGroup>

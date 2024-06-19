@@ -15,15 +15,18 @@ import {
   DrawerHead,
   Drawer,
   DrawerContent,
-  DrawerContentBody
+  DrawerContentBody,
+  Icon,
+  Card,
+  CardBody
 } from '@patternfly/react-core';
+import { CheckCircleIcon, TimesIcon } from '@patternfly/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
+import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import SkTable from '@core/components/SkTable';
-import { ConnectorCrdResponse, ListCrdResponse } from '@interfaces/CRD.interfaces';
 import { Connector } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
@@ -33,21 +36,21 @@ import ConnectorDetails from './ConnectorDetails';
 const Connectors = function () {
   const { t } = useTranslation(I18nNamespace);
 
-  const [isOpen, setIsOpen] = useState<boolean>();
+  const [areDetailsOpen, setAreDetailsOpen] = useState<boolean>(false);
   const [showAlert, setShowAlert] = useState<boolean>(true);
   const [nameSelected, setNameSelected] = useState<string | undefined>();
 
   const { data: connectors, refetch } = useQuery({
     queryKey: ['get-connectors-query'],
-    queryFn: () => RESTApi.getConnectors()
+    queryFn: () => RESTApi.getConnectorsView(),
+    refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
   const mutationDelete = useMutation({
     mutationFn: (name: string) => RESTApi.deleteConnector(name),
     onSuccess: () => {
-      setTimeout(() => {
-        refetch();
-      }, 500);
+      handleCloseDetails();
+      refetch();
     }
   });
 
@@ -55,13 +58,14 @@ const Connectors = function () {
     mutationDelete.mutate(name);
   }
 
-  const handleRefresh = useCallback(() => {
-    setTimeout(() => {
-      refetch();
-    }, 500);
-
+  const handleModalSubmit = useCallback(() => {
     handleModalClose();
+    refetch();
   }, [refetch]);
+
+  const handleModalClose = () => {
+    setAreDetailsOpen(false);
+  };
 
   const handleOpenDetails = (name: string) => {
     setNameSelected(name);
@@ -70,14 +74,6 @@ const Connectors = function () {
   const handleCloseDetails = () => {
     setNameSelected(undefined);
   };
-
-  const handleModalClose = () => {
-    setIsOpen(undefined);
-  };
-
-  if (!connectors) {
-    return null;
-  }
 
   const Columns: SKColumn<Connector>[] = [
     {
@@ -102,6 +98,15 @@ const Connectors = function () {
       prop: 'port'
     },
     {
+      name: t('Type'),
+      prop: 'type'
+    },
+    {
+      name: t('Connected'),
+      prop: 'connected',
+      customCellName: 'connectedCell'
+    },
+    {
       name: '',
       customCellName: 'actions',
       modifier: 'fitContent'
@@ -113,6 +118,12 @@ const Connectors = function () {
       <Button variant="link" onClick={() => handleOpenDetails(data.name)}>
         {data.name}
       </Button>
+    ),
+
+    connectedCell: ({ value }: SKComponentProps<Connector>) => (
+      <Icon isInline status={value ? 'success' : 'danger'}>
+        {value ? <CheckCircleIcon /> : <TimesIcon />}
+      </Icon>
     ),
 
     actions: ({ data }: SKComponentProps<Connector>) => (
@@ -130,68 +141,58 @@ const Connectors = function () {
         </DrawerActions>
       </DrawerHead>
       <DrawerPanelBody>
-        {nameSelected && <ConnectorDetails name={nameSelected} onRefetch={handleRefresh} />}
+        {nameSelected && <ConnectorDetails name={nameSelected} onUpdate={handleModalSubmit} />}
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
 
   return (
-    <>
-      <Stack hasGutter>
-        <StackItem>
-          {showAlert && (
-            <Alert
-              hidden={true}
-              variant="info"
-              actionClose={<AlertActionCloseButton onClose={() => setShowAlert(false)} />}
-              isInline
-              title={t(
-                'A connector binds local servers (pods, containers, or processes) to connection listeners in remote sites. Connectors are linked to listeners by a matching routing key.'
-              )}
-            />
-          )}
-        </StackItem>
+    <Card isPlain isFullHeight>
+      <CardBody>
+        <Stack hasGutter>
+          <StackItem>
+            {showAlert && (
+              <Alert
+                hidden={true}
+                variant="info"
+                actionClose={<AlertActionCloseButton onClose={() => setShowAlert(false)} />}
+                isInline
+                title={t(
+                  'A connector binds local servers (pods, containers, or processes) to connection listeners in remote sites. Connectors are linked to listeners by a matching routing key.'
+                )}
+              />
+            )}
+          </StackItem>
 
-        <StackItem isFilled>
-          <Drawer isExpanded={!!nameSelected} isInline>
-            <DrawerContent panelContent={panelContent}>
-              <DrawerContentBody>
-                <Button onClick={() => setIsOpen(true)}>{t('Create a connector')}</Button>
-                <SkTable
-                  columns={Columns}
-                  rows={parseConnectors(connectors)}
-                  alwaysShowPagination={false}
-                  customCells={customCells}
-                  isPlain
-                />
-              </DrawerContentBody>
-            </DrawerContent>
-          </Drawer>
-        </StackItem>
-      </Stack>
+          <StackItem isFilled>
+            <Drawer isExpanded={!!nameSelected} isInline>
+              <DrawerContent panelContent={panelContent}>
+                <DrawerContentBody>
+                  <Button onClick={() => setAreDetailsOpen(true)}>{t('Create a connector')}</Button>
+                  <SkTable
+                    columns={Columns}
+                    rows={connectors || []}
+                    alwaysShowPagination={false}
+                    customCells={customCells}
+                    isPlain
+                  />
+                </DrawerContentBody>
+              </DrawerContent>
+            </Drawer>
+          </StackItem>
+        </Stack>
 
-      <Modal
-        title={t('Create a Connector')}
-        isOpen={!!isOpen}
-        variant={ModalVariant.medium}
-        aria-label="Form create connector"
-      >
-        <ConnectorForm onSubmit={handleRefresh} onCancel={handleModalClose} />
-      </Modal>
-    </>
+        <Modal
+          title={t('Create a Connector')}
+          isOpen={areDetailsOpen}
+          variant={ModalVariant.medium}
+          aria-label="Form create connector"
+        >
+          <ConnectorForm onSubmit={handleModalSubmit} onCancel={handleModalClose} />
+        </Modal>
+      </CardBody>
+    </Card>
   );
 };
 
 export default Connectors;
-
-function parseConnectors({ items }: ListCrdResponse<ConnectorCrdResponse>): Connector[] {
-  return items.map((item) => ({
-    id: item.metadata.uid,
-    name: item.metadata.name,
-    creationTimestamp: item.metadata.creationTimestamp,
-    routingKey: item.spec.routingKey,
-    selector: item.spec.selector,
-    host: item.spec.host,
-    port: item.spec.port
-  }));
-}

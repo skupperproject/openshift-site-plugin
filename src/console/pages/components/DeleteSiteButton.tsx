@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { Button, Toolbar, ToolbarItem, ToolbarGroup, ButtonVariant } from '@patternfly/react-core';
+import { Button, ButtonVariant } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -37,14 +37,11 @@ const DeleteSiteButton: FC<{ onClick: () => void }> = function ({ onClick }) {
   };
 
   return (
-    <Toolbar className="pf-v5-u-p-xl">
-      <ToolbarGroup align={{ default: 'alignRight' }}>
-        <ToolbarItem>
-          <Button variant="secondary" onClick={() => setIsModalOpen(true)}>
-            {t('Delete site')}
-          </Button>
-        </ToolbarItem>
-      </ToolbarGroup>
+    <>
+      <Button variant="secondary" onClick={() => setIsModalOpen(true)}>
+        {t('Delete site')}
+      </Button>
+
       <WarningModal
         isOpen={isModalOpen}
         title={t('Permanently remove the site')}
@@ -55,7 +52,7 @@ const DeleteSiteButton: FC<{ onClick: () => void }> = function ({ onClick }) {
       >
         {t('Are you sure you want to remove this site?')}
       </WarningModal>
-    </Toolbar>
+    </>
   );
 };
 

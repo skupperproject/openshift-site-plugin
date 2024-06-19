@@ -20,7 +20,7 @@ const ErrorOldSkupperVersion = function () {
       <Bullseye>
         <EmptyState variant={EmptyStateVariant.xl}>
           <EmptyStateHeader
-            titleText={t('Access Denied - Site Plugin Incompatibility')}
+            titleText={t('Site Plugin Incompatibility')}
             headingLevel="h4"
             icon={<EmptyStateIcon icon={LockIcon} />}
           />

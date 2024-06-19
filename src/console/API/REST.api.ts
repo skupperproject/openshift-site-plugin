@@ -1,4 +1,4 @@
-import { skupperNetworkStatusConfigMapName } from '@config/config';
+import { CR_STATUS_OK, skupperNetworkStatusConfigMapName } from '@config/config';
 import { getSkupperNamespace } from '@config/db';
 import {
   ClaimCrdParams,
@@ -7,7 +7,7 @@ import {
   ConnectorCrdResponse,
   GrantCrdResponse,
   GrantParams,
-  K8sResourceConfigMap,
+  K8sResourceAddressStatusData,
   K8sResourceLinkData,
   K8sResourceNetworkStatusConfigMap,
   K8sResourceNetworkStatusData,
@@ -37,7 +37,7 @@ import {
   connectorsPath,
   connectorPath
 } from './REST.paths';
-import { SiteView } from '../interfaces/REST.interfaces';
+import { Connector, Listener, SiteView } from '../interfaces/REST.interfaces';
 
 export const RESTApi = {
   skupperStatus: async (name: string): Promise<number> => {
@@ -100,13 +100,13 @@ export const RESTApi = {
       return null;
     }
 
-    return convertK8sConfigMapsToSite(networkStatusConfigMap, sites.items[0]);
+    return convertSiteCRsToSite(networkStatusConfigMap, sites.items[0]);
   },
 
   getSites: async (): Promise<ListCrdResponse<SiteCrdResponse>> =>
     axiosFetch<ListCrdResponse<SiteCrdResponse>>(sitesPath()),
 
-  findSite: async (name: string): Promise<K8sResourceConfigMap> => axiosFetch<K8sResourceConfigMap>(sitePath(name)),
+  findSite: async (name: string): Promise<SiteCrdResponse> => axiosFetch<SiteCrdResponse>(sitePath(name)),
 
   createOrUpdateSite: async (data: SiteCrdParams, name?: string): Promise<SiteCrdResponse> => {
     const path = name ? `${sitePath(name)}` : sitesPath();
@@ -165,7 +165,6 @@ export const RESTApi = {
 
   getRemoteLinks: async (): Promise<K8sResourceLinkData[] | null> => {
     const networkStatusConfigMap = await RESTApi.findNetworkStatusConfigMap();
-
     if (!networkStatusConfigMap?.data?.NetworkStatus) {
       return null;
     }
@@ -190,6 +189,19 @@ export const RESTApi = {
   getListeners: async (): Promise<ListCrdResponse<ListenerCrdResponse>> =>
     axiosFetch<ListCrdResponse<ListenerCrdResponse>>(listenersPath()),
 
+  getListenersView: async (): Promise<Listener[] | null> => {
+    const [listeners, networkStatusConfigMap] = await Promise.all([
+      RESTApi.getListeners(),
+      RESTApi.findNetworkStatusConfigMap()
+    ]);
+
+    if (!listeners.items.length && !networkStatusConfigMap) {
+      return null;
+    }
+
+    return convertListenerCRsToListeners(networkStatusConfigMap, listeners.items);
+  },
+
   findListener: async (name: string): Promise<ListenerCrdResponse> =>
     axiosFetch<ListenerCrdResponse>(listenerPath(name)),
 
@@ -212,6 +224,19 @@ export const RESTApi = {
   getConnectors: async (): Promise<ListCrdResponse<ConnectorCrdResponse>> =>
     axiosFetch<ListCrdResponse<ConnectorCrdResponse>>(connectorsPath()),
 
+  getConnectorsView: async (): Promise<Connector[] | null> => {
+    const [connectors, networkStatusConfigMap] = await Promise.all([
+      RESTApi.getConnectors(),
+      RESTApi.findNetworkStatusConfigMap()
+    ]);
+
+    if (!connectors.items.length && !networkStatusConfigMap) {
+      return null;
+    }
+
+    return convertConnectorCRsToConnectors(networkStatusConfigMap, connectors.items);
+  },
+
   findConnector: async (name: string): Promise<ConnectorCrdResponse> =>
     axiosFetch<ConnectorCrdResponse>(connectorPath(name)),
 
@@ -233,7 +258,7 @@ export const RESTApi = {
 };
 
 // utils
-function convertK8sConfigMapsToSite(
+function convertSiteCRsToSite(
   networkStatusConfig: K8sResourceNetworkStatusConfigMap | null,
   siteConfig: SiteCrdResponse
 ): SiteView {
@@ -242,17 +267,81 @@ function convertK8sConfigMapsToSite(
     : null;
 
   const siteStatus = networkStatus?.siteStatus?.find((obj) => obj.site.nameSpace === getSkupperNamespace());
-
   const router = siteStatus?.routerStatus?.find((obj) => obj.router.namespace === getSkupperNamespace())?.router;
 
   return {
     identity: siteConfig.metadata.uid,
     name: siteConfig.metadata.name,
-    linkAccess: siteConfig.spec.linkAccess || '',
+    linkAccess: siteConfig.spec?.linkAccess || '',
+    serviceAccount: siteConfig.spec?.serviceAccount || '',
+    ha: siteConfig.spec?.ha || false,
     controllerVersion: siteConfig.status?.network ? siteConfig.status?.network[0].version : '',
     resourceVersion: siteConfig.metadata.resourceVersion,
     creationTimestamp: new Date(siteConfig.metadata.creationTimestamp).getTime() || 0,
     linkCount: siteConfig.status?.network?.filter(({ id }) => id !== siteConfig.metadata.uid).length || 0,
-    routerVersion: router?.buildVersion || ''
+    routerVersion: router?.buildVersion || '',
+    isInitialized: !!siteConfig.status?.active,
+    isReady: !!siteConfig.status?.sitesInNetwork,
+    hasError: !!siteConfig?.status && siteConfig?.status?.status !== (CR_STATUS_OK && 'OK'),
+    status: siteConfig.status?.status
   };
+}
+
+function convertListenerCRsToListeners(
+  networkStatusConfig: K8sResourceNetworkStatusConfigMap | null,
+  listeners: ListenerCrdResponse[]
+): Listener[] {
+  const networkStatus = networkStatusConfig?.data?.NetworkStatus
+    ? (JSON.parse(networkStatusConfig.data.NetworkStatus) as K8sResourceNetworkStatusData)
+    : null;
+
+  const addressMap = (networkStatus?.addresses || [])?.reduce(
+    (acc, address) => {
+      acc[address.name] = address;
+
+      return acc;
+    },
+    {} as Record<string, K8sResourceAddressStatusData>
+  );
+
+  return listeners.map(({ metadata, spec }) => ({
+    id: metadata.uid,
+    name: metadata.name,
+    creationTimestamp: metadata.creationTimestamp,
+    routingKey: spec.routingKey,
+    serviceName: spec.host,
+    port: spec.port,
+    type: spec.type,
+    connected: !!addressMap[spec.routingKey]?.connectorCount
+  }));
+}
+
+function convertConnectorCRsToConnectors(
+  networkStatusConfig: K8sResourceNetworkStatusConfigMap | null,
+  connectors: ConnectorCrdResponse[]
+): Connector[] {
+  const networkStatus = networkStatusConfig?.data?.NetworkStatus
+    ? (JSON.parse(networkStatusConfig.data.NetworkStatus) as K8sResourceNetworkStatusData)
+    : null;
+
+  const addressMap = (networkStatus?.addresses || [])?.reduce(
+    (acc, address) => {
+      acc[address.name] = address;
+
+      return acc;
+    },
+    {} as Record<string, K8sResourceAddressStatusData>
+  );
+
+  return connectors.map(({ metadata, spec }) => ({
+    id: metadata.uid,
+    name: metadata.name,
+    creationTimestamp: metadata.creationTimestamp,
+    routingKey: spec.routingKey,
+    selector: spec.selector,
+    host: spec.host,
+    port: spec.port,
+    type: spec.type,
+    connected: !!addressMap[spec.routingKey]?.listenerCount
+  }));
 }

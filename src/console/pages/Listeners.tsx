@@ -15,15 +15,18 @@ import {
   Drawer,
   DrawerContent,
   DrawerContentBody,
-  DrawerPanelBody
+  DrawerPanelBody,
+  Icon,
+  Card,
+  CardBody
 } from '@patternfly/react-core';
+import { CheckCircleIcon, TimesIcon } from '@patternfly/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
+import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import SkTable from '@core/components/SkTable';
-import { ListCrdResponse, ListenerCrdResponse } from '@interfaces/CRD.interfaces';
 import { Listener } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
@@ -39,15 +42,15 @@ const Listeners = function () {
 
   const { data: listeners, refetch } = useQuery({
     queryKey: ['get-listeners-query'],
-    queryFn: () => RESTApi.getListeners()
+    queryFn: () => RESTApi.getListenersView(),
+    refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
   const mutationDelete = useMutation({
     mutationFn: (name: string) => RESTApi.deleteListener(name),
     onSuccess: () => {
-      setTimeout(() => {
-        refetch();
-      }, 500);
+      handleCloseDetails();
+      refetch();
     }
   });
 
@@ -55,12 +58,9 @@ const Listeners = function () {
     mutationDelete.mutate(name);
   }
 
-  const handleRefresh = useCallback(() => {
-    setTimeout(() => {
-      refetch();
-    }, 500);
-
+  const handleModalSubmit = useCallback(() => {
     handleModalClose();
+    refetch();
   }, [refetch]);
 
   const handleModalClose = () => {
@@ -74,10 +74,6 @@ const Listeners = function () {
   const handleCloseDetails = () => {
     setNameSelected(undefined);
   };
-
-  if (!listeners) {
-    return null;
-  }
 
   const Columns: SKColumn<Listener>[] = [
     {
@@ -98,6 +94,15 @@ const Listeners = function () {
       prop: 'port'
     },
     {
+      name: t('Type'),
+      prop: 'type'
+    },
+    {
+      name: t('Connected'),
+      prop: 'connected',
+      customCellName: 'connectedCell'
+    },
+    {
       name: '',
       customCellName: 'actions',
       modifier: 'fitContent'
@@ -109,6 +114,12 @@ const Listeners = function () {
       <Button variant="link" onClick={() => handleOpenDetails(data.name)}>
         {data.name}
       </Button>
+    ),
+
+    connectedCell: ({ value }: SKComponentProps<Listener>) => (
+      <Icon isInline status={value ? 'success' : 'danger'}>
+        {value ? <CheckCircleIcon /> : <TimesIcon />}
+      </Icon>
     ),
 
     actions: ({ data }: SKComponentProps<Listener>) => (
@@ -126,67 +137,58 @@ const Listeners = function () {
         </DrawerActions>
       </DrawerHead>
       <DrawerPanelBody>
-        {nameSelected && <ListenerDetails name={nameSelected} onRefetch={handleRefresh} />}
+        {nameSelected && <ListenerDetails name={nameSelected} onUpdate={handleModalSubmit} />}
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
 
   return (
-    <>
-      <Stack hasGutter>
-        <StackItem>
-          {showAlert && (
-            <Alert
-              hidden={true}
-              variant="info"
-              isInline
-              actionClose={<AlertActionCloseButton onClose={() => setShowAlert(false)} />}
-              title={t(
-                'A listener is a local connection endpoint that is associated with remote servers. Listeners expose a host and port for accepting connections. Listeners use a routing key to forward connection data to remote connectors.'
-              )}
-            />
-          )}
-        </StackItem>
+    <Card isPlain isFullHeight>
+      <CardBody>
+        <Stack hasGutter>
+          <StackItem>
+            {showAlert && (
+              <Alert
+                hidden={true}
+                variant="info"
+                isInline
+                actionClose={<AlertActionCloseButton onClose={() => setShowAlert(false)} />}
+                title={t(
+                  'A listener is a local connection endpoint that is associated with remote servers. Listeners expose a host and port for accepting connections. Listeners use a routing key to forward connection data to remote connectors.'
+                )}
+              />
+            )}
+          </StackItem>
 
-        <StackItem isFilled>
-          <Button onClick={() => setIsOpen(true)}>{t('Create a listener')}</Button>
-          <Drawer isExpanded={!!nameSelected} isInline>
-            <DrawerContent panelContent={panelContent}>
-              <DrawerContentBody>
-                <SkTable
-                  columns={Columns}
-                  rows={parseListeners(listeners)}
-                  alwaysShowPagination={false}
-                  customCells={customCells}
-                  isPlain
-                />
-              </DrawerContentBody>
-            </DrawerContent>
-          </Drawer>
-        </StackItem>
-      </Stack>
+          <StackItem isFilled>
+            <Button onClick={() => setIsOpen(true)}>{t('Create a listener')}</Button>
+            <Drawer isExpanded={!!nameSelected} isInline>
+              <DrawerContent panelContent={panelContent}>
+                <DrawerContentBody>
+                  <SkTable
+                    columns={Columns}
+                    rows={listeners || []}
+                    alwaysShowPagination={false}
+                    customCells={customCells}
+                    isPlain
+                  />
+                </DrawerContentBody>
+              </DrawerContent>
+            </Drawer>
+          </StackItem>
+        </Stack>
 
-      <Modal
-        title={t('Create a listener')}
-        isOpen={!!isOpen}
-        variant={ModalVariant.medium}
-        aria-label="Form create listener"
-      >
-        <ListenerForm onSubmit={handleRefresh} onCancel={handleModalClose} />
-      </Modal>
-    </>
+        <Modal
+          title={t('Create a listener')}
+          isOpen={!!isOpen}
+          variant={ModalVariant.medium}
+          aria-label="Form create listener"
+        >
+          <ListenerForm onSubmit={handleModalSubmit} onCancel={handleModalClose} />
+        </Modal>
+      </CardBody>
+    </Card>
   );
 };
 
 export default Listeners;
-
-function parseListeners({ items }: ListCrdResponse<ListenerCrdResponse>): Listener[] {
-  return items.map((item) => ({
-    id: item.metadata.uid,
-    name: item.metadata.name,
-    creationTimestamp: item.metadata.creationTimestamp,
-    routingKey: item.spec.routingKey,
-    serviceName: item.spec.host,
-    port: item.spec.port
-  }));
-}

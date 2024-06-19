@@ -1,4 +1,4 @@
-import { useState, FC, FormEvent, useCallback } from 'react';
+import { useState, FC, useEffect } from 'react';
 
 import {
   Form,
@@ -13,110 +13,164 @@ import {
   Checkbox,
   Panel,
   PanelMain,
-  PanelMainBody
+  PanelMainBody,
+  Card,
+  PageSection,
+  PageSectionVariants,
+  CardBody
 } from '@patternfly/react-core';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
+import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import { getSiteInfo } from '@config/db';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
+import LoadingPage from '@core/components/Loading';
 import { createSiteData } from '@core/utils/createCRD';
-import { validateRFC1123Subdomain } from '@core/utils/validations';
 import { K8sResourceConfigMapData, SiteCrdParams } from '@interfaces/CRD.interfaces';
 import { HTTPError } from '@interfaces/REST.interfaces';
+import useValidatedInput from 'console/hooks/useValidation';
 
 const options = [
   { value: 'route', label: 'route', disabled: false },
-  { value: 'nodeport', label: 'nodeport', disabled: false },
   { value: 'loadbalancer', label: 'loadbalancer', disabled: false },
-  { value: 'none', label: 'none', disabled: false }
+  { value: 'default', label: 'default', disabled: false }
 ];
 
-type SubmitFunction = () => void;
-
-type CancelFunction = () => void;
-
 const SiteForm: FC<{
-  onSubmit: SubmitFunction;
-  onCancel: CancelFunction;
+  onSubmit: () => void;
+  onCancel: () => void;
   properties?: K8sResourceConfigMapData;
   siteName?: string;
-  show?: { ingress?: boolean; name?: boolean };
-}> = function ({ onSubmit, onCancel, properties, siteName, show = { ingress: true, name: true } }) {
+  show?: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: string };
+}> = function ({
+  onSubmit,
+  onCancel,
+  properties,
+  siteName,
+  show = { linkAccess: true, name: true, ha: true, serviceAccount: true }
+}) {
   const { t } = useTranslation(I18nNamespace);
 
-  const [validated, setValidated] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(properties?.name || '');
-  const [linkAccess, setLinkAccess] = useState(properties?.ingress || options[0].value);
-  const [isLinkAccessDisabled, setIsLinkAccessDisabled] = useState(!properties?.ingress);
+  const [linkAccess, setLinkAccess] = useState(properties?.linkAccess || options[0].value);
+  const [isLinkAccessDisabled, setIsLinkAccessDisabled] = useState(!properties?.linkAccess);
+  const [serviceAccount, setServiceAccount] = useState(properties?.serviceAccount || '');
+  const [ha, setHa] = useState(properties?.ha || false);
 
-  const mutationCreate = useMutation({
-    mutationFn: (data: SiteCrdParams) => RESTApi.createOrUpdateSite(data, siteName),
-    onError: (data: HTTPError) => {
-      setValidated(data.descriptionMessage);
-    },
-    onSuccess: onSubmit
+  const { validated, validateInput } = useValidatedInput();
+
+  const { data: site } = useQuery({
+    queryKey: ['find-site-query'],
+    queryFn: () => RESTApi.findSiteView(),
+    enabled: isLoading,
+    refetchInterval(data) {
+      return isLoading && data?.isReady ? 0 : REFETCH_QUERY_INTERVAL;
+    }
   });
 
-  const validatedInput = (value: string, callback: Function) => {
-    const error = callback(value);
-
-    if (error) {
-      setValidated(t(error));
-    } else {
-      setValidated(undefined);
+  const mutationCreateOrUpdate = useMutation({
+    mutationFn: (data: SiteCrdParams) => RESTApi.createOrUpdateSite(data, siteName),
+    onError: (data: HTTPError) => {
+      validateInput(data.descriptionMessage);
+    },
+    onSuccess: () => {
+      setIsLoading(true);
     }
-  };
+  });
 
-  const isValidated = useCallback(() => !!name, [name]);
-
-  const handleChangeName = (_: FormEvent, value: string) => {
-    validatedInput(value, validateRFC1123Subdomain);
+  const handleChangeName = (value: string) => {
+    // validateInput(value, [validateRFC1123Subdomain]);
     setName(value);
   };
 
-  const handleChangeIngress = (_: FormEvent, value: string) => {
+  const handleChangeLinkAccess = (value: string) => {
     setLinkAccess(value);
   };
 
-  const handleSubmit = () => {
-    const data = {
-      metadata: { name, resourceVersion: getSiteInfo()?.resourceVersion || '' },
-      spec: {
-        linkAccess: isLinkAccessDisabled ? undefined : linkAccess
-      }
-    };
-    mutationCreate.mutate(createSiteData(data));
+  const handleChangeServiceAccount = (value: string) => {
+    // validateInput(value, [validateRFC1123Subdomain]);
+    setServiceAccount(value);
   };
 
-  const handleCancel = () => {
-    onCancel();
+  const handleChangeHa = (value: boolean) => {
+    setHa(value);
   };
+
+  const handleSubmit = () => {
+    const data: SiteCrdParams = createSiteData({
+      metadata: { name, resourceVersion: getSiteInfo()?.resourceVersion || '' },
+      spec: {
+        linkAccess: isLinkAccessDisabled ? undefined : linkAccess,
+        serviceAccount,
+        ha
+      }
+    });
+
+    mutationCreateOrUpdate.mutate(data);
+  };
+
+  useEffect(() => {
+    if (isLoading && site?.identity && site.isInitialized && site.isReady) {
+      setIsLoading(false);
+      onSubmit();
+    }
+  }, [onSubmit, site?.identity, site?.isInitialized, site?.isReady, isLoading]);
+
+  if (isLoading && site?.identity && !site.isInitialized) {
+    return (
+      <Card className="pf-v5-u-p-xl">
+        <CardBody>
+          <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+            <LoadingPage message={t('Please wait while the Site is being installed. This may take a few seconds...')} />
+          </PageSection>
+        </CardBody>
+        <Button variant="link" onClick={onSubmit} style={{ display: 'flex' }}>
+          {t('Dismiss')}
+        </Button>
+      </Card>
+    );
+  }
+
+  if (isLoading && site?.identity && !!site.isInitialized && !site.isReady) {
+    return (
+      <Card className="pf-v5-u-p-xl">
+        <CardBody>
+          <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+            <LoadingPage
+              message={t('Network setup is currently in progress, please wait...')}
+              color="var(--pf-v5-global--primary-color--100)"
+            />
+          </PageSection>
+        </CardBody>
+        <Button variant="link" onClick={onSubmit} style={{ display: 'flex' }}>
+          {t('Dismiss')}
+        </Button>
+      </Card>
+    );
+  }
+
+  const canSubmit = !!name; //&& !validated;
 
   return (
     <Form isHorizontal className="pf-v5-u-p-xl">
-      {validated && (
-        <FormAlert>
-          <Alert variant="danger" title={validated} aria-live="polite" isInline />
-        </FormAlert>
-      )}
-      {show.name && (
-        <FormGroup
-          label={t('Name')}
-          isRequired
-          fieldId="form-name"
-          labelIcon={<TooltipInfoButton content={t('tooltipSiteNameValue')} />}
-        >
-          <TextInput isRequired type="text" aria-label="form name input" value={name} onChange={handleChangeName} />
+      {(show.name || show.ha) && (
+        <FormGroup fieldId="name-input" isRequired label={t('Name')}>
+          <TextInput
+            aria-label="form name input"
+            value={name}
+            onChange={(_, value) => handleChangeName(value)}
+            isDisabled={!!properties?.name}
+          />
         </FormGroup>
       )}
 
-      {show.ingress && (
+      {show.linkAccess && (
         <FormGroup
           label={t('Link access')}
-          labelIcon={<TooltipInfoButton content={t('tooltipSiteLinkAccessValue')} />}
+          labelIcon={<TooltipInfoButton content={t('tooltipSiteLinkAccess')} />}
           fieldId="form-linkAccess"
         >
           <Panel variant="bordered">
@@ -131,9 +185,9 @@ const SiteForm: FC<{
                 />
 
                 <FormSelect
-                  value={linkAccess}
-                  onChange={handleChangeIngress}
                   aria-label="form link access select"
+                  value={linkAccess}
+                  onChange={(_, value) => handleChangeLinkAccess(value)}
                   isDisabled={isLinkAccessDisabled}
                 >
                   {options.map((option, index) => (
@@ -151,12 +205,46 @@ const SiteForm: FC<{
         </FormGroup>
       )}
 
+      {show.serviceAccount && (
+        <FormGroup
+          fieldId="service-account-input"
+          label={t('Service account')}
+          labelIcon={<TooltipInfoButton content={t('tooltipServiceAccount')} />}
+        >
+          <TextInput
+            aria-label="form service account input"
+            value={serviceAccount}
+            onChange={(_, value) => handleChangeServiceAccount(value)}
+          />
+        </FormGroup>
+      )}
+
+      {show.ha && (
+        <FormGroup fieldId="ha-checkbox">
+          <Checkbox
+            aria-label="form ha checkbox"
+            id="ha checkbox"
+            label={t('tooltipHighAvailability')}
+            onClick={() => handleChangeHa(!ha)}
+            isChecked={ha}
+          />
+        </FormGroup>
+      )}
+
+      {validated && (
+        <FormAlert>
+          <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
+            {validated}
+          </Alert>
+        </FormAlert>
+      )}
+
       <ActionGroup style={{ display: 'flex' }}>
-        <Button variant="primary" onClick={handleSubmit} isDisabled={!isValidated()}>
+        <Button variant="primary" onClick={handleSubmit} isDisabled={!canSubmit}>
           {t('Submit')}
         </Button>
 
-        <Button variant="link" onClick={handleCancel}>
+        <Button variant="link" onClick={onCancel}>
           {t('Cancel')}
         </Button>
       </ActionGroup>
