@@ -6,8 +6,8 @@ This plugin for Openshift installs a tab in **Projects** -> **< project name >**
 
 ## Pre-requisites
 
-- Openshift >= 4.15
-- Skupper V2 CRDs installed + the Skupper controller in a namespace called skupper
+- Openshift >= 4.15 
+- Skupper V2 CRDs installed
 
 kubectl apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/api/types/crds/skupper_certificate_crd.yaml
 kubectl apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/api/types/crds/skupper_access_token_crd.yaml
@@ -19,7 +19,11 @@ kubectl apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/api
 kubectl apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/api/types/crds/skupper_secured_access_crd.yaml
 kubectl apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/api/types/crds/skupper_site_crd.yaml
 
-kubectl -n skupper apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/cmd/controller/deploy_cluster_scope.yaml
+then from the root of this project install the skupper V2 controller:
+
+  ```shell
+  kubectl -n skupper apply -f deploy_cluster_scope.yaml
+  ````
 
 ## Installing the Dynamic Plugin in Openshift
 
