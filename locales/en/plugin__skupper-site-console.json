@@ -162,5 +162,6 @@
   "Include not ready": "Include not ready",
   "Include server pods that are not in the ready state": "Include server pods that are not in the ready state",
   "An error occurred": "An error occurred",
-  "It seems there was an error while creating the link": "It seems there was an error while creating the link"
+  "It seems there was an error while creating the link": "It seems there was an error while creating the link",
+  "The site is Active: you can create resources, but until the router is running the effect is not usable": "The site is Active: you can create resources, but until the router is running the effect is not usable"
 }
