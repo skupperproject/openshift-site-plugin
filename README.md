@@ -1,4 +1,4 @@
-# Red Hat Service Interconnect OpenShift Console V2 Plugin Guide
+# Skupper OpenShift Console V2 Plugin Guide
 
 **Status: Working in progress**
 
