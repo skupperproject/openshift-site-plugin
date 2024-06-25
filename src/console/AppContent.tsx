@@ -41,7 +41,14 @@ const AppContent = function () {
     return <EmptySite onSubmit={refetchSite} />;
   }
 
-  return <SiteContainer siteId={siteId} isSiteReady={site.isInitialized} onDataUpdated={refetchSite} />;
+  return (
+    <SiteContainer
+      siteId={siteId}
+      isSiteActive={site.isInitialized}
+      isSiteRunning={site.isReady}
+      onDataUpdated={refetchSite}
+    />
+  );
 };
 
 export default AppContent;
