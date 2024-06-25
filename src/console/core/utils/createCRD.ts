@@ -19,14 +19,14 @@ export const createSiteData = (params: SiteParams): SiteCrdParams => ({
 
 export const createGrantRequest = ({ metadata, spec }: GrantParams): GrantCrdParams => ({
   apiVersion: 'skupper.io/v1alpha1',
-  kind: 'Grant',
+  kind: 'AccessGrant',
   metadata,
   spec
 });
 
 export const createClaimRequest = ({ metadata, spec }: ClaimParams): ClaimCrdParams => ({
   apiVersion: 'skupper.io/v1alpha1',
-  kind: 'Claim',
+  kind: 'AccessToken',
   metadata,
   spec
 });

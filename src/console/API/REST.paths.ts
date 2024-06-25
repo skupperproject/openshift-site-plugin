@@ -14,10 +14,10 @@ const BASE_CR_PATH = `${K8S_PREFIX_PATH}apis/skupper.io/v1alpha1/namespaces/`;
 export const sitesPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/sites`;
 export const sitePath = (name: string) => `${sitesPath()}/${name}`;
 
-export const grantsPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/grants`;
+export const grantsPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/accessgrants`;
 export const grantPath = (name: string) => `${grantsPath()}/${name}`;
 
-export const claimsPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/claims`;
+export const claimsPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/accesstokens`;
 export const claimPath = (name: string) => `${claimsPath()}/${name}`;
 
 export const linksPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/links`;

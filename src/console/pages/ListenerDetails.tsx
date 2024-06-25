@@ -33,10 +33,10 @@ import ListenerForm from './components/ListenerForm';
 
 interface ListenerDetailsProps {
   name: string;
-  onRefetch?: () => void;
+  onUpdate?: () => void;
 }
 
-const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onRefetch }) {
+const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
@@ -56,13 +56,10 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onRefetch })
     setIsOpen(undefined);
   };
 
-  const handleRefresh = () => {
-    setTimeout(() => {
-      refetch();
-    }, 500);
-
+  const handleModalSubmit = () => {
     handleModalClose();
-    onRefetch?.();
+    refetch();
+    onUpdate?.();
   };
 
   useEffect(() => {
@@ -101,7 +98,7 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onRefetch })
                 </DescriptionListGroup>
 
                 <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Service')}</DescriptionListTerm>
+                  <DescriptionListTerm>{t('Service name')}</DescriptionListTerm>
                   <DescriptionListDescription>{listener?.spec.host}</DescriptionListDescription>
                 </DescriptionListGroup>
 
@@ -109,6 +106,18 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onRefetch })
                   <DescriptionListTerm>{t('Port')}</DescriptionListTerm>
                   <DescriptionListDescription>{listener?.spec.port}</DescriptionListDescription>
                 </DescriptionListGroup>
+
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Type')}</DescriptionListTerm>
+                  <DescriptionListDescription>{listener?.spec.type}</DescriptionListDescription>
+                </DescriptionListGroup>
+
+                {listener?.spec.tlsCredentials && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('TLS secret')}</DescriptionListTerm>
+                    <DescriptionListDescription>{listener?.spec.tlsCredentials}</DescriptionListDescription>
+                  </DescriptionListGroup>
+                )}
               </DescriptionList>
             </CardBody>
           </Card>
@@ -123,7 +132,7 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onRefetch })
               <DescriptionList>
                 {listener?.metadata.creationTimestamp && (
                   <DescriptionListGroup>
-                    <DescriptionListTerm>created</DescriptionListTerm>
+                    <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
                     <DescriptionListDescription>
                       <Timestamp date={new Date(listener.metadata.creationTimestamp)} />
                     </DescriptionListDescription>
@@ -147,15 +156,17 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onRefetch })
         variant={ModalVariant.medium}
         aria-label="Form edit listener"
       >
-        <ListenerForm
-          onSubmit={handleRefresh}
-          onCancel={handleModalClose}
-          listenerName={listener?.metadata.name}
-          attributes={{
-            ...listener?.spec,
-            ...listener?.metadata
-          }}
-        />
+        {listener && (
+          <ListenerForm
+            onSubmit={handleModalSubmit}
+            onCancel={handleModalClose}
+            listenerName={listener?.metadata.name}
+            attributes={{
+              ...listener.spec,
+              ...listener.metadata
+            }}
+          />
+        )}
       </Modal>
     </>
   );

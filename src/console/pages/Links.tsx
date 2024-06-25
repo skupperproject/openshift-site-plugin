@@ -1,9 +1,6 @@
 import { FC, useState } from 'react';
 
 import {
-  Card,
-  CardHeader,
-  CardBody,
   Title,
   Button,
   Modal,
@@ -14,7 +11,12 @@ import {
   Alert,
   Icon,
   AlertActionCloseButton,
-  Timestamp
+  Timestamp,
+  Stack,
+  StackItem,
+  CardBody,
+  CardHeader,
+  Card
 } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon } from '@patternfly/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -22,7 +24,7 @@ import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
+import { CR_STATUS_OK, EMPTY_VALUE_SYMBOL, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import SkTable from '@core/components/SkTable';
 import { ClaimCrdResponse, GrantCrdResponse, ISO8601Timestamp, LinkCrdResponse } from '@interfaces/CRD.interfaces';
 import { Grant, Link } from '@interfaces/REST.interfaces';
@@ -41,24 +43,25 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   const { data: grants, refetch: refetchGrants } = useQuery({
     queryKey: ['get-grants-query'],
     queryFn: () => RESTApi.getGrants(),
-    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : 5000
+    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
   const { data: claims, refetch: refetchClaims } = useQuery({
     queryKey: ['get-claims-query'],
     queryFn: () => RESTApi.getClaims(),
-    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : 5000
+    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
   const { data: links, refetch: refetchLinks } = useQuery({
     queryKey: ['get-links-query'],
     queryFn: () => RESTApi.getLinks(),
-    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : 5000
+    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
   const { data: remoteLinks, refetch: refetchRemoteLinks } = useQuery({
     queryKey: ['get-remote-links-query'],
-    queryFn: () => RESTApi.getRemoteLinks()
+    queryFn: () => RESTApi.getRemoteLinks(),
+    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
   const mutationDeleteGrant = useMutation({
@@ -141,16 +144,16 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
       customCellName: 'status'
     },
     {
-      name: t('Claimed'),
-      prop: 'claimed'
+      name: t('Redemptions Allowed'),
+      prop: 'redemptionsAllowed'
     },
     {
-      name: t('Claims'),
-      prop: 'claims'
+      name: t('Redeemed'),
+      prop: 'redeemed'
     },
     {
       name: t('Expiration'),
-      prop: 'expiration',
+      prop: 'expirationWindow',
       customCellName: 'date'
     },
     {
@@ -197,15 +200,15 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
       <>
         {!data.status && (
           <span>
-            <Icon isInline>{<InProgressIcon />}</Icon> {t('in progress')}
+            <Icon isInline>{<InProgressIcon />}</Icon> {t('In progress')}
           </span>
         )}
         {data.status && (
           <span>
-            <Icon isInline status={data.status === 'Ok' ? 'success' : 'danger'}>
-              {data.status === 'Ok' ? <CheckCircleIcon /> : <ExclamationCircleIcon />}
+            <Icon isInline status={data.status === CR_STATUS_OK ? 'success' : 'danger'}>
+              {data.status === CR_STATUS_OK ? <CheckCircleIcon /> : <ExclamationCircleIcon />}
             </Icon>{' '}
-            {data.status}
+            {data.status === CR_STATUS_OK ? t('Configured') : data.status}
           </span>
         )}
       </>
@@ -223,13 +226,13 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
       <>
         {!data.status && (
           <span>
-            <Icon isInline>{<InProgressIcon />}</Icon> {t('in progress')}
+            <Icon isInline>{<InProgressIcon />}</Icon> {t('In progress')}
           </span>
         )}
         {data.status && (
           <span>
-            <Icon isInline status={data.status === 'Ok' ? 'success' : 'danger'}>
-              {data.status === 'Ok' ? <CheckCircleIcon /> : <ExclamationCircleIcon />}
+            <Icon isInline status={data.status === CR_STATUS_OK ? 'success' : 'danger'}>
+              {data.status === CR_STATUS_OK ? <CheckCircleIcon /> : <ExclamationCircleIcon />}
             </Icon>{' '}
             {data.status}
           </span>
@@ -240,7 +243,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
       const now = new Date();
       const ValidFor = new Date(value as ISO8601Timestamp);
 
-      return now > ValidFor ? t('expired') : data.status ? <Timestamp date={ValidFor} /> : '';
+      return now > ValidFor ? t('Expired') : data.status ? <Timestamp date={ValidFor} /> : '';
     },
     actions: ({ data }: SKComponentProps<Grant>) => (
       <>
@@ -249,8 +252,9 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
           variant="link"
           isDisabled={
             !data.status ||
-            new Date() > new Date(data.expiration as ISO8601Timestamp) ||
-            (data.claimed || 0) >= (data.claims || 0)
+            data.status !== CR_STATUS_OK ||
+            new Date() > new Date(data.expirationWindow as ISO8601Timestamp) ||
+            (data.redeemed || 0) >= (data.redemptionsAllowed || 0)
           }
         >
           {t('Download')}
@@ -263,66 +267,70 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   };
 
   return (
-    <>
-      <Card isPlain>
-        <CardHeader>
-          <Title headingLevel="h1">{t('Links')}</Title>
-        </CardHeader>
+    <Stack hasGutter>
+      <StackItem>
+        <Card isPlain>
+          <CardHeader>
+            <Title headingLevel="h1">{t('Links')}</Title>
+          </CardHeader>
 
-        <CardBody>
-          {showAlert && (
-            <Alert
-              hidden={true}
-              variant="info"
-              isInline
-              actionClose={<AlertActionCloseButton onClose={() => setShowAlert(false)} />}
-              title={t(
-                'Links enable communication between sites. Once sites are linked, they form a Skupper network. Click create token button to generate a downloadable token file for linking a remote site.'
-              )}
+          <CardBody>
+            {showAlert && (
+              <Alert
+                hidden={true}
+                variant="info"
+                isInline
+                actionClose={<AlertActionCloseButton onClose={() => setShowAlert(false)} />}
+                title={t(
+                  'Links enable communication between sites. Once sites are linked, they form a network. Click create token button to generate a downloadable token file for linking a remote site.'
+                )}
+              />
+            )}
+
+            <Toolbar>
+              <ToolbarContent className="pf-v5-u-pl-0">
+                <ToolbarItem>
+                  <Button onClick={() => setIsLinkModalOpen(true)}>{t('Create link')}</Button>
+                </ToolbarItem>
+                <ToolbarItem>
+                  <Button variant="secondary" onClick={() => setIsTokenModalOpen(true)}>
+                    {t('Create token')}
+                  </Button>
+                </ToolbarItem>
+              </ToolbarContent>
+            </Toolbar>
+
+            <SkTable
+              columns={localLinkColumns}
+              rows={[...convertAccessTokensToLinks(claims?.items || []), ...parseLinks(links?.items || [])]}
+              customCells={customLinkCells}
+              alwaysShowPagination={false}
+              isPlain
             />
-          )}
+          </CardBody>
+        </Card>
+      </StackItem>
 
-          <Toolbar>
-            <ToolbarContent className="pf-v5-u-pl-0">
-              <ToolbarItem>
-                <Button onClick={() => setIsLinkModalOpen(true)}>{t('Create link')}</Button>
-              </ToolbarItem>
-              <ToolbarItem>
-                <Button variant="secondary" onClick={() => setIsTokenModalOpen(true)}>
-                  {t('Create token')}
-                </Button>
-              </ToolbarItem>
-            </ToolbarContent>
-          </Toolbar>
+      <StackItem>
+        <Card isPlain>
+          <CardHeader>
+            <Title headingLevel="h1">{t('Links from remote sites')}</Title>
+          </CardHeader>
 
-          <SkTable
-            columns={localLinkColumns}
-            rows={[...convertClaimsToLinks(claims?.items || []), ...parseLinks(links?.items || [])]}
-            customCells={customLinkCells}
-            alwaysShowPagination={false}
-            isPlain
-          />
-        </CardBody>
-      </Card>
-
-      <Card isPlain>
-        <CardHeader>
-          <Title headingLevel="h1">{t('Links from remote sites')}</Title>
-        </CardHeader>
-
-        <CardBody>
-          <SkTable
-            columns={remoteLinkColumns}
-            rows={
-              remoteLinks?.map((link) => ({
-                connectedTo: extractSiteNameFromUrl(link.name, '', '-skupper-router')
-              })) || []
-            }
-            alwaysShowPagination={false}
-            isPlain
-          />
-        </CardBody>
-      </Card>
+          <CardBody>
+            <SkTable
+              columns={remoteLinkColumns}
+              rows={
+                remoteLinks?.map((link) => ({
+                  connectedTo: extractSiteNameFromUrl(link.name, '', '-skupper-router')
+                })) || []
+              }
+              alwaysShowPagination={false}
+              isPlain
+            />
+          </CardBody>
+        </Card>
+      </StackItem>
 
       <Card isPlain>
         <CardHeader>
@@ -346,7 +354,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
         variant={ModalVariant.large}
         aria-label="Form create link"
       >
-        <LinkForm onSubmit={handleRefreshLinks} onCancel={handleModalClose} siteId={siteId} />
+        <LinkForm onSubmit={handleRefreshLinks} onCancel={handleRefreshLinks} siteId={siteId} />
       </Modal>
 
       <Modal
@@ -357,7 +365,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
       >
         <GrantForm onSubmit={handleTokenModalClose} onCancel={handleTokenModalClose} />
       </Modal>
-    </>
+    </Stack>
   );
 };
 
@@ -368,9 +376,13 @@ function parseLinks(links: LinkCrdResponse[]): Link[] {
     const creationTimestamp = link.metadata?.creationTimestamp;
 
     // TODO: cost need to be enabled in Skupper v2
-    const cost = '-';
+    const cost = EMPTY_VALUE_SYMBOL;
     const status = link.status?.status;
-    const connectedTo = extractSiteNameFromUrl(link?.status?.url || '') || '-';
+    const connectedTo =
+      extractSiteNameFromUrl(
+        link?.spec.endpoints[0].host || '',
+        `${link?.spec.endpoints[0].group}-${link?.spec.endpoints[0].name}-`
+      ) || EMPTY_VALUE_SYMBOL;
 
     return {
       connectedTo,
@@ -383,17 +395,17 @@ function parseLinks(links: LinkCrdResponse[]): Link[] {
   });
 }
 
-function convertClaimsToLinks(claims: ClaimCrdResponse[]): Link[] {
-  const unclaimedClaims = claims.filter((claim) => !claim.status?.claimed);
+function convertAccessTokensToLinks(claims: ClaimCrdResponse[]): Link[] {
+  const unRedeemedClaims = claims.filter((claim) => !claim.status?.redeemed);
 
-  return unclaimedClaims.map((claim) => {
+  return unRedeemedClaims.map((claim) => {
     const id = claim.metadata?.uid;
     const name = claim.metadata?.name;
     const creationTimestamp = claim.metadata?.creationTimestamp;
 
     const status = claim.status?.status;
-    const cost = '-';
-    const connectedTo = '-';
+    const cost = EMPTY_VALUE_SYMBOL;
+    const connectedTo = EMPTY_VALUE_SYMBOL;
 
     return {
       connectedTo,
@@ -413,16 +425,16 @@ function parseGrants(grants: GrantCrdResponse[]): Grant[] {
     const creationTimestamp = grant.metadata?.creationTimestamp;
 
     // TODO: cost need to be enabled in Skupper v2
-    const claims = grant.spec?.claims || 0;
-    const claimed = grant.status?.claimed || 0;
+    const redemptionsAllowed = grant.spec?.redemptionsAllowed || 0;
+    const redeemed = grant.status?.redeemed || 0;
     const status = grant.status?.status;
-    const expiration = grant.status?.expiration;
+    const expirationWindow = grant.status?.expiration;
 
     return {
       data: grant,
-      claimed,
-      claims,
-      expiration,
+      redemptionsAllowed,
+      redeemed,
+      expirationWindow,
       status,
       creationTimestamp,
       name,
@@ -431,9 +443,22 @@ function parseGrants(grants: GrantCrdResponse[]): Grant[] {
   });
 }
 
-function extractSiteNameFromUrl(url?: string, prefix = 'skupper-router-inter-router-', suffix = '.') {
-  const regexPattern = new RegExp(`${prefix}([^.]+)${suffix}`);
-  const match = url?.match(regexPattern);
+function extractSiteNameFromUrl(url?: string, prefix?:string, suffix = '.') {
+  // Check if the input is an IP address
+  const ipPattern = new RegExp(/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/);
+  if (url && ipPattern.test(url)) {
+    // If it's an IP address, return it as is
+    return url;
+  }
+
+  // If it's not an IP address, apply the original regex pattern
+  let regexPattern = `(?:)?([^.-]+(?:\\.[^.-]+)?)${suffix}`;
+
+  if (prefix) {
+    regexPattern = `${prefix}([^.-]+(?:-[^.-]+)?)${suffix}`;
+  }
+
+  const match = url?.match(new RegExp(regexPattern));
 
   return match ? match[1] : null;
 }

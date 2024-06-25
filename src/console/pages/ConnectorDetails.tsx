@@ -33,10 +33,10 @@ import ConnectorForm from './components/ConnectorForm';
 
 interface ConnectorDetailsProps {
   name: string;
-  onRefetch?: () => void;
+  onUpdate?: () => void;
 }
 
-const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onRefetch }) {
+const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
@@ -56,13 +56,10 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onRefetch 
     setIsOpen(undefined);
   };
 
-  const handleRefresh = () => {
-    setTimeout(() => {
-      refetch();
-    }, 500);
-
+  const handleModalSubmit = () => {
     handleModalClose();
-    onRefetch?.();
+    refetch();
+    onUpdate?.();
   };
 
   useEffect(() => {
@@ -118,6 +115,23 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onRefetch 
                   <DescriptionListTerm>{t('Port')}</DescriptionListTerm>
                   <DescriptionListDescription>{connector?.spec.port}</DescriptionListDescription>
                 </DescriptionListGroup>
+
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Type')}</DescriptionListTerm>
+                  <DescriptionListDescription>{connector?.spec.type}</DescriptionListDescription>
+                </DescriptionListGroup>
+
+                {connector?.spec.tlsCredentials && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('TLS secret')}</DescriptionListTerm>
+                    <DescriptionListDescription>{connector?.spec.tlsCredentials}</DescriptionListDescription>
+                  </DescriptionListGroup>
+                )}
+
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Include not ready')}</DescriptionListTerm>
+                  <DescriptionListDescription>{`${connector?.spec.includeNotReady}`}</DescriptionListDescription>
+                </DescriptionListGroup>
               </DescriptionList>
             </CardBody>
           </Card>
@@ -132,7 +146,7 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onRefetch 
               <DescriptionList>
                 {connector?.metadata.creationTimestamp && (
                   <DescriptionListGroup>
-                    <DescriptionListTerm>created</DescriptionListTerm>
+                    <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
                     <DescriptionListDescription>
                       <Timestamp date={new Date(connector.metadata.creationTimestamp)} />
                     </DescriptionListDescription>
@@ -156,15 +170,17 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onRefetch 
         variant={ModalVariant.medium}
         aria-label="Form edit listener"
       >
-        <ConnectorForm
-          onSubmit={handleRefresh}
-          onCancel={handleModalClose}
-          connectorName={connector?.metadata.name}
-          attributes={{
-            ...connector?.spec,
-            ...connector?.metadata
-          }}
-        />
+        {connector && (
+          <ConnectorForm
+            onSubmit={handleModalSubmit}
+            onCancel={handleModalClose}
+            connectorName={connector?.metadata.name}
+            attributes={{
+              ...connector.spec,
+              ...connector.metadata
+            }}
+          />
+        )}
       </Modal>
     </>
   );

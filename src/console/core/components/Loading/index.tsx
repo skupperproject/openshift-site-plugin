@@ -1,6 +1,6 @@
 import { CSSProperties, FC } from 'react';
 
-import { Bullseye, Card, CardBody, CardHeader, PageSection, TextContent, Title } from '@patternfly/react-core';
+import { Bullseye, Card, CardBody, CardFooter, PageSection, TextContent, Title } from '@patternfly/react-core';
 import { CogIcon } from '@patternfly/react-icons';
 
 import './Loading.css';
@@ -8,18 +8,18 @@ import './Loading.css';
 const PleaseWait: FC<{ message: string; color?: string }> = function ({ message, color }) {
   return (
     <Card isPlain>
-      <CardHeader className="cog-wrapper">
+      <CardBody className="cog-wrapper">
         <CogIcon className="cog cog-main spinning-clockwise" style={{ color }} />
         <CogIcon className="cog cog-secondary cog-upper spinning-clockwise--reverse" style={{ color }} />
         <CogIcon className="cog cog-secondary cog-lower spinning-clockwise--reverse" style={{ color }} />
-      </CardHeader>
-      <CardBody>
-        <TextContent>
-          <Title headingLevel="h3" style={{ color }}>
+      </CardBody>
+      <CardFooter>
+        <TextContent className="cog-text">
+          <Title headingLevel="h4" style={{ color }}>
             {message}
           </Title>
         </TextContent>
-      </CardBody>
+      </CardFooter>
     </Card>
   );
 };

@@ -14,21 +14,27 @@ export interface SiteView {
   identity: string;
   name: string;
   linkAccess: string;
+  serviceAccount: string;
+  ha: boolean;
   routerVersion: string;
   controllerVersion: string;
   linkCount: number;
   creationTimestamp: number;
   resourceVersion: string;
+  isInitialized: boolean;
+  hasError: boolean;
+  isReady: boolean;
+  status?: string;
 }
 
 export interface Grant {
   id: string;
   name: string;
-  creationTimestamp: string;
+  creationTimestamp: ISO8601Timestamp;
   status?: string;
-  claims?: number;
-  claimed?: number;
-  expiration?: ISO8601Timestamp;
+  redemptionsAllowed?: number;
+  redeemed?: number;
+  expirationWindow?: string;
   data: GrantCrdResponse;
 }
 
@@ -48,6 +54,8 @@ export type Listener = {
   routingKey: string;
   serviceName: string;
   port: number;
+  type: string;
+  connected: boolean;
 };
 
 export type Connector = {
@@ -58,4 +66,6 @@ export type Connector = {
   host?: string;
   port: number;
   routingKey: string;
+  type: string;
+  connected: boolean;
 };

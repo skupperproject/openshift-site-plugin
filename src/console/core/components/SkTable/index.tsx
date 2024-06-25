@@ -148,7 +148,7 @@ const SkTable = function <T>({
         <CardHeader>
           <TextContent>
             <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-              <Title headingLevel="h3">{title}</Title>
+              <Title headingLevel="h1">{title}</Title>
               {!isPaginationEnabled && (
                 <Text>{`${paginationTotalRows || rows.length} ${rows.length === 1 ? 'item' : 'items'}`}</Text>
               )}
@@ -164,6 +164,7 @@ const SkTable = function <T>({
               <Tr>
                 {skColumns.map(({ name, prop, columnDescription, isStickyColumn, modifier }, index) => (
                   <Th
+                    aria-label={name || 'No value'}
                     colSpan={1}
                     key={name}
                     modifier={modifier}
