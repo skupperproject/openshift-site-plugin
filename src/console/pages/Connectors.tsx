@@ -187,6 +187,7 @@ const Connectors = function () {
           isOpen={areDetailsOpen}
           variant={ModalVariant.medium}
           aria-label="Form create connector"
+          showClose={false}
         >
           <ConnectorForm onSubmit={handleModalSubmit} onCancel={handleModalClose} />
         </Modal>

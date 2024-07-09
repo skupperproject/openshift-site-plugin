@@ -172,7 +172,7 @@ const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
         />
       </PageSection>
 
-      <Modal title={action} variant={ModalVariant.large} isOpen={isModalOpen} aria-label={`Form ${action}`}>
+      <Modal variant={ModalVariant.large} isOpen={isModalOpen} aria-label={`Form ${action}`} showClose={false}>
         {ActionFormMap[action]}
       </Modal>
     </>

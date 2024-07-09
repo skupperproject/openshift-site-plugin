@@ -169,6 +169,7 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
         isOpen={!!isOpen}
         variant={ModalVariant.medium}
         aria-label="Form edit listener"
+        showClose={false}
       >
         {connector && (
           <ConnectorForm
