@@ -8,7 +8,6 @@ import {
   Button,
   FormAlert,
   Alert,
-  Title,
   FormSelect,
   FormSelectOption,
   Checkbox
@@ -115,9 +114,7 @@ const ConnectorForm: FC<{
   const canSubmit = !!(name && routingKey && port && (host || selector)); //&& !validated;
 
   return (
-    <Form isHorizontal className="pf-v5-u-p-xl">
-      <Title headingLevel="h1">{t('Create a connector')}</Title>
-
+    <Form isHorizontal>
       <FormGroup fieldId="name-input" isRequired label={t('Name')} title="">
         <TextInput
           aria-label="form name input"

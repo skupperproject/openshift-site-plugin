@@ -225,7 +225,13 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
         </CardBody>
       </Card>
 
-      <Modal title={t('Edit site')} variant={ModalVariant.medium} isOpen={isModalOpen} aria-label="Form edit site">
+      <Modal
+        title={t('Edit site')}
+        variant={ModalVariant.medium}
+        isOpen={isModalOpen}
+        aria-label="Form edit site"
+        showClose={false}
+      >
         {site?.isInitialized && (
           <SiteForm
             show={visibleModalPros}

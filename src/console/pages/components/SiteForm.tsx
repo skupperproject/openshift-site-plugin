@@ -113,7 +113,7 @@ const SiteForm: FC<{
   };
 
   useEffect(() => {
-    if (isLoading && site?.identity && site.isInitialized && site.isReady) {
+    if (isLoading && site?.identity && site.isInitialized) {
       setIsLoading(false);
       onSubmit();
     }
@@ -121,7 +121,7 @@ const SiteForm: FC<{
 
   if (isLoading && site?.identity && !site.isInitialized) {
     return (
-      <Card className="pf-v5-u-p-xl">
+      <Card isPlain>
         <CardBody>
           <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
             <LoadingPage message={t('Please wait while the Site is being installed. This may take a few seconds...')} />
@@ -134,28 +134,10 @@ const SiteForm: FC<{
     );
   }
 
-  if (isLoading && site?.identity && !!site.isInitialized && !site.isReady) {
-    return (
-      <Card className="pf-v5-u-p-xl">
-        <CardBody>
-          <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
-            <LoadingPage
-              message={t('Network setup is currently in progress, please wait...')}
-              color="var(--pf-v5-global--primary-color--100)"
-            />
-          </PageSection>
-        </CardBody>
-        <Button variant="link" onClick={onSubmit} style={{ display: 'flex' }}>
-          {t('Dismiss')}
-        </Button>
-      </Card>
-    );
-  }
-
   const canSubmit = !!name; //&& !validated;
 
   return (
-    <Form isHorizontal className="pf-v5-u-p-xl">
+    <Form isHorizontal>
       {(show.name || show.ha) && (
         <FormGroup fieldId="name-input" isRequired label={t('Name')}>
           <TextInput

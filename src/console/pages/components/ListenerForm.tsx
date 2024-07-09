@@ -8,7 +8,6 @@ import {
   Button,
   FormAlert,
   Alert,
-  Title,
   FormSelect,
   FormSelectOption
 } from '@patternfly/react-core';
@@ -103,9 +102,7 @@ const ListenerForm: FC<{
   const canSubmit = !!(name && routingKey && port && host); //&& !validated;
 
   return (
-    <Form isHorizontal className="pf-v5-u-p-xl">
-      <Title headingLevel="h1">{t('Create a listener')}</Title>
-
+    <Form isHorizontal>
       <FormGroup fieldId="name-input" isRequired label={t('Name')} title="">
         <TextInput
           isDisabled={!!listenerName}

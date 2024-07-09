@@ -348,21 +348,11 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
         </CardBody>
       </Card>
 
-      <Modal
-        title={t('Create link')}
-        isOpen={isLinkModalOpen}
-        variant={ModalVariant.large}
-        aria-label="Form create link"
-      >
+      <Modal isOpen={isLinkModalOpen} variant={ModalVariant.large} aria-label="Form create link" showClose={false}>
         <LinkForm onSubmit={handleRefreshLinks} onCancel={handleRefreshLinks} siteId={siteId} />
       </Modal>
 
-      <Modal
-        title={t('Create token')}
-        isOpen={!!isTokenModalOpen}
-        variant={ModalVariant.large}
-        aria-label="Form create token"
-      >
+      <Modal isOpen={!!isTokenModalOpen} variant={ModalVariant.large} aria-label="Form create token" showClose={false}>
         <GrantForm onSubmit={handleTokenModalClose} onCancel={handleTokenModalClose} />
       </Modal>
     </Stack>

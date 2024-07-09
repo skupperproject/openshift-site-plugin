@@ -183,6 +183,7 @@ const Listeners = function () {
           isOpen={!!isOpen}
           variant={ModalVariant.medium}
           aria-label="Form create listener"
+          showClose={false}
         >
           <ListenerForm onSubmit={handleModalSubmit} onCancel={handleModalClose} />
         </Modal>

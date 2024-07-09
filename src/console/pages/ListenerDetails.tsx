@@ -155,6 +155,7 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
         isOpen={!!isOpen}
         variant={ModalVariant.medium}
         aria-label="Form edit listener"
+        showClose={false}
       >
         {listener && (
           <ListenerForm

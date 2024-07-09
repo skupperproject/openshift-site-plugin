@@ -54,7 +54,13 @@ const EmptySite: FC<InitProps> = function ({ onSubmit }) {
         </EmptyState>
       </Bullseye>
 
-      <Modal title={t('Create site')} variant={ModalVariant.medium} isOpen={isModalOpen} aria-label="Form create site">
+      <Modal
+        title={t('Create site')}
+        variant={ModalVariant.medium}
+        isOpen={isModalOpen}
+        aria-label="Form create site"
+        showClose={false}
+      >
         <SiteForm onSubmit={handleSubmit} onCancel={() => setIsModalOpen(false)} />
       </Modal>
     </>
