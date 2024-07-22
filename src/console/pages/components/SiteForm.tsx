@@ -1,4 +1,4 @@
-import { useState, FC, useEffect } from 'react';
+import { useState, FC, useEffect, useCallback } from 'react';
 
 import {
   Form,
@@ -17,7 +17,8 @@ import {
   Card,
   PageSection,
   PageSectionVariants,
-  CardBody
+  CardBody,
+  ExpandableSection
 } from '@patternfly/react-core';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -52,6 +53,8 @@ const SiteForm: FC<{
   show = { linkAccess: true, name: true, ha: true, serviceAccount: true }
 }) {
   const { t } = useTranslation(I18nNamespace);
+
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(properties?.name || '');
@@ -112,6 +115,10 @@ const SiteForm: FC<{
     mutationCreateOrUpdate.mutate(data);
   };
 
+  const handleToggle = useCallback(() => {
+    setIsExpanded(!isExpanded);
+  }, [isExpanded]);
+
   useEffect(() => {
     if (isLoading && site?.identity && site.isInitialized) {
       setIsLoading(false);
@@ -135,6 +142,38 @@ const SiteForm: FC<{
   }
 
   const canSubmit = !!name; //&& !validated;
+
+  const SecondaryOptions = function () {
+    return (
+      <>
+        {show.serviceAccount && (
+          <FormGroup
+            fieldId="service-account-input"
+            label={t('Service account')}
+            labelIcon={<TooltipInfoButton content={t('tooltipServiceAccount')} />}
+          >
+            <TextInput
+              aria-label="form service account input"
+              value={serviceAccount}
+              onChange={(_, value) => handleChangeServiceAccount(value)}
+            />
+          </FormGroup>
+        )}
+
+        {show.ha && (
+          <FormGroup fieldId="ha-checkbox">
+            <Checkbox
+              aria-label="form ha checkbox"
+              id="ha checkbox"
+              label={t('tooltipHighAvailability')}
+              onClick={() => handleChangeHa(!ha)}
+              isChecked={ha}
+            />
+          </FormGroup>
+        )}
+      </>
+    );
+  };
 
   return (
     <Form isHorizontal>
@@ -187,30 +226,16 @@ const SiteForm: FC<{
         </FormGroup>
       )}
 
-      {show.serviceAccount && (
-        <FormGroup
-          fieldId="service-account-input"
-          label={t('Service account')}
-          labelIcon={<TooltipInfoButton content={t('tooltipServiceAccount')} />}
-        >
-          <TextInput
-            aria-label="form service account input"
-            value={serviceAccount}
-            onChange={(_, value) => handleChangeServiceAccount(value)}
-          />
-        </FormGroup>
-      )}
+      {!(show.serviceAccount && show.ha) && <SecondaryOptions />}
 
-      {show.ha && (
-        <FormGroup fieldId="ha-checkbox">
-          <Checkbox
-            aria-label="form ha checkbox"
-            id="ha checkbox"
-            label={t('tooltipHighAvailability')}
-            onClick={() => handleChangeHa(!ha)}
-            isChecked={ha}
-          />
-        </FormGroup>
+      {show.serviceAccount && show.ha && (
+        <ExpandableSection
+          toggleText={isExpanded ? 'Show less' : 'Show more'}
+          onToggle={handleToggle}
+          isExpanded={isExpanded}
+        >
+          <SecondaryOptions />
+        </ExpandableSection>
       )}
 
       {validated && (
