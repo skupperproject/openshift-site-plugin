@@ -67,7 +67,7 @@ const SiteForm: FC<{
     queryFn: () => RESTApi.findSiteView(),
     enabled: isLoading,
     refetchInterval(data) {
-      return isLoading && data?.isReady ? 0 : REFETCH_QUERY_INTERVAL;
+      return isLoading && data?.isInitialized ? 0 : REFETCH_QUERY_INTERVAL;
     }
   });
 

@@ -282,7 +282,7 @@ function convertSiteCRsToSite(
     routerVersion: router?.buildVersion || '',
     isInitialized: !!siteConfig.status?.active,
     isReady: !!siteConfig.status?.sitesInNetwork,
-    hasError: !!siteConfig?.status && siteConfig?.status?.status !== (CR_STATUS_OK && 'OK'),
+    hasError: !!siteConfig?.status && siteConfig?.status?.status !== CR_STATUS_OK,
     status: siteConfig.status?.status
   };
 }
