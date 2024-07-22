@@ -124,7 +124,7 @@ const SiteForm: FC<{
       setIsLoading(false);
       onSubmit();
     }
-  }, [onSubmit, site?.identity, site?.isInitialized, site?.isReady, isLoading]);
+  }, [onSubmit, site?.identity, site?.isInitialized, isLoading]);
 
   if (isLoading && site?.identity && !site.isInitialized) {
     return (

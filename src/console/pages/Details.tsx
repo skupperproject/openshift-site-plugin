@@ -179,11 +179,12 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
         </CardHeader>
 
         <CardBody>
-          <DescriptionList
-            columnModifier={{
-              default: '2Col'
-            }}
-          >
+          <DescriptionList>
+            <DescriptionListGroup>
+              <DescriptionListTerm>{t('Sites in the network')}</DescriptionListTerm>
+              {t('sitesInNetwork', { count: site?.sitesInNetwork })}
+            </DescriptionListGroup>
+
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Linked sites')}</DescriptionListTerm>
               <DescriptionListDescription>
@@ -208,11 +209,6 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
               <DescriptionListDescription>
                 {`${site?.controllerVersion}` || EMPTY_VALUE_SYMBOL}
               </DescriptionListDescription>
-            </DescriptionListGroup>
-
-            <DescriptionListGroup>
-              <DescriptionListTerm>{t('Router version')}</DescriptionListTerm>
-              <DescriptionListDescription>{`${site?.routerVersion}` || EMPTY_VALUE_SYMBOL}</DescriptionListDescription>
             </DescriptionListGroup>
 
             <DescriptionListGroup>
