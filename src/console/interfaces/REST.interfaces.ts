@@ -16,15 +16,15 @@ export interface SiteView {
   linkAccess: string;
   serviceAccount: string;
   ha: boolean;
-  routerVersion: string;
   controllerVersion: string;
   linkCount: number;
   creationTimestamp: number;
-  resourceVersion: string;
   isInitialized: boolean;
   hasError: boolean;
   isReady: boolean;
   status?: string;
+  resourceVersion: string;
+  sitesInNetwork: number;
 }
 
 export interface Grant {

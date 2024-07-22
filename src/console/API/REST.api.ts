@@ -91,22 +91,19 @@ export const RESTApi = {
   },
 
   findSiteView: async (): Promise<SiteView | null> => {
-    const [sites, networkStatusConfigMap] = await Promise.all([
-      RESTApi.getSites(),
-      RESTApi.findNetworkStatusConfigMap()
-    ]);
+    const sites = await RESTApi.getSites();
 
-    if (!sites.items.length && !networkStatusConfigMap) {
+    if (!sites.items.length) {
       return null;
     }
 
-    return convertSiteCRsToSite(networkStatusConfigMap, sites.items[0]);
+    return convertSiteCRsToSite(sites.items[0]);
   },
 
   getSites: async (): Promise<ListCrdResponse<SiteCrdResponse>> =>
     axiosFetch<ListCrdResponse<SiteCrdResponse>>(sitesPath()),
 
-  findSite: async (name: string): Promise<SiteCrdResponse> => axiosFetch<SiteCrdResponse>(sitePath(name)),
+  //findSite: async (name: string): Promise<SiteCrdResponse> => axiosFetch<SiteCrdResponse>(sitePath(name)),
 
   createOrUpdateSite: async (data: SiteCrdParams, name?: string): Promise<SiteCrdResponse> => {
     const path = name ? `${sitePath(name)}` : sitesPath();
@@ -258,32 +255,22 @@ export const RESTApi = {
 };
 
 // utils
-function convertSiteCRsToSite(
-  networkStatusConfig: K8sResourceNetworkStatusConfigMap | null,
-  siteConfig: SiteCrdResponse
-): SiteView {
-  const networkStatus = networkStatusConfig?.data?.NetworkStatus
-    ? (JSON.parse(networkStatusConfig.data.NetworkStatus) as K8sResourceNetworkStatusData)
-    : null;
-
-  const siteStatus = networkStatus?.siteStatus?.find((obj) => obj.site.nameSpace === getSkupperNamespace());
-  const router = siteStatus?.routerStatus?.find((obj) => obj.router.namespace === getSkupperNamespace())?.router;
-
+function convertSiteCRsToSite(siteConfig: SiteCrdResponse): SiteView {
   return {
     identity: siteConfig.metadata.uid,
     name: siteConfig.metadata.name,
     linkAccess: siteConfig.spec?.linkAccess || '',
     serviceAccount: siteConfig.spec?.serviceAccount || '',
     ha: siteConfig.spec?.ha || false,
-    controllerVersion: siteConfig.status?.network ? siteConfig.status?.network[0].version : '',
     resourceVersion: siteConfig.metadata.resourceVersion,
     creationTimestamp: new Date(siteConfig.metadata.creationTimestamp).getTime() || 0,
     linkCount: siteConfig.status?.network?.filter(({ id }) => id !== siteConfig.metadata.uid).length || 0,
-    routerVersion: router?.buildVersion || '',
     isInitialized: !!siteConfig.status?.active,
     isReady: !!siteConfig.status?.sitesInNetwork,
-    hasError: !!siteConfig?.status && siteConfig?.status?.status !== (CR_STATUS_OK && 'OK'),
-    status: siteConfig.status?.status
+    hasError: !!siteConfig?.status && siteConfig?.status?.status !== CR_STATUS_OK,
+    status: siteConfig.status?.status,
+    controllerVersion: siteConfig.status?.network ? siteConfig.status?.network[0].version : '',
+    sitesInNetwork: siteConfig.status?.sitesInNetwork || 0
   };
 }
 
