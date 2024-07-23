@@ -55,7 +55,7 @@ export type Listener = {
   serviceName: string;
   port: number;
   type: string;
-  connected: boolean;
+  connected: number;
 };
 
 export type Connector = {
@@ -67,5 +67,5 @@ export type Connector = {
   port: number;
   routingKey: string;
   type: string;
-  connected: boolean;
+  connected: number;
 };

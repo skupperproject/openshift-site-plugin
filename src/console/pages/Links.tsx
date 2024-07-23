@@ -270,10 +270,6 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     <Stack hasGutter>
       <StackItem>
         <Card isPlain>
-          <CardHeader>
-            <Title headingLevel="h1">{t('Links')}</Title>
-          </CardHeader>
-
           <CardBody>
             {showAlert && (
               <Alert
@@ -348,11 +344,23 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
         </CardBody>
       </Card>
 
-      <Modal isOpen={isLinkModalOpen} variant={ModalVariant.large} aria-label="Form create link" showClose={false}>
+      <Modal
+        hasNoBodyWrapper
+        isOpen={isLinkModalOpen}
+        variant={ModalVariant.large}
+        aria-label="Form create link"
+        showClose={false}
+      >
         <LinkForm onSubmit={handleRefreshLinks} onCancel={handleRefreshLinks} siteId={siteId} />
       </Modal>
 
-      <Modal isOpen={!!isTokenModalOpen} variant={ModalVariant.large} aria-label="Form create token" showClose={false}>
+      <Modal
+        hasNoBodyWrapper
+        isOpen={!!isTokenModalOpen}
+        variant={ModalVariant.large}
+        aria-label="Form create token"
+        showClose={false}
+      >
         <GrantForm onSubmit={handleTokenModalClose} onCancel={handleTokenModalClose} />
       </Modal>
     </Stack>
