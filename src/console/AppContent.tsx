@@ -21,7 +21,7 @@ const AppContent = function () {
     enabled: skupperInitStatus !== -3 // this state indicates an old version of skupper
   });
 
-  const siteId = site?.identity; //site created but maybe not ready
+  const siteId = site?.identity;
 
   useEffect(() => {
     if (siteId) {
@@ -30,8 +30,6 @@ const AppContent = function () {
   }, [siteId, site?.name, site?.resourceVersion]);
 
   if (skupperInitStatus === -3) {
-    deleteSiteInfo();
-
     return <ErrorOldSkupperVersion />;
   }
 
@@ -41,14 +39,7 @@ const AppContent = function () {
     return <EmptySite onSubmit={refetchSite} />;
   }
 
-  return (
-    <SiteContainer
-      siteId={siteId}
-      isSiteActive={site.isInitialized}
-      isSiteRunning={site.isReady}
-      onDataUpdated={refetchSite}
-    />
-  );
+  return <SiteContainer siteId={siteId} isSiteActive={site.isInitialized} onDataUpdated={refetchSite} />;
 };
 
 export default AppContent;

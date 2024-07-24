@@ -47,7 +47,6 @@ export interface SiteCrdResponse extends SiteCrdBase {
     network?: {
       id: string;
       name: string;
-      namespace: string;
       platform: string;
       version: string;
       links?: string[];

@@ -30,7 +30,6 @@ import {
   I18nNamespace,
   REFETCH_QUERY_INTERVAL
 } from '@config/config';
-import { createSiteInfo } from '@config/db';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 
 import DeleteSiteButton from './components/DeleteSiteButton';
@@ -46,7 +45,7 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
   const [visibleModalPros, setVisibleModalProps] = useState<Record<string, boolean>>({});
 
   const { data: site, refetch } = useQuery({
-    queryKey: ['find-site-query'],
+    queryKey: ['find-site-query-details'],
     queryFn: () => RESTApi.findSiteView(),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
@@ -67,9 +66,6 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
 
   useEffect(() => {
     if (site?.name && site?.resourceVersion) {
-      createSiteInfo({ name: site.name, resourceVersion: site.resourceVersion });
-    }
-    if (site?.isInitialized) {
       onDataUpdated();
     }
   }, [site?.isInitialized, site?.name, site?.resourceVersion, onDataUpdated]);
