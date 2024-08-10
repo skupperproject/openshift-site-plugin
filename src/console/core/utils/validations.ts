@@ -29,7 +29,6 @@ export function validateRFC1123SubdomainWithIP(text = '') {
   return null;
 }
 
-
 export function validatePort(port: number | string) {
   const validPort = Number(port);
 

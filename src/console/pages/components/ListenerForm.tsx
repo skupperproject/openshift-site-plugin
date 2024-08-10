@@ -18,11 +18,11 @@ import { RESTApi } from '@API/REST.api';
 import { I18nNamespace, protocolOptions } from '@config/config';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import { createListenerRequest } from '@core/utils/createCRD';
-import { ListenerCrdParams, ListenerCrdSpec } from '@interfaces/CRD.interfaces';
+import { ListenerCrdParams, ListenerSpec } from '@interfaces/CRD_Listener';
 import { HTTPError } from '@interfaces/REST.interfaces';
 import useValidatedInput from 'console/hooks/useValidation';
 
-interface ListenerCrdAttributes extends ListenerCrdSpec {
+interface ListenerCrdAttributes extends ListenerSpec {
   name?: string;
   resourceVersion?: string;
 }

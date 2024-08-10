@@ -19,11 +19,11 @@ import { RESTApi } from '@API/REST.api';
 import { I18nNamespace, protocolOptions } from '@config/config';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import { createConnectorRequest } from '@core/utils/createCRD';
-import { ConnectorCrdParams, ConnectorCrdSpec } from '@interfaces/CRD.interfaces';
+import { ConnectorCrdParams, ConnectorParams, ConnectorSpec } from '@interfaces/CRD_Connector';
 import { HTTPError } from '@interfaces/REST.interfaces';
 import useValidatedInput from 'console/hooks/useValidation';
 
-interface ConnectorCrdAttributes extends ConnectorCrdSpec {
+interface ConnectorCrdAttributes extends ConnectorSpec {
   name?: string;
   resourceVersion?: string;
 }
@@ -48,7 +48,7 @@ const ConnectorForm: FC<{
   const { validated, validateInput } = useValidatedInput();
 
   const mutationCreate = useMutation({
-    mutationFn: (data: ConnectorCrdParams) => RESTApi.createOrUpdateConnector(data, connectorName),
+    mutationFn: (data: ConnectorParams) => RESTApi.createOrUpdateConnector(data, connectorName),
     onError: (data: HTTPError) => {
       validateInput(data.descriptionMessage);
     },
@@ -62,7 +62,7 @@ const ConnectorForm: FC<{
     const data: ConnectorCrdParams = createConnectorRequest({
       metadata: {
         name,
-        resourceVersion: attributes?.resourceVersion || ''
+        resourceVersion: attributes?.resourceVersion
       },
       spec: {
         routingKey,

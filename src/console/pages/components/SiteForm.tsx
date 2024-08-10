@@ -29,7 +29,7 @@ import { getSiteInfo } from '@config/db';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import LoadingPage from '@core/components/Loading';
 import { createSiteData } from '@core/utils/createCRD';
-import { K8sResourceConfigMapData, SiteCrdParams } from '@interfaces/CRD.interfaces';
+import { SiteCrdParams, SiteSpec } from '@interfaces/CRD_Site';
 import { HTTPError } from '@interfaces/REST.interfaces';
 import useValidatedInput from 'console/hooks/useValidation';
 
@@ -42,7 +42,7 @@ const options = [
 const SiteForm: FC<{
   onSubmit: () => void;
   onCancel: () => void;
-  properties?: K8sResourceConfigMapData;
+  properties?: SiteSpec;
   siteName?: string;
   show?: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: string };
 }> = function ({
@@ -70,7 +70,7 @@ const SiteForm: FC<{
     queryFn: () => RESTApi.findSiteView(),
     enabled: isLoading,
     refetchInterval(data) {
-      return isLoading && data?.isInitialized ? 0 : REFETCH_QUERY_INTERVAL;
+      return isLoading && data?.isConfigured ? 0 : REFETCH_QUERY_INTERVAL;
     }
   });
 
@@ -120,13 +120,13 @@ const SiteForm: FC<{
   }, [isExpanded]);
 
   useEffect(() => {
-    if (isLoading && site?.identity && site.isInitialized) {
+    if (isLoading && site?.identity && site.isConfigured) {
       setIsLoading(false);
       onSubmit();
     }
-  }, [onSubmit, site?.identity, site?.isInitialized, isLoading]);
+  }, [onSubmit, site?.identity, site?.isConfigured, isLoading]);
 
-  if (isLoading && site?.identity && !site.isInitialized) {
+  if (isLoading && site?.identity && !site.isConfigured) {
     return (
       <Card isPlain>
         <CardBody>

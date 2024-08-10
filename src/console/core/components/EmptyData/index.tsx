@@ -1,8 +1,9 @@
 import { ComponentType, FC } from 'react';
 
 import { Bullseye, EmptyState, EmptyStateBody, EmptyStateIcon, EmptyStateVariant, Title } from '@patternfly/react-core';
+import { useTranslation } from 'react-i18next';
 
-import { EmptyDataLabels } from './EmptyData.enum';
+import { I18nNamespace } from '@config/config';
 
 interface EmptyDataProps {
   message?: string;
@@ -10,13 +11,15 @@ interface EmptyDataProps {
   icon?: ComponentType;
 }
 
-const EmptyData: FC<EmptyDataProps> = function ({ message = EmptyDataLabels.Default, description, icon }) {
+const EmptyData: FC<EmptyDataProps> = function ({ message, description, icon }) {
+  const { t } = useTranslation(I18nNamespace);
+
   return (
     <Bullseye>
       <EmptyState variant={EmptyStateVariant.lg} isFullHeight>
         {icon && <EmptyStateIcon icon={icon} />}
         <Title headingLevel="h2" size="lg">
-          {message}
+          {message || t('Data not found')}
         </Title>
         {description && <EmptyStateBody>{description}</EmptyStateBody>}
       </EmptyState>

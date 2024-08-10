@@ -27,6 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import SkTable from '@core/components/SkTable';
+import StatusCell from '@core/components/StatusCell';
 import { Connector } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
@@ -102,6 +103,11 @@ const Connectors = function () {
       prop: 'type'
     },
     {
+      name: t('Status'),
+      prop: 'status',
+      customCellName: 'StatusCell'
+    },
+    {
       name: t('Connected'),
       prop: 'connected',
       customCellName: 'connectedCell'
@@ -119,6 +125,8 @@ const Connectors = function () {
         {data.name}
       </Button>
     ),
+
+    StatusCell,
 
     connectedCell: ({ value }: SKComponentProps<Connector>) => (
       <Icon isInline status={value ? 'success' : 'danger'}>

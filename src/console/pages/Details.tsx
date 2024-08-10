@@ -68,7 +68,7 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
     if (site?.name && site?.resourceVersion) {
       onDataUpdated();
     }
-  }, [site?.isInitialized, site?.name, site?.resourceVersion, onDataUpdated]);
+  }, [site?.isConfigured, site?.name, site?.resourceVersion, onDataUpdated]);
 
   return (
     <>
@@ -80,30 +80,27 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
                 <FlexItem>
                   <Title headingLevel="h1">{t('Site settings')}</Title>
                 </FlexItem>
-                {!site?.hasError && !site?.isInitialized && (
+                {!site?.status && (
                   <Label>
                     <Icon isInline>{<InProgressIcon />}</Icon> {t('In progress')}
                   </Label>
                 )}
-                {!site?.hasError && !!site?.isInitialized && !site?.isReady && (
+                {!!site?.status && (
                   <Label>
-                    <Icon isInline status="success">
-                      {<CheckCircleIcon />}
-                    </Icon>{' '}
-                    {t('Active')}
-                  </Label>
-                )}
-                {!site?.hasError && !!site?.isInitialized && !!site?.isReady && (
-                  <Label>
-                    <Icon isInline>{<SyncAltIcon />}</Icon> {t('Running')}
-                  </Label>
-                )}
-                {!!site?.hasError && (
-                  <Label>
-                    <Icon isInline status="danger">
-                      <ExclamationCircleIcon />
-                    </Icon>{' '}
-                    {site?.status}
+                    {!!site?.hasError && (
+                      <Icon isInline status="danger">
+                        <ExclamationCircleIcon />
+                      </Icon>
+                    )}
+                    {!site?.hasError && !!site?.isConfigured && !site?.isReady && (
+                      <Icon isInline status="success">
+                        {<CheckCircleIcon />}
+                      </Icon>
+                    )}
+                    {!site?.hasError && !!site?.isConfigured && !!site?.isReady && (
+                      <Icon isInline>{<SyncAltIcon />}</Icon>
+                    )}
+                    {'  '} {site?.status}
                   </Label>
                 )}
               </Flex>
@@ -201,16 +198,14 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
         <CardBody>
           <DescriptionList>
             <DescriptionListGroup>
-              <DescriptionListTerm>{t('Controller version')}</DescriptionListTerm>
-              <DescriptionListDescription>
-                {`${site?.controllerVersion}` || EMPTY_VALUE_SYMBOL}
-              </DescriptionListDescription>
+              <DescriptionListTerm>{t('Platform')}</DescriptionListTerm>
+              <DescriptionListDescription>{`${site?.platform}` || EMPTY_VALUE_SYMBOL}</DescriptionListDescription>
             </DescriptionListGroup>
 
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
               <DescriptionListDescription>
-                {site?.isInitialized ? <Timestamp date={new Date(site.creationTimestamp)} /> : EMPTY_VALUE_SYMBOL}
+                {site?.isConfigured ? <Timestamp date={new Date(site.creationTimestamp)} /> : EMPTY_VALUE_SYMBOL}
               </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>
@@ -224,7 +219,7 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
         aria-label="Form edit site"
         showClose={false}
       >
-        {site?.isInitialized && (
+        {site?.isConfigured && (
           <SiteForm
             show={visibleModalPros}
             onSubmit={handleSubmit}

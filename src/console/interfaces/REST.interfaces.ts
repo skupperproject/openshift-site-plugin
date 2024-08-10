@@ -1,8 +1,10 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 
-import { GrantCrdResponse, ISO8601Timestamp } from './CRD.interfaces';
+import { AccessGrantCrdResponse } from './CRD_AccessGrant';
+import { ISO8601Timestamp } from './CRD_Base';
 
 export type FetchWithOptions = AxiosRequestConfig;
+export type StatusAlert = 'danger' | 'success' | 'warning' | 'custom' | 'info' | undefined;
 
 export interface HTTPError extends AxiosError {
   message: string;
@@ -10,62 +12,57 @@ export interface HTTPError extends AxiosError {
   descriptionMessage?: string;
 }
 
-export interface SiteView {
-  identity: string;
+export interface BaseView {
   name: string;
+  creationTimestamp: ISO8601Timestamp;
+  hasError: boolean;
+  status?: string;
+  statusAlert?: StatusAlert;
+}
+
+export interface SiteView extends BaseView {
+  identity: string;
   linkAccess: string;
   serviceAccount: string;
   ha: boolean;
-  controllerVersion: string;
+  platform: string;
   linkCount: number;
-  creationTimestamp: number;
-  isInitialized: boolean;
-  hasError: boolean;
+  isConfigured: boolean;
   isReady: boolean;
-  status?: string;
   resourceVersion: string;
   sitesInNetwork: number;
 }
 
-export interface Grant {
+export interface AccessGrant extends BaseView {
   id: string;
-  name: string;
-  creationTimestamp: ISO8601Timestamp;
-  status?: string;
   redemptionsAllowed?: number;
   redeemed?: number;
   expirationWindow?: string;
-  data: GrantCrdResponse;
+  data: AccessGrantCrdResponse;
 }
 
-export interface Link {
+export interface Link extends BaseView {
   id: string;
-  name: string;
-  creationTimestamp: string;
-  status?: string;
-  cost: string;
+  cost: number | string;
   connectedTo: string;
 }
 
-export type Listener = {
+export interface Listener extends BaseView {
   id: string;
-  name: string;
-  creationTimestamp: string;
+
   routingKey: string;
   serviceName: string;
   port: number;
   type: string;
   connected: number;
-};
+}
 
-export type Connector = {
+export interface Connector extends BaseView {
   id: string;
-  name: string;
-  creationTimestamp: string;
   selector?: string;
   host?: string;
   port: number;
   routingKey: string;
   type: string;
   connected: number;
-};
+}

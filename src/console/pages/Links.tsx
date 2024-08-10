@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 
 import {
   Title,
@@ -9,7 +9,6 @@ import {
   ToolbarContent,
   ToolbarItem,
   Alert,
-  Icon,
   AlertActionCloseButton,
   Timestamp,
   Stack,
@@ -18,16 +17,18 @@ import {
   CardHeader,
   Card
 } from '@patternfly/react-core';
-import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon } from '@patternfly/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
-import { RESTApi } from '@API/REST.api';
-import { CR_STATUS_OK, EMPTY_VALUE_SYMBOL, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { convertAccessTokensToLinks, hasType, RESTApi } from '@API/REST.api';
+import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import SkTable from '@core/components/SkTable';
-import { ClaimCrdResponse, GrantCrdResponse, ISO8601Timestamp, LinkCrdResponse } from '@interfaces/CRD.interfaces';
-import { Grant, Link } from '@interfaces/REST.interfaces';
+import StatusCell from '@core/components/StatusCell';
+import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
+import { AccessTokenCrdResponse } from '@interfaces/CRD_AccessToken';
+import { ISO8601Timestamp } from '@interfaces/CRD_Base';
+import { AccessGrant, Link } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
 import GrantForm from './components/GrantForm';
@@ -40,35 +41,35 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   const [isTokenModalOpen, setIsTokenModalOpen] = useState<boolean | undefined>();
   const [showAlert, setShowAlert] = useState<boolean>(true);
 
-  const { data: grants, refetch: refetchGrants } = useQuery({
+  const { data: accessGrants, refetch: refetchAccessGrants } = useQuery({
     queryKey: ['get-grants-query'],
-    queryFn: () => RESTApi.getGrants(),
+    queryFn: () => RESTApi.getAccessGrantsView(),
     refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
-  const { data: claims, refetch: refetchClaims } = useQuery({
+  const { data: accessTokens, refetch: refetchAccessTokens } = useQuery({
     queryKey: ['get-claims-query'],
-    queryFn: () => RESTApi.getClaims(),
+    queryFn: () => RESTApi.getAccessToken(),
     refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
   const { data: links, refetch: refetchLinks } = useQuery({
     queryKey: ['get-links-query'],
-    queryFn: () => RESTApi.getLinks(),
+    queryFn: () => RESTApi.getLinksView(),
     refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
   const { data: remoteLinks, refetch: refetchRemoteLinks } = useQuery({
     queryKey: ['get-remote-links-query'],
-    queryFn: () => RESTApi.getRemoteLinks(),
+    queryFn: () => RESTApi.getRemoteLinks(siteId),
     refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
-  const mutationDeleteGrant = useMutation({
+  const mutationDeleteAccessGrant = useMutation({
     mutationFn: (name: string) => RESTApi.deleteGrant(name),
     onSuccess: () => {
       setTimeout(() => {
-        refetchGrants();
+        refetchAccessGrants();
       }, 500);
     }
   });
@@ -77,23 +78,23 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     mutationFn: (name: string) => RESTApi.deleteLink(name),
     onSuccess: () => {
       setTimeout(() => {
-        refetchClaims();
+        refetchAccessTokens();
         refetchLinks();
         refetchRemoteLinks();
       }, 500);
     }
   });
 
-  const mutationDeleteClaim = useMutation({
-    mutationFn: (name: string) => RESTApi.deleteClaim(name)
+  const mutationDeleteAccessToken = useMutation({
+    mutationFn: (name: string) => RESTApi.deleteAccessToken(name)
   });
 
   function handleDeleteLink(name: string) {
-    mutationDeleteClaim.mutate(name);
+    mutationDeleteAccessToken.mutate(name);
     mutationDeleteLink.mutate(name);
   }
 
-  const handleDownload = (grant: GrantCrdResponse) => {
+  const handleDownload = (grant: AccessGrantCrdResponse) => {
     if (grant?.status) {
       const blob = new Blob([stringify(grant)], { type: 'application/json' });
 
@@ -107,13 +108,16 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     }
   };
 
-  function handleDeleteGrant(name: string) {
-    mutationDeleteGrant.mutate(name);
-  }
+  const handleDeleteGrant = useCallback(
+    (name: string) => {
+      mutationDeleteAccessGrant.mutate(name);
+    },
+    [mutationDeleteAccessGrant]
+  );
 
   const handleRefreshLinks = () => {
     setTimeout(() => {
-      refetchClaims();
+      refetchAccessTokens();
       refetchLinks();
       refetchRemoteLinks();
     }, 1000);
@@ -127,13 +131,13 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
 
   const handleTokenModalClose = () => {
     setTimeout(() => {
-      refetchGrants();
+      refetchAccessGrants();
     }, 1000);
 
     setIsTokenModalOpen(false);
   };
 
-  const grantColumns: SKColumn<Grant>[] = [
+  const accessGrantColumns: SKColumn<AccessGrant>[] = [
     {
       name: t('Name'),
       prop: 'name'
@@ -141,7 +145,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     {
       name: t('Status'),
       prop: 'status',
-      customCellName: 'status'
+      customCellName: 'StatusCell'
     },
     {
       name: t('Redemptions Allowed'),
@@ -163,7 +167,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     }
   ];
 
-  const localLinkColumns: SKColumn<Link>[] = [
+  const LinkColumns: SKColumn<Link>[] = [
     {
       name: t('Name'),
       prop: 'name'
@@ -171,7 +175,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     {
       name: t('Status'),
       prop: 'status',
-      customCellName: 'status'
+      customCellName: 'StatusCell'
     },
     {
       name: t('Linked to'),
@@ -196,23 +200,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   ];
 
   const customLinkCells = {
-    status: ({ data }: SKComponentProps<Link>) => (
-      <>
-        {!data.status && (
-          <span>
-            <Icon isInline>{<InProgressIcon />}</Icon> {t('In progress')}
-          </span>
-        )}
-        {data.status && (
-          <span>
-            <Icon isInline status={data.status === CR_STATUS_OK ? 'success' : 'danger'}>
-              {data.status === CR_STATUS_OK ? <CheckCircleIcon /> : <ExclamationCircleIcon />}
-            </Icon>{' '}
-            {data.status === CR_STATUS_OK ? t('Configured') : data.status}
-          </span>
-        )}
-      </>
-    ),
+    StatusCell,
 
     actions: ({ data }: SKComponentProps<Link>) => (
       <Button onClick={() => handleDeleteLink(data.name)} variant="link">
@@ -221,38 +209,23 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     )
   };
 
-  const customGrantCells = {
-    status: ({ data }: SKComponentProps<Grant>) => (
-      <>
-        {!data.status && (
-          <span>
-            <Icon isInline>{<InProgressIcon />}</Icon> {t('In progress')}
-          </span>
-        )}
-        {data.status && (
-          <span>
-            <Icon isInline status={data.status === CR_STATUS_OK ? 'success' : 'danger'}>
-              {data.status === CR_STATUS_OK ? <CheckCircleIcon /> : <ExclamationCircleIcon />}
-            </Icon>{' '}
-            {data.status}
-          </span>
-        )}
-      </>
-    ),
-    date: ({ value, data }: SKComponentProps<Grant>) => {
+  const customAccessGrantCells = {
+    StatusCell,
+
+    date: ({ value, data }: SKComponentProps<AccessGrant>) => {
       const now = new Date();
       const ValidFor = new Date(value as ISO8601Timestamp);
 
       return now > ValidFor ? t('Expired') : data.status ? <Timestamp date={ValidFor} /> : '';
     },
-    actions: ({ data }: SKComponentProps<Grant>) => (
+    actions: ({ data }: SKComponentProps<AccessGrant>) => (
       <>
         <Button
           onClick={() => handleDownload(data.data)}
           variant="link"
           isDisabled={
             !data.status ||
-            data.status !== CR_STATUS_OK ||
+            data.hasError ||
             new Date() > new Date(data.expirationWindow as ISO8601Timestamp) ||
             (data.redeemed || 0) >= (data.redemptionsAllowed || 0)
           }
@@ -297,8 +270,8 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
             </Toolbar>
 
             <SkTable
-              columns={localLinkColumns}
-              rows={[...convertAccessTokensToLinks(claims?.items || []), ...parseLinks(links?.items || [])]}
+              columns={LinkColumns}
+              rows={[...convertUnredeemedAccessTokensToLinks(accessTokens?.items || []), ...(links || [])]}
               customCells={customLinkCells}
               alwaysShowPagination={false}
               isPlain
@@ -307,26 +280,28 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
         </Card>
       </StackItem>
 
-      <StackItem>
-        <Card isPlain>
-          <CardHeader>
-            <Title headingLevel="h1">{t('Links from remote sites')}</Title>
-          </CardHeader>
+      {!!remoteLinks?.length && (
+        <StackItem>
+          <Card isPlain>
+            <CardHeader>
+              <Title headingLevel="h1">{t('Links from remote sites')}</Title>
+            </CardHeader>
 
-          <CardBody>
-            <SkTable
-              columns={remoteLinkColumns}
-              rows={
-                remoteLinks?.map((link) => ({
-                  connectedTo: extractSiteNameFromUrl(link.name, '', '-skupper-router')
-                })) || []
-              }
-              alwaysShowPagination={false}
-              isPlain
-            />
-          </CardBody>
-        </Card>
-      </StackItem>
+            <CardBody>
+              <SkTable
+                columns={remoteLinkColumns}
+                rows={
+                  remoteLinks?.map((name) => ({
+                    connectedTo: name
+                  })) || []
+                }
+                alwaysShowPagination={false}
+                isPlain
+              />
+            </CardBody>
+          </Card>
+        </StackItem>
+      )}
 
       <Card isPlain>
         <CardHeader>
@@ -335,9 +310,9 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
 
         <CardBody>
           <SkTable
-            columns={grantColumns}
-            rows={parseGrants(grants?.items || [])}
-            customCells={customGrantCells}
+            columns={accessGrantColumns}
+            rows={accessGrants || []}
+            customCells={customAccessGrantCells}
             alwaysShowPagination={false}
             isPlain
           />
@@ -367,98 +342,12 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   );
 };
 
-function parseLinks(links: LinkCrdResponse[]): Link[] {
-  return links.map((link) => {
-    const id = link.metadata?.uid;
-    const name = link.metadata?.name;
-    const creationTimestamp = link.metadata?.creationTimestamp;
+function convertUnredeemedAccessTokensToLinks(accessTokens: AccessTokenCrdResponse[]): Link[] {
+  const unRedeemedAccessTokens = accessTokens.filter(
+    (accessToken) => !hasType(accessToken.status?.conditions, 'Redeemed')
+  );
 
-    // TODO: cost need to be enabled in Skupper v2
-    const cost = EMPTY_VALUE_SYMBOL;
-    const status = link.status?.status;
-    const connectedTo =
-      extractSiteNameFromUrl(
-        link?.spec.endpoints[0].host || '',
-        `${link?.spec.endpoints[0].group}-${link?.spec.endpoints[0].name}-`
-      ) || EMPTY_VALUE_SYMBOL;
-
-    return {
-      connectedTo,
-      cost,
-      status,
-      creationTimestamp,
-      name,
-      id
-    };
-  });
-}
-
-function convertAccessTokensToLinks(claims: ClaimCrdResponse[]): Link[] {
-  const unRedeemedClaims = claims.filter((claim) => !claim.status?.redeemed);
-
-  return unRedeemedClaims.map((claim) => {
-    const id = claim.metadata?.uid;
-    const name = claim.metadata?.name;
-    const creationTimestamp = claim.metadata?.creationTimestamp;
-
-    const status = claim.status?.status;
-    const cost = EMPTY_VALUE_SYMBOL;
-    const connectedTo = EMPTY_VALUE_SYMBOL;
-
-    return {
-      connectedTo,
-      cost,
-      status,
-      creationTimestamp,
-      name,
-      id
-    };
-  });
-}
-
-function parseGrants(grants: GrantCrdResponse[]): Grant[] {
-  return grants.map((grant) => {
-    const id = grant.metadata?.uid;
-    const name = grant.metadata?.name;
-    const creationTimestamp = grant.metadata?.creationTimestamp;
-
-    // TODO: cost need to be enabled in Skupper v2
-    const redemptionsAllowed = grant.spec?.redemptionsAllowed || 0;
-    const redeemed = grant.status?.redeemed || 0;
-    const status = grant.status?.status;
-    const expirationWindow = grant.status?.expiration;
-
-    return {
-      data: grant,
-      redemptionsAllowed,
-      redeemed,
-      expirationWindow,
-      status,
-      creationTimestamp,
-      name,
-      id
-    };
-  });
-}
-
-function extractSiteNameFromUrl(url?: string, prefix?:string, suffix = '.') {
-  // Check if the input is an IP address
-  const ipPattern = new RegExp(/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/);
-  if (url && ipPattern.test(url)) {
-    // If it's an IP address, return it as is
-    return url;
-  }
-
-  // If it's not an IP address, apply the original regex pattern
-  let regexPattern = `(?:)?([^.-]+(?:\\.[^.-]+)?)${suffix}`;
-
-  if (prefix) {
-    regexPattern = `${prefix}([^.-]+(?:-[^.-]+)?)${suffix}`;
-  }
-
-  const match = url?.match(new RegExp(regexPattern));
-
-  return match ? match[1] : null;
+  return convertAccessTokensToLinks(unRedeemedAccessTokens);
 }
 
 export default Links;
