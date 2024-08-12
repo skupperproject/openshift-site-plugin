@@ -14,8 +14,12 @@ const AlertStatus = function () {
     refetchInterval: (data) => (data?.isReady ? 0 : REFETCH_QUERY_INTERVAL)
   });
 
-  if (!site?.isInitialized || site?.isReady) {
+  if ((!site?.hasError && !site?.isConfigured) || site?.isReady) {
     return null;
+  }
+
+  if (site?.hasError) {
+    return <Alert variant="warning" isInline title={site.status} />;
   }
 
   return (
@@ -23,7 +27,7 @@ const AlertStatus = function () {
       variant="warning"
       isInline
       title={t(
-        'The site is Active: you can create resources, but until the router is running the effect is not usable'
+        'The site is Configured: you can create resources, but until the router is ready the effect is not usable'
       )}
     />
   );

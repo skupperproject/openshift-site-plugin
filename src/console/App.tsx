@@ -4,8 +4,8 @@ import ErrorBoundaryContent from '@patternfly/react-component-groups/dist/dynami
 import { Bullseye, Spinner } from '@patternfly/react-core';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 
-import AppContent from 'console/AppContent';
-
+import AppContent from './AppContent';
+import SkupperVersionValidator from './SkupperVersionValidator';
 import { Wrapper } from './Wrapper';
 
 import '@patternfly/patternfly/patternfly.css';
@@ -24,7 +24,9 @@ const App = function () {
               </Bullseye>
             }
           >
-            <AppContent />
+            <SkupperVersionValidator>
+              <AppContent />
+            </SkupperVersionValidator>
           </Suspense>
         </ErrorBoundaryContent>
       </QueryErrorResetBoundary>

@@ -38,14 +38,14 @@ import step4 from '@assets/step4.png';
 import { CR_STATUS_OK, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import InstructionBlock from '@core/components/InstructionBlock';
-import { createClaimRequest } from '@core/utils/createCRD';
-import { ClaimCrdParams, GrantCrdResponse } from '@interfaces/CRD.interfaces';
+import { createAccessTokenRequest } from '@core/utils/createCRD';
+import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
+import { AccessTokenCrdParams } from '@interfaces/CRD_AccessToken';
 import { HTTPError } from '@interfaces/REST.interfaces';
 
 const DEFAULT_COST = '1';
 const ButtonName: string[] = ['Next', 'Create', 'Done'];
 const WizardContentHeight = '400px';
-
 
 const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string }> = function ({ onSubmit, onCancel }) {
   const { t } = useTranslation(I18nNamespace);
@@ -59,15 +59,15 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: claim } = useQuery({
+  const { data: accessToken } = useQuery({
     queryKey: ['get-access-token-query', nameRef.current || fileContentRef.current],
-    queryFn: () => RESTApi.findClaim(nameRef.current || fileContentRef.current),
+    queryFn: () => RESTApi.findAccessToken(nameRef.current || fileContentRef.current),
     enabled: isLoading && step === 3,
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
   const mutationCreate = useMutation({
-    mutationFn: (data: ClaimCrdParams) => RESTApi.createClaim(data),
+    mutationFn: (data: AccessTokenCrdParams) => RESTApi.createAccessToken(data),
     onError: (data: HTTPError) => {
       nameRef.current = '';
       fileContentRef.current = '';
@@ -105,7 +105,7 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
     }
 
     try {
-      const JsonFile = parse(fileContentRef.current) as GrantCrdResponse;
+      const JsonFile = parse(fileContentRef.current) as AccessGrantCrdResponse;
       const { metadata, status } = JsonFile;
 
       if (!status) {
@@ -115,7 +115,7 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
       }
 
       nameRef.current = nameRef.current || metadata.name;
-      const data: ClaimCrdParams = createClaimRequest({
+      const data: AccessTokenCrdParams = createAccessTokenRequest({
         metadata: {
           name: nameRef.current
         },
@@ -154,16 +154,16 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
   }, [handleSubmit, onSubmit, step]);
 
   useEffect(() => {
-    if (claim?.status?.status) {
-      if (claim?.status?.status === CR_STATUS_OK) {
+    if (accessToken?.status?.status) {
+      if (accessToken?.status?.status === CR_STATUS_OK) {
         setValidated(undefined);
         setIsLoading(false);
-      } else if (claim?.status?.status !== CR_STATUS_OK) {
-        setValidated(claim?.status?.status);
+      } else if (accessToken?.status?.status !== CR_STATUS_OK) {
+        setValidated(accessToken?.status?.status);
         setIsLoading(false);
       }
     }
-  }, [claim?.status?.status]);
+  }, [accessToken?.status?.status]);
 
   const CreateLinkWizard = function () {
     const steps = useMemo(

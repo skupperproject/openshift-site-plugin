@@ -33,14 +33,18 @@
 }
 
 .sk-loading-page .cog-wrapper .spinning-clockwise {
-  animation: spin 4s linear infinite, pulse 5s ease-in-out infinite;
+  animation:
+    spin 4s linear infinite,
+    pulse 5s ease-in-out infinite;
 }
 
-.sk-loading-page .cog-wrapper .spinning-clockwise--reverse  {
-  animation: spin 4s linear infinite reverse,pulse 5s ease-in-out infinite;
+.sk-loading-page .cog-wrapper .spinning-clockwise--reverse {
+  animation:
+    spin 4s linear infinite reverse,
+    pulse 5s ease-in-out infinite;
 }
 
-.sk-loading-page .cog-text{
+.sk-loading-page .cog-text {
   animation: pulse 5s ease-in-out infinite;
 }
 

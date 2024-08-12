@@ -1,46 +1,37 @@
-import {
-  ClaimCrdParams,
-  ClaimParams,
-  ConnectorCrdParams,
-  ConnectorParams,
-  GrantCrdParams,
-  GrantParams,
-  ListenerCrdParams,
-  ListenerParams,
-  SiteCrdParams,
-  SiteParams
-} from '../../interfaces/CRD.interfaces';
+import { AccessGrantCrdParams, AccessGrantParams } from '@interfaces/CRD_AccessGrant';
+import { AccessTokenCrdParams, AccessTokenParams } from '@interfaces/CRD_AccessToken';
+import { ConnectorCrdParams, ConnectorParams } from '@interfaces/CRD_Connector';
+import { ListenerCrdParams, ListenerParams } from '@interfaces/CRD_Listener';
+import { SiteCrdParams, SiteParams } from '@interfaces/CRD_Site';
 
-export const createSiteData = (params: SiteParams): SiteCrdParams => ({
-  apiVersion: 'skupper.io/v1alpha1',
+const apiVersion = 'skupper.io/v1alpha1';
+
+export const createSiteData = (props: SiteParams): SiteCrdParams => ({
+  apiVersion,
   kind: 'Site',
-  ...params
+  ...props
 });
 
-export const createGrantRequest = ({ metadata, spec }: GrantParams): GrantCrdParams => ({
-  apiVersion: 'skupper.io/v1alpha1',
+export const createAccessGrantRequest = (props: AccessGrantParams): AccessGrantCrdParams => ({
+  apiVersion,
   kind: 'AccessGrant',
-  metadata,
-  spec
+  ...props
 });
 
-export const createClaimRequest = ({ metadata, spec }: ClaimParams): ClaimCrdParams => ({
-  apiVersion: 'skupper.io/v1alpha1',
+export const createAccessTokenRequest = (props: AccessTokenParams): AccessTokenCrdParams => ({
+  apiVersion,
   kind: 'AccessToken',
-  metadata,
-  spec
+  ...props
 });
 
-export const createListenerRequest = ({ metadata, spec }: ListenerParams): ListenerCrdParams => ({
-  apiVersion: 'skupper.io/v1alpha1',
+export const createListenerRequest = (props: ListenerParams): ListenerCrdParams => ({
+  apiVersion,
   kind: 'Listener',
-  metadata,
-  spec
+  ...props
 });
 
-export const createConnectorRequest = ({ metadata, spec }: ConnectorParams): ConnectorCrdParams => ({
-  apiVersion: 'skupper.io/v1alpha1',
+export const createConnectorRequest = (props: ConnectorParams): ConnectorCrdParams => ({
+  apiVersion,
   kind: 'Connector',
-  metadata,
-  spec
+  ...props
 });

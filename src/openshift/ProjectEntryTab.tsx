@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
 import { setSkupperNamespace } from '@config/db';
-import { K8sResourceCommon } from '@interfaces/CRD.interfaces';
+import { K8sResourceCommon } from '@interfaces/CRD_Base';
 
 import App from '../console/App';
 

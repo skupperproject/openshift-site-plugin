@@ -1,10 +1,11 @@
 {
   "ConnectorsTab": "Connectors",
-  "Controller version": "Controller version",
   "Created at": "Created at",
   "DetailsTab": "Details",
   "Details": "Details",
   "GetStartedTab": "Get started",
+  "Platform": "Platform",
+  "Data not found": "Data not found",
   "Service Interconnect is a layer 7 network. It enables secure communication across Kubernetes clusters with no VPNs or special firewall rules": "Service Interconnect is a layer 7 network. It enables secure communication across Kubernetes clusters with no VPNs or special firewall rules",
   "The site console is used during network setup.": "The site console is used during network setup.",
   "Linked sites": "Linked sites",
@@ -165,5 +166,5 @@
   "Include server pods that are not in the ready state": "Include server pods that are not in the ready state",
   "An error occurred": "An error occurred",
   "It seems there was an error while creating the link": "It seems there was an error while creating the link",
-  "The site is Active: you can create resources, but until the router is running the effect is not usable": "The site is Active: you can create resources, but until the router is running the effect is not usable"
+  "The site is Configured: you can create resources, but until the router is ready the effect is not usable": "The site is Configured: you can create resources, but until the router is ready the effect is not usable"
 }

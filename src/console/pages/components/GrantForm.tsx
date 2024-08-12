@@ -33,8 +33,8 @@ import cStep3 from '@assets/cstep3.png';
 import { CR_STATUS_OK, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import InstructionBlock from '@core/components/InstructionBlock';
-import { createGrantRequest } from '@core/utils/createCRD';
-import { GrantCrdParams, GrantParams } from '@interfaces/CRD.interfaces';
+import { createAccessGrantRequest } from '@core/utils/createCRD';
+import { AccessGrantCrdParams, AccessGrantParams } from '@interfaces/CRD_AccessGrant';
 import { HTTPError } from '@interfaces/REST.interfaces';
 import useValidatedInput from 'console/hooks/useValidation';
 
@@ -73,7 +73,7 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
   });
 
   const mutationCreate = useMutation({
-    mutationFn: (data: GrantParams) => RESTApi.createGrant(data),
+    mutationFn: (data: AccessGrantParams) => RESTApi.createGrant(data),
     onError: (data: HTTPError) => {
       validateInput(data.descriptionMessage);
     },
@@ -84,7 +84,7 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
   });
 
   const handleSubmit = useCallback(() => {
-    const data: GrantCrdParams = createGrantRequest({
+    const data: AccessGrantCrdParams = createAccessGrantRequest({
       metadata: {
         name
       },
@@ -95,7 +95,7 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
       }
     });
 
-    mutationCreate.mutate(createGrantRequest(data));
+    mutationCreate.mutate(createAccessGrantRequest(data));
   }, [mutationCreate, name]);
 
   const handleDismiss = useCallback(() => {
