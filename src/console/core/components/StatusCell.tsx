@@ -1,4 +1,3 @@
-import { YellowExclamationTriangleIcon } from '@openshift-console/dynamic-plugin-sdk';
 import { Icon } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +23,7 @@ const StatusCell = function ({ data }: StatusCellProps) {
         <span>
           <Icon isInline status={data.statusAlert}>
             {data.hasError && <ExclamationCircleIcon />}
-            {data.statusAlert === 'warning' && <YellowExclamationTriangleIcon />}
+            {data.statusAlert === 'custom' && <CheckCircleIcon />}
             {data.statusAlert === 'success' && <CheckCircleIcon />}
           </Icon>{' '}
           {data.status}
