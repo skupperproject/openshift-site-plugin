@@ -81,6 +81,21 @@ export const RESTApi = {
     await axiosFetch<SiteCrdResponse>(sitePath(name), {
       method: 'DELETE'
     });
+
+    await Promise.all([
+      axiosFetch<SiteCrdResponse>(accessGrantsPath(), {
+        method: 'DELETE'
+      }),
+      axiosFetch<SiteCrdResponse>(accessTokensPath(), {
+        method: 'DELETE'
+      }),
+      axiosFetch<SiteCrdResponse>(listenersPath(), {
+        method: 'DELETE'
+      }),
+      axiosFetch<SiteCrdResponse>(connectorsPath(), {
+        method: 'DELETE'
+      })
+    ]);
   },
 
   getGrants: async (): Promise<ListCrdResponse<AccessGrantCrdResponse>> =>
@@ -231,7 +246,7 @@ export const RESTApi = {
 
 function convertSiteCRsToSite({ metadata, spec, status }: SiteCrdResponse): SiteView {
   const statusAlertSiteMap: Record<StatusSiteType | 'Error', StatusAlert> = {
-    Configured: 'warning',
+    Configured: 'custom',
     Running: 'success',
     Ready: undefined,
     Resolved: undefined,
@@ -266,7 +281,7 @@ function convertSiteCRsToSite({ metadata, spec, status }: SiteCrdResponse): Site
 
 function convertAccessGrantCRsToAccessGrant(accessGrants: AccessGrantCrdResponse[]): AccessGrant[] {
   const statusAlertAccessGrantMap: Record<StatusAccessGrantType | 'Error', StatusAlert> = {
-    Processed: 'warning',
+    Processed: 'success',
     Ready: 'success',
     Resolved: 'success',
     Error: 'danger'
@@ -301,7 +316,7 @@ function convertAccessGrantCRsToAccessGrant(accessGrants: AccessGrantCrdResponse
 
 function convertLinkCRsToLinks(links: LinkCrdResponse[]): Link[] {
   const statusAlertLinkMap: Record<StatusLinkType | 'Error', StatusAlert> = {
-    Configured: 'warning',
+    Configured: 'custom',
     Ready: 'success',
     Operational: 'success',
     Error: 'danger'
@@ -349,7 +364,7 @@ export function convertAccessTokensToLinks(links: AccessTokenCrdResponse[]): Lin
 
 function convertListenerCRsToListeners(site: SiteCrdResponse, listeners: ListenerCrdResponse[]): Listener[] {
   const statusAlertListenerMap: Record<StatusListenerType | 'Error', StatusAlert> = {
-    Configured: 'warning',
+    Configured: 'custom',
     Matched: 'success',
     Ready: 'success',
     Error: 'danger'
@@ -386,7 +401,7 @@ function convertListenerCRsToListeners(site: SiteCrdResponse, listeners: Listene
 
 function convertConnectorCRsToConnectors(site: SiteCrdResponse, connectors: ConnectorCrdResponse[]): Connector[] {
   const statusAlertConnectorMap: Record<StatusConnectorType | 'Error', StatusAlert> = {
-    Configured: 'warning',
+    Configured: 'custom',
     Matched: 'success',
     Ready: 'success',
     Error: 'danger'
@@ -456,12 +471,12 @@ export function hasReasonError<T>(conditions: CrdStatusCondition<T>[] = []) {
 function getLastStatusTrueByTime<T>(conditions: CrdStatusCondition<T>[] = []) {
   const priorityMap: Record<StatusType, number> = {
     Configured: 1,
-    Resolved: 2,
+    Resolved: 0,
     Running: 3,
     Processed: 3,
     Operational: 3,
     Matched: 3,
-    Ready: 4,
+    Ready: 0,
     Redeemed: 1
   };
 

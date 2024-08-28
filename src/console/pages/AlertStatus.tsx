@@ -11,7 +11,7 @@ const AlertStatus = function () {
   const { data: site } = useQuery({
     queryKey: ['find-yaml-alert'],
     queryFn: () => RESTApi.findSiteView(),
-    refetchInterval: (data) => (data?.isReady ? 0 : REFETCH_QUERY_INTERVAL)
+    refetchInterval: (data) => (data?.isReady ? 0 : REFETCH_QUERY_INTERVAL / 4)
   });
 
   if ((!site?.hasError && !site?.isConfigured) || site?.isReady) {
