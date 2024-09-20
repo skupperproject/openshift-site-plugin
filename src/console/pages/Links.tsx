@@ -145,7 +145,8 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     {
       name: t('Status'),
       prop: 'status',
-      customCellName: 'StatusCell'
+      customCellName: 'StatusCell',
+      modifier: 'fitContent'
     },
     {
       name: t('Redemptions Allowed'),
@@ -175,7 +176,8 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     {
       name: t('Status'),
       prop: 'status',
-      customCellName: 'StatusCell'
+      customCellName: 'StatusCell',
+      width: 30
     },
     {
       name: t('Linked to'),

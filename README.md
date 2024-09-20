@@ -31,16 +31,16 @@ To install the dynamic plugin, follow these steps:
 - **Authenticate with your cluster:**, then run the following command in the directory containing your `manifest.json` file.
 
   ```shell
-  oc apply -f manifest.json
-  ```
-
-  or
-
-  ```shell
   kubectl apply -f manifest.json
   ```
 
-- **Enable the plugin directly from the Openshift console**: You can view the list of the enabled plugins by navigating from Administration → Cluster Settings → Configuration → Console operator.openshift.io → Console plugins or on the Overview page.
+- **Enable the plugin**:
+
+  ```shell
+  kubectl patch consoles.operator.openshift.io cluster --patch '{ "spec": { "plugins": ["skupper-site-console"] } }' --type=merge
+  ```
+
+ Alternatively you can view the list of the enabled plugins by navigating from Administration → Cluster Settings → Configuration → Console operator.openshift.io → Console plugins or on the Overview page.
 
 ## Dynamic Plugin development
 

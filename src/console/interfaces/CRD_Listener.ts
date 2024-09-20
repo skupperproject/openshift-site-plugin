@@ -23,6 +23,7 @@ export interface ListenerCrdResponse extends ListenerCrdBase {
   spec: ListenerSpec;
   status?: {
     conditions: CrdStatusCondition<StatusListenerType>[];
+    matchingConnectorCount: number;
   };
 }
 

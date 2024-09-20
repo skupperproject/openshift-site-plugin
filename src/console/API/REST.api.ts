@@ -258,7 +258,7 @@ function convertSiteCRsToSite({ metadata, spec, status }: SiteCrdResponse): Site
   const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
   const calculatedStatusAlert =
-    (lastStatus?.type && statusAlertSiteMap[lastStatus.type]) || (hasError && statusAlertSiteMap.Error) || undefined;
+    (hasError && statusAlertSiteMap.Error) || (lastStatus?.type && statusAlertSiteMap[lastStatus.type]) || undefined;
 
   return {
     identity: metadata.uid,
@@ -295,8 +295,8 @@ function convertAccessGrantCRsToAccessGrant(accessGrants: AccessGrantCrdResponse
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
     const calculatedStatusAlert =
-      (lastStatus?.type && statusAlertAccessGrantMap[lastStatus.type]) ||
       (hasError && statusAlertAccessGrantMap.Error) ||
+      (lastStatus?.type && statusAlertAccessGrantMap[lastStatus.type]) ||
       undefined;
 
     return {
@@ -328,7 +328,7 @@ function convertLinkCRsToLinks(links: LinkCrdResponse[]): Link[] {
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
     const calculatedStatusAlert =
-      (lastStatus?.type && statusAlertLinkMap[lastStatus.type]) || (hasError && statusAlertLinkMap.Error) || undefined;
+      (hasError && statusAlertLinkMap.Error) || (lastStatus?.type && statusAlertLinkMap[lastStatus.type]) || undefined;
 
     return {
       id: metadata.uid,
@@ -345,10 +345,19 @@ function convertLinkCRsToLinks(links: LinkCrdResponse[]): Link[] {
 }
 
 export function convertAccessTokensToLinks(links: AccessTokenCrdResponse[]): Link[] {
+  const statusAlertAccessTokenMap: Record<StatusAccessTokenType | 'Error', StatusAlert> = {
+    Redeemed: 'success',
+    Error: 'danger'
+  };
+
   return links.map(({ metadata, status }) => {
     const lastStatus = getLastStatusTrueByTime(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
+    const calculatedStatusAlert =
+      (hasError && statusAlertAccessTokenMap.Error) ||
+      (lastStatus?.type && statusAlertAccessTokenMap[lastStatus.type]) ||
+      undefined;
 
     return {
       id: metadata.uid,
@@ -357,12 +366,13 @@ export function convertAccessTokensToLinks(links: AccessTokenCrdResponse[]): Lin
       cost: EMPTY_VALUE_SYMBOL,
       hasError,
       status: calculatedStatus,
-      connectedTo: EMPTY_VALUE_SYMBOL
+      connectedTo: EMPTY_VALUE_SYMBOL,
+      statusAlert: calculatedStatusAlert
     };
   });
 }
 
-function convertListenerCRsToListeners(site: SiteCrdResponse, listeners: ListenerCrdResponse[]): Listener[] {
+function convertListenerCRsToListeners(_: SiteCrdResponse, listeners: ListenerCrdResponse[]): Listener[] {
   const statusAlertListenerMap: Record<StatusListenerType | 'Error', StatusAlert> = {
     Configured: 'custom',
     Matched: 'success',
@@ -371,16 +381,13 @@ function convertListenerCRsToListeners(site: SiteCrdResponse, listeners: Listene
   };
 
   return listeners.map(({ metadata, spec, status }) => {
-    const connected = findServices(site, spec.routingKey, 'connectors');
-    const ready = isReady(site, metadata.name, spec.routingKey, 'listeners');
-
     const lastStatus = getLastStatusTrueByTime(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
     const calculatedStatusAlert =
-      (lastStatus?.type && statusAlertListenerMap[lastStatus.type]) ||
       (hasError && statusAlertListenerMap.Error) ||
+      (lastStatus?.type && statusAlertListenerMap[lastStatus.type]) ||
       undefined;
 
     return {
@@ -391,7 +398,7 @@ function convertListenerCRsToListeners(site: SiteCrdResponse, listeners: Listene
       serviceName: spec.host,
       port: spec.port,
       type: spec.type,
-      connected: (ready && connected?.length) || 0,
+      connected: status?.matchingConnectorCount || 0,
       hasError,
       status: calculatedStatus,
       statusAlert: calculatedStatusAlert
@@ -399,7 +406,7 @@ function convertListenerCRsToListeners(site: SiteCrdResponse, listeners: Listene
   });
 }
 
-function convertConnectorCRsToConnectors(site: SiteCrdResponse, connectors: ConnectorCrdResponse[]): Connector[] {
+function convertConnectorCRsToConnectors(_: SiteCrdResponse, connectors: ConnectorCrdResponse[]): Connector[] {
   const statusAlertConnectorMap: Record<StatusConnectorType | 'Error', StatusAlert> = {
     Configured: 'custom',
     Matched: 'success',
@@ -408,16 +415,13 @@ function convertConnectorCRsToConnectors(site: SiteCrdResponse, connectors: Conn
   };
 
   return connectors.map(({ metadata, spec, status }) => {
-    const connected = findServices(site, spec.routingKey, 'listeners');
-    const ready = isReady(site, metadata.name, spec.routingKey, 'listeners');
-
     const lastStatus = getLastStatusTrueByTime(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
     const calculatedStatusAlert =
-      (lastStatus?.type && statusAlertConnectorMap[lastStatus.type]) ||
       (hasError && statusAlertConnectorMap.Error) ||
+      (lastStatus?.type && statusAlertConnectorMap[lastStatus.type]) ||
       undefined;
 
     return {
@@ -429,7 +433,7 @@ function convertConnectorCRsToConnectors(site: SiteCrdResponse, connectors: Conn
       host: spec.host,
       port: spec.port,
       type: spec.type,
-      connected: (ready && connected?.length) || 0,
+      connected: status?.matchingListenerCount || 0,
       hasError,
       status: calculatedStatus,
       statusAlert: calculatedStatusAlert
@@ -437,24 +441,24 @@ function convertConnectorCRsToConnectors(site: SiteCrdResponse, connectors: Conn
   });
 }
 
-function findServices(
-  site: SiteCrdResponse,
-  routingKey: string,
-  type: 'listeners' | 'connectors'
-): string[] | undefined {
-  return site.status?.network
-    ?.filter(({ name, services }) => name !== site.metadata.namespace && services)
-    .flatMap((network) => network?.services)
-    .filter((service) => service?.routingKey === routingKey && service[type]?.length)
-    .flatMap((service) => service![type]) as string[];
-}
+// function findServices(
+//   site: SiteCrdResponse,
+//   routingKey: string,
+//   type: 'listeners' | 'connectors'
+// ): string[] | undefined {
+//   return site.status?.network
+//     ?.filter(({ name, services }) => name !== site.metadata.namespace && services)
+//     .flatMap((network) => network?.services)
+//     .filter((service) => service?.routingKey === routingKey && service[type]?.length)
+//     .flatMap((service) => service![type]) as string[];
+// }
 
-function isReady(site: SiteCrdResponse, name: string, routingKey: string, type: 'listeners' | 'connectors'): boolean {
-  return !!site.status?.network
-    ?.filter((data) => data.name !== site.metadata.namespace && data.services)
-    .flatMap((network) => network?.services)
-    .filter((service) => service && service.routingKey === routingKey && service[type]?.includes(name)).length;
-}
+// function isReady(site: SiteCrdResponse, name: string, routingKey: string, type: 'listeners' | 'connectors'): boolean {
+//   return !!site.status?.network
+//     ?.filter((data) => data.name !== site.metadata.namespace && data.services)
+//     .flatMap((network) => network?.services)
+//     .filter((service) => service && service.routingKey === routingKey && service[type]?.includes(name)).length;
+// }
 
 export function getType<T>(conditions: CrdStatusCondition<T>[] = [], type: StatusSiteType | StatusAccessTokenType) {
   return !!conditions?.some((condition) => condition.type === type && condition.status === 'True');
@@ -480,7 +484,11 @@ function getLastStatusTrueByTime<T>(conditions: CrdStatusCondition<T>[] = []) {
     Redeemed: 1
   };
 
-  const trueConditions = conditions.filter((condition) => condition.status === 'True');
+  let trueConditions = conditions.filter((condition) => condition.status === 'True');
+
+  if (!trueConditions.length) {
+    trueConditions = conditions.filter((condition) => condition.status === 'False' && condition.reason === 'Error');
+  }
 
   // Sort the filtered conditions by lastTransitionTime in descending order
   trueConditions.sort((a, b) => {
