@@ -66,6 +66,14 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
+
+  const { data: link } = useQuery({
+    queryKey: ['get-link-query', nameRef.current || fileContentRef.current],
+    queryFn: () => RESTApi.findLink(nameRef.current || fileContentRef.current),
+    enabled: isLoading && step === 3,
+    refetchInterval: REFETCH_QUERY_INTERVAL
+  });
+
   const mutationCreate = useMutation({
     mutationFn: (data: AccessTokenCrdParams) => RESTApi.createAccessToken(data),
     onError: (data: HTTPError) => {
@@ -127,7 +135,7 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
       });
 
       mutationCreate.mutate(data);
-    } catch (e) {
+    } catch {
       setValidated(t('Invalid Grant format'));
     }
   }, [mutationCreate, t]);
@@ -154,16 +162,16 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
   }, [handleSubmit, onSubmit, step]);
 
   useEffect(() => {
-    if (accessToken?.status?.status) {
-      if (accessToken?.status?.status === CR_STATUS_OK) {
+    if (accessToken?.status?.status || link?.status?.status) {
+      if (link?.status?.status === CR_STATUS_OK) {
         setValidated(undefined);
         setIsLoading(false);
-      } else if (accessToken?.status?.status !== CR_STATUS_OK) {
-        setValidated(accessToken?.status?.status);
+      } else if (accessToken?.status?.status !== CR_STATUS_OK || link?.status?.status !== CR_STATUS_OK) {
+        setValidated(link?.status?.status);
         setIsLoading(false);
       }
     }
-  }, [accessToken?.status?.status]);
+  }, [accessToken?.status?.status, link?.status?.status]);
 
   const CreateLinkWizard = function () {
     const steps = useMemo(

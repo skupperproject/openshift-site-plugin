@@ -21,7 +21,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
-import { convertAccessTokensToLinks, hasType, RESTApi } from '@API/REST.api';
+import { RESTApi } from '@API/REST.api';
+import { convertAccessTokensToLinks, hasType } from '@API/REST.utils';
 import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';

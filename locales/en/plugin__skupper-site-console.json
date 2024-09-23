@@ -100,7 +100,7 @@
   "Exposing services from a different namespace to the service network": "Exposing services from a different namespace to the service network",
   "Exposing services on the service network from a local machine": "Exposing services on the service network from a local machine",
   "Permanently remove the site": "Permanently remove the site",
-  "Are you sure you want to remove this site?": "Are you sure you want to remove this site?",
+  "Remove all resources associated with this site": "Remove all resources associated with this site",
   "Routing key": "Routing key",
   "Protocol": "Protocol",
   "Port": "Port",

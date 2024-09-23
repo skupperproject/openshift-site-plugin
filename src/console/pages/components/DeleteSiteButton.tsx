@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { Button, ButtonVariant } from '@patternfly/react-core';
+import { Button, ButtonVariant, Checkbox } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -13,9 +13,10 @@ const DeleteSiteButton: FC<{ onClick: () => void }> = function ({ onClick }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [removeAllResources, setRemoveAllResources] = useState(true);
 
   const mutationDeleteSite = useMutation({
-    mutationFn: (name: string) => RESTApi.deleteSite(name),
+    mutationFn: (name: string) => RESTApi.deleteSite(name, removeAllResources),
     onSuccess: () => {
       handleClose();
       setTimeout(() => {
@@ -50,7 +51,13 @@ const DeleteSiteButton: FC<{ onClick: () => void }> = function ({ onClick }) {
         onConfirm={handleDeleteSite}
         confirmButtonVariant={ButtonVariant.danger}
       >
-        {t('Are you sure you want to remove this site?')}
+        <Checkbox
+          aria-label="delete all checkbox"
+          id="delete-all-checkbox"
+          label={t('Remove all resources associated with this site')}
+          onClick={() => setRemoveAllResources(!removeAllResources)}
+          isChecked={removeAllResources}
+        />
       </WarningModal>
     </>
   );

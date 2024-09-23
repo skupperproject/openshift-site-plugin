@@ -43,8 +43,7 @@ const DEFAULT_CLAIMS = 1;
 
 enum ValidForUnit {
   Minutes = 'm',
-  Hours = 'h',
-  Days = 'd'
+  Hours = 'h'
 }
 
 const ButtonName: string[] = ['Create', 'Done'];
@@ -196,8 +195,7 @@ export default GrantForm;
 
 const options = [
   { value: ValidForUnit.Minutes, label: 'min' },
-  { value: ValidForUnit.Hours, label: 'hr' },
-  { value: ValidForUnit.Days, label: 'day' }
+  { value: ValidForUnit.Hours, label: 'hr' }
 ];
 
 const CreateForm: FC<{
@@ -220,13 +218,31 @@ const CreateForm: FC<{
   };
 
   const handleSetClaimExpiration = (value: string) => {
-    const numberValue = value ? Number(value) : undefined;
+    let numberValue: number | undefined = Number(value);
+
+    // If the input is not a valid number or less than/equal to 0, set numberValue to 1
+    if (isNaN(numberValue) || numberValue <= 0) {
+      numberValue = DEFAULT_EXPIRATION;
+    }
+
+    // If the input is empty, set numberValue to undefined
+    if (!value) {
+      numberValue = undefined;
+    }
+
     setExpiration(numberValue);
     onSetValidFor(numberValue);
   };
-
   const handleSetClaimsMade = (value: string) => {
-    const numberValue = value ? Number(value) : undefined;
+    let numberValue: number | undefined = Number(value);
+
+    if (isNaN(numberValue) || numberValue <= 0) {
+      numberValue = DEFAULT_CLAIMS;
+    }
+
+    if (!value) {
+      numberValue = undefined;
+    }
 
     setClaims(numberValue);
     onSetClaims(numberValue);
@@ -262,7 +278,6 @@ const CreateForm: FC<{
           >
             <TextInput
               aria-label="redemption allowed input"
-              type="number"
               value={claims}
               onChange={(_, value) => handleSetClaimsMade(value)}
               style={{ maxWidth: '100%' }}
