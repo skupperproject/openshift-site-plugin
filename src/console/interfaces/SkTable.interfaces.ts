@@ -21,6 +21,7 @@ export interface SKTableProps<T> {
   isStriped?: boolean;
   isPlain?: boolean;
   isFullHeight?: boolean;
+  variant?: 'compact';
   shouldSort?: boolean;
   pagination?: boolean;
   alwaysShowPagination?: boolean;

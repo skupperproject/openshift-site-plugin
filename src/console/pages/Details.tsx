@@ -8,7 +8,6 @@ import {
   Card,
   CardHeader,
   CardBody,
-  Timestamp,
   Title,
   Button,
   Modal,
@@ -24,13 +23,18 @@ import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import {
+  CR_STATUS_OK,
   DEFAULT_SERVICE_ACCOUNT,
   EMPTY_LINK_ACCESS_STATUS,
   EMPTY_VALUE_SYMBOL,
   I18nNamespace,
   REFETCH_QUERY_INTERVAL
 } from '@config/config';
+import FormatOCPDateCell from '@core/components/FormatOCPDate';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
+import SkTable from '@core/components/SkTable';
+import { CrdStatusCondition, StatusSiteType } from '@interfaces/CRD_Base';
+import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
 import DeleteSiteButton from './components/DeleteSiteButton';
 import SiteForm from './components/SiteForm';
@@ -69,6 +73,41 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
       onDataUpdated();
     }
   }, [site?.isConfigured, site?.name, site?.resourceVersion, onDataUpdated]);
+
+  const ConditionsColumns: SKColumn<CrdStatusCondition<StatusSiteType>>[] = [
+    {
+      name: t('Type'),
+      prop: 'type',
+      width: 20
+    },
+    {
+      name: t('Status'),
+      prop: 'status',
+      width: 20
+    },
+    {
+      name: t('Updated'),
+      prop: 'lastTransitionTime',
+      customCellName: 'FormatOCPDateCell',
+      width: 20
+    },
+    {
+      name: t('Reason'),
+      prop: 'reason',
+      customCellName: 'ValueOrEmpty'
+    },
+    {
+      name: t('Message'),
+      prop: 'message',
+      customCellName: 'ValueOrEmpty'
+    }
+  ];
+
+  const customSiteCells = {
+    FormatOCPDateCell,
+    ValueOrEmpty: ({ value }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
+      value !== CR_STATUS_OK ? value : EMPTY_VALUE_SYMBOL
+  };
 
   return (
     <>
@@ -205,13 +244,35 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
               <DescriptionListDescription>
-                {site?.isConfigured ? <Timestamp date={new Date(site.creationTimestamp)} /> : EMPTY_VALUE_SYMBOL}
+                {site?.isConfigured ? (
+                  <FormatOCPDateCell value={new Date(site.creationTimestamp)} />
+                ) : (
+                  EMPTY_VALUE_SYMBOL
+                )}
               </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>
         </CardBody>
       </Card>
 
+      {site?.conditions && (
+        <Card isPlain>
+          <CardHeader>
+            <Title headingLevel="h1">{t('Conditions')}</Title>
+          </CardHeader>
+
+          <CardBody>
+            <SkTable
+              columns={ConditionsColumns}
+              rows={site?.conditions}
+              alwaysShowPagination={false}
+              isPlain
+              customCells={customSiteCells}
+              variant="compact"
+            />
+          </CardBody>
+        </Card>
+      )}
       <Modal
         title={t('Edit site')}
         variant={ModalVariant.medium}
