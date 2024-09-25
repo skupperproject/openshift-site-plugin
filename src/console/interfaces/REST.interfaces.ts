@@ -1,7 +1,7 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { AccessGrantCrdResponse } from './CRD_AccessGrant';
-import { ISO8601Timestamp } from './CRD_Base';
+import { CrdStatusCondition, ISO8601Timestamp, StatusSiteType } from './CRD_Base';
 
 export type FetchWithOptions = AxiosRequestConfig;
 export type StatusAlert = 'danger' | 'success' | 'warning' | 'custom' | 'info' | undefined;
@@ -31,6 +31,7 @@ export interface SiteView extends BaseView {
   isReady: boolean;
   resourceVersion: string;
   sitesInNetwork: number;
+  conditions?: CrdStatusCondition<StatusSiteType>[];
 }
 
 export interface AccessGrant extends BaseView {

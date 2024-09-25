@@ -46,6 +46,7 @@ export function convertSiteCRsToSites({ metadata, spec, status }: SiteCrdRespons
     isReady: hasType(status?.conditions, 'Ready'),
     hasError,
     status: calculatedStatus,
+    conditions: status?.conditions,
     platform: findSiteNetwork(status?.network, metadata.uid)?.platform || EMPTY_VALUE_SYMBOL,
     sitesInNetwork: status?.sitesInNetwork || 0,
     statusAlert: calculatedStatusAlert
