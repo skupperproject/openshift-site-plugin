@@ -50,7 +50,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
 
   const { data: accessTokens, refetch: refetchAccessTokens } = useQuery({
     queryKey: ['get-claims-query'],
-    queryFn: () => RESTApi.getAccessToken(),
+    queryFn: () => RESTApi.getAccessTokens(),
     refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 

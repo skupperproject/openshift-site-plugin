@@ -108,9 +108,8 @@ const Connectors = function () {
       customCellName: 'StatusCell'
     },
     {
-      name: t('Connected'),
-      prop: 'connected',
-      customCellName: 'connectedCell'
+      name: t('Listeners'),
+      prop: 'connected'
     },
     {
       name: '',

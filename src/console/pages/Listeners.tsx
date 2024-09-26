@@ -104,9 +104,8 @@ const Listeners = function () {
       customCellName: 'StatusCell'
     },
     {
-      name: t('Connected'),
-      prop: 'connected',
-      customCellName: 'connectedCell'
+      name: t('Connectors'),
+      prop: 'connected'
     },
     {
       name: '',
