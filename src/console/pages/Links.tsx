@@ -40,7 +40,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
 
   const [isLinkModalOpen, setIsLinkModalOpen] = useState<boolean | undefined>();
   const [isTokenModalOpen, setIsTokenModalOpen] = useState<boolean | undefined>();
-  const [showAlert, setShowAlert] = useState<boolean>(true);
+  const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showALinkAlert') || 'show');
 
   const { data: accessGrants, refetch: refetchAccessGrants } = useQuery({
     queryKey: ['get-grants-query'],
@@ -136,6 +136,11 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     }, 1000);
 
     setIsTokenModalOpen(false);
+  };
+
+  const handleCloseAlert = () => {
+    setShowAlert('hide');
+    sessionStorage.setItem('showALinkAlert', 'hide');
   };
 
   const accessGrantColumns: SKColumn<AccessGrant>[] = [
@@ -247,12 +252,12 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
       <StackItem>
         <Card isPlain>
           <CardBody>
-            {showAlert && (
+            {showAlert === 'show' && (
               <Alert
                 hidden={true}
                 variant="info"
                 isInline
-                actionClose={<AlertActionCloseButton onClose={() => setShowAlert(false)} />}
+                actionClose={<AlertActionCloseButton onClose={handleCloseAlert} />}
                 title={t(
                   'Links enable communication between sites. Once sites are linked, they form a network. Click create token button to generate a downloadable token file for linking a remote site.'
                 )}

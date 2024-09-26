@@ -10,7 +10,11 @@ import {
   Alert,
   FormSelect,
   FormSelectOption,
-  Checkbox
+  Checkbox,
+  Card,
+  CardTitle,
+  Title,
+  CardBody
 } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -31,9 +35,10 @@ interface ConnectorCrdAttributes extends ConnectorSpec {
 const ConnectorForm: FC<{
   onSubmit: () => void;
   onCancel: () => void;
+  title: string;
   connectorName?: string;
   attributes?: ConnectorCrdAttributes;
-}> = function ({ onSubmit, onCancel, connectorName, attributes }) {
+}> = function ({ onSubmit, onCancel, connectorName, attributes, title }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [name, setName] = useState(attributes?.name || '');
@@ -114,115 +119,122 @@ const ConnectorForm: FC<{
   const canSubmit = !!(name && port); //&& !validated;
 
   return (
-    <Form isHorizontal>
-      <FormGroup fieldId="name-input" isRequired label={t('Name')} title="">
-        <TextInput
-          aria-label="form name input"
-          value={name}
-          onChange={(_, value) => handleChangeName(value)}
-          isDisabled={!!connectorName}
-        />
-      </FormGroup>
+    <Card isPlain>
+      <CardTitle>
+        <Title headingLevel="h1">{t(title)}</Title>
+      </CardTitle>
+      <CardBody>
+        <Form isHorizontal>
+          <FormGroup fieldId="name-input" isRequired label={t('Name')} title="">
+            <TextInput
+              aria-label="form name input"
+              value={name}
+              onChange={(_, value) => handleChangeName(value)}
+              isDisabled={!!connectorName}
+            />
+          </FormGroup>
 
-      <FormGroup fieldId="include-not-ready-checkbox">
-        <Checkbox
-          aria-label="form include not ready checkbox"
-          id="include-not-ready checkbox"
-          label={t('Include server pods that are not in the ready state')}
-          onClick={() => setIncludeNotReady(!includeNotReady)}
-          isChecked={includeNotReady}
-        />
-      </FormGroup>
+          <FormGroup fieldId="include-not-ready-checkbox">
+            <Checkbox
+              aria-label="form include not ready checkbox"
+              id="include-not-ready checkbox"
+              label={t('Include server pods that are not in the ready state')}
+              onClick={() => setIncludeNotReady(!includeNotReady)}
+              isChecked={includeNotReady}
+            />
+          </FormGroup>
 
-      <FormGroup
-        fieldId="port-input"
-        isRequired
-        label={t('Port')}
-        labelIcon={<TooltipInfoButton content={t('tooltipPort')} />}
-        title=""
-      >
-        <TextInput aria-label="form port input" value={port} onChange={(_, value) => handleChangePort(value)} />
-      </FormGroup>
+          <FormGroup
+            fieldId="port-input"
+            isRequired
+            label={t('Port')}
+            labelIcon={<TooltipInfoButton content={t('tooltipPort')} />}
+            title=""
+          >
+            <TextInput aria-label="form port input" value={port} onChange={(_, value) => handleChangePort(value)} />
+          </FormGroup>
 
-      <FormGroup
-        fieldId="routing-key-input"
-        label={t('Routing key')}
-        labelIcon={<TooltipInfoButton content={t('tooltipRoutingKey')} />}
-        title=""
-      >
-        <TextInput
-          aria-label="form routing key input"
-          value={routingKey}
-          onChange={(_, value) => handleChangeRoutingKey(value)}
-        />
-      </FormGroup>
+          <FormGroup
+            fieldId="routing-key-input"
+            label={t('Routing key')}
+            labelIcon={<TooltipInfoButton content={t('tooltipRoutingKey')} />}
+            title=""
+          >
+            <TextInput
+              aria-label="form routing key input"
+              value={routingKey}
+              onChange={(_, value) => handleChangeRoutingKey(value)}
+            />
+          </FormGroup>
 
-      <FormGroup
-        fieldId="selector-input"
-        label={t('Selector')}
-        labelIcon={<TooltipInfoButton content={t('tooltipConnectorSelector')} />}
-        title=""
-      >
-        <TextInput
-          aria-label="form selector input"
-          value={selector}
-          onChange={(_, value) => handleChangeSelector(value)}
-          placeholder="app="
-        />
-      </FormGroup>
+          <FormGroup
+            fieldId="selector-input"
+            label={t('Selector')}
+            labelIcon={<TooltipInfoButton content={t('tooltipConnectorSelector')} />}
+            title=""
+          >
+            <TextInput
+              aria-label="form selector input"
+              value={selector}
+              onChange={(_, value) => handleChangeSelector(value)}
+              placeholder="app="
+            />
+          </FormGroup>
 
-      <FormGroup
-        fieldId="host-input"
-        label={t('Host')}
-        labelIcon={<TooltipInfoButton content={t('tooltipConnectorHost')} />}
-        title=""
-      >
-        <TextInput aria-label="form host input" value={host} onChange={(_, value) => handleChangeHost(value)} />
-      </FormGroup>
+          <FormGroup
+            fieldId="host-input"
+            label={t('Host')}
+            labelIcon={<TooltipInfoButton content={t('tooltipConnectorHost')} />}
+            title=""
+          >
+            <TextInput aria-label="form host input" value={host} onChange={(_, value) => handleChangeHost(value)} />
+          </FormGroup>
 
-      <FormGroup
-        fieldId="form-type"
-        label={t('Type')}
-        labelIcon={<TooltipInfoButton content={t('tooltipProtocolType')} />}
-        title=""
-      >
-        <FormSelect aria-label="form type select" value={type} onChange={(_, value) => handleChangeType(value)}>
-          {protocolOptions.map((option, index) => (
-            <FormSelectOption key={index} value={option.value} label={option.label} />
-          ))}
-        </FormSelect>
-      </FormGroup>
+          <FormGroup
+            fieldId="form-type"
+            label={t('Type')}
+            labelIcon={<TooltipInfoButton content={t('tooltipProtocolType')} />}
+            title=""
+          >
+            <FormSelect aria-label="form type select" value={type} onChange={(_, value) => handleChangeType(value)}>
+              {protocolOptions.map((option, index) => (
+                <FormSelectOption key={index} value={option.value} label={option.label} />
+              ))}
+            </FormSelect>
+          </FormGroup>
 
-      <FormGroup
-        fieldId="tls-secret-input"
-        label={t('TLS secret')}
-        labelIcon={<TooltipInfoButton content={t('tooltipTlsCredentials')} />}
-        title=""
-      >
-        <TextInput
-          aria-label="form TLS secret input"
-          value={tlsCredentials}
-          onChange={(_, value) => handleChangeTlsCredentials(value)}
-        />
-      </FormGroup>
+          <FormGroup
+            fieldId="tls-secret-input"
+            label={t('TLS secret')}
+            labelIcon={<TooltipInfoButton content={t('tooltipTlsCredentials')} />}
+            title=""
+          >
+            <TextInput
+              aria-label="form TLS secret input"
+              value={tlsCredentials}
+              onChange={(_, value) => handleChangeTlsCredentials(value)}
+            />
+          </FormGroup>
 
-      {validated && (
-        <FormAlert>
-          <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
-            {validated}
-          </Alert>
-        </FormAlert>
-      )}
+          {validated && (
+            <FormAlert>
+              <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
+                {validated}
+              </Alert>
+            </FormAlert>
+          )}
 
-      <ActionGroup style={{ display: 'flex' }}>
-        <Button variant="primary" onClick={handleSubmit} isDisabled={!canSubmit}>
-          {t('Submit')}
-        </Button>
-        <Button variant="link" onClick={onCancel}>
-          {t('Cancel')}
-        </Button>
-      </ActionGroup>
-    </Form>
+          <ActionGroup style={{ display: 'flex' }}>
+            <Button variant="primary" onClick={handleSubmit} isDisabled={!canSubmit}>
+              {t('Submit')}
+            </Button>
+            <Button variant="link" onClick={onCancel}>
+              {t('Cancel')}
+            </Button>
+          </ActionGroup>
+        </Form>
+      </CardBody>
+    </Card>
   );
 };
 

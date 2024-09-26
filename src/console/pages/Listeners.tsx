@@ -38,7 +38,7 @@ const Listeners = function () {
   const { t } = useTranslation(I18nNamespace);
 
   const [isOpen, setIsOpen] = useState<boolean>();
-  const [showAlert, setShowAlert] = useState<boolean>(true);
+  const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showListenerAlert') || 'show');
   const [nameSelected, setNameSelected] = useState<string | undefined>();
 
   const { data: listeners, refetch } = useQuery({
@@ -74,6 +74,11 @@ const Listeners = function () {
 
   const handleCloseDetails = () => {
     setNameSelected(undefined);
+  };
+
+  const handleCloseAlert = () => {
+    setShowAlert('hide');
+    sessionStorage.setItem('showListenerAlert', 'hide');
   };
 
   const Columns: SKColumn<Listener>[] = [
@@ -154,12 +159,12 @@ const Listeners = function () {
       <CardBody>
         <Stack hasGutter>
           <StackItem>
-            {showAlert && (
+            {showAlert === 'show' && (
               <Alert
                 hidden={true}
                 variant="info"
                 isInline
-                actionClose={<AlertActionCloseButton onClose={() => setShowAlert(false)} />}
+                actionClose={<AlertActionCloseButton onClose={handleCloseAlert} />}
                 title={t(
                   'A listener is a local connection endpoint that is associated with remote servers. Listeners expose a host and port for accepting connections. Listeners use a routing key to forward connection data to remote connectors.'
                 )}
@@ -186,13 +191,13 @@ const Listeners = function () {
         </Stack>
 
         <Modal
-          title={t('Create a listener')}
+          hasNoBodyWrapper
           isOpen={!!isOpen}
           variant={ModalVariant.medium}
           aria-label="Form create listener"
           showClose={false}
         >
-          <ListenerForm onSubmit={handleModalSubmit} onCancel={handleModalClose} />
+          <ListenerForm onSubmit={handleModalSubmit} onCancel={handleModalClose} title={t('Create a listener')} />
         </Modal>
       </CardBody>
     </Card>

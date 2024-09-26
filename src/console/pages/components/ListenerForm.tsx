@@ -9,7 +9,11 @@ import {
   FormAlert,
   Alert,
   FormSelect,
-  FormSelectOption
+  FormSelectOption,
+  Title,
+  Card,
+  CardTitle,
+  CardBody
 } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -30,9 +34,10 @@ interface ListenerCrdAttributes extends ListenerSpec {
 const ListenerForm: FC<{
   onSubmit: () => void;
   onCancel: () => void;
+  title: string;
   listenerName?: string;
   attributes?: ListenerCrdAttributes;
-}> = function ({ onSubmit, onCancel, listenerName, attributes }) {
+}> = function ({ onSubmit, onCancel, listenerName, attributes, title }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [name, setName] = useState(attributes?.name || '');
@@ -102,94 +107,101 @@ const ListenerForm: FC<{
   const canSubmit = !!(name && port); //&& !validated;
 
   return (
-    <Form isHorizontal>
-      <FormGroup fieldId="name-input" isRequired label={t('Name')} title="">
-        <TextInput
-          isDisabled={!!listenerName}
-          aria-label="form name input"
-          value={name}
-          onChange={(_, value) => handleChangeName(value)}
-        />
-      </FormGroup>
+    <Card isPlain>
+      <CardTitle>
+        <Title headingLevel="h1">{t(title)}</Title>
+      </CardTitle>
+      <CardBody>
+        <Form isHorizontal>
+          <FormGroup fieldId="name-input" isRequired label={t('Name')} title="">
+            <TextInput
+              isDisabled={!!listenerName}
+              aria-label="form name input"
+              value={name}
+              onChange={(_, value) => handleChangeName(value)}
+            />
+          </FormGroup>
 
-      <FormGroup
-        fieldId="port-input"
-        isRequired
-        label={t('Port')}
-        labelIcon={<TooltipInfoButton content={t('tooltipPort')} />}
-        title=""
-      >
-        <TextInput aria-label="form port input" value={port} onChange={(_, value) => handleChangePort(value)} />
-      </FormGroup>
+          <FormGroup
+            fieldId="port-input"
+            isRequired
+            label={t('Port')}
+            labelIcon={<TooltipInfoButton content={t('tooltipPort')} />}
+            title=""
+          >
+            <TextInput aria-label="form port input" value={port} onChange={(_, value) => handleChangePort(value)} />
+          </FormGroup>
 
-      <FormGroup
-        fieldId="routing-key-input"
-        label={t('Routing key')}
-        labelIcon={<TooltipInfoButton content={t('tooltipRoutingKey')} />}
-        title=""
-      >
-        <TextInput
-          aria-label="form routing key input"
-          value={routingKey}
-          onChange={(_, value) => handleChangeRoutingKey(value)}
-        />
-      </FormGroup>
+          <FormGroup
+            fieldId="routing-key-input"
+            label={t('Routing key')}
+            labelIcon={<TooltipInfoButton content={t('tooltipRoutingKey')} />}
+            title=""
+          >
+            <TextInput
+              aria-label="form routing key input"
+              value={routingKey}
+              onChange={(_, value) => handleChangeRoutingKey(value)}
+            />
+          </FormGroup>
 
-      <FormGroup
-        fieldId="service-name-input"
-        label={t('Service name')}
-        labelIcon={<TooltipInfoButton content={t('tooltipListenerHost')} />}
-      >
-        <TextInput
-          aria-label="form service name input"
-          value={host}
-          onChange={(_, value) => handleChangeServiceName(value)}
-        />
-      </FormGroup>
+          <FormGroup
+            fieldId="service-name-input"
+            label={t('Service name')}
+            labelIcon={<TooltipInfoButton content={t('tooltipListenerHost')} />}
+          >
+            <TextInput
+              aria-label="form service name input"
+              value={host}
+              onChange={(_, value) => handleChangeServiceName(value)}
+            />
+          </FormGroup>
 
-      <FormGroup
-        fieldId="form-type"
-        label={t('Type')}
-        labelIcon={<TooltipInfoButton content={t('tooltipProtocolType')} />}
-        title=""
-      >
-        <FormSelect aria-label="form type select" value={type} onChange={(_, value) => handleChangeType(value)}>
-          {protocolOptions.map((option, index) => (
-            <FormSelectOption key={index} value={option.value} label={option.label} />
-          ))}
-        </FormSelect>
-      </FormGroup>
+          <FormGroup
+            fieldId="form-type"
+            label={t('Type')}
+            labelIcon={<TooltipInfoButton content={t('tooltipProtocolType')} />}
+            title=""
+          >
+            <FormSelect aria-label="form type select" value={type} onChange={(_, value) => handleChangeType(value)}>
+              {protocolOptions.map((option, index) => (
+                <FormSelectOption key={index} value={option.value} label={option.label} />
+              ))}
+            </FormSelect>
+          </FormGroup>
 
-      <FormGroup
-        fieldId="tls-secret-input"
-        label={t('TLS secret')}
-        labelIcon={<TooltipInfoButton content={t('tooltipTlsCredentials')} />}
-        title=""
-      >
-        <TextInput
-          aria-label="form TLS secret input"
-          value={tlsCredentials}
-          onChange={(_, value) => handleChangeTlsCredentials(value)}
-        />
-      </FormGroup>
+          <FormGroup
+            fieldId="tls-secret-input"
+            label={t('TLS secret')}
+            labelIcon={<TooltipInfoButton content={t('tooltipTlsCredentials')} />}
+            title=""
+          >
+            <TextInput
+              aria-label="form TLS secret input"
+              value={tlsCredentials}
+              onChange={(_, value) => handleChangeTlsCredentials(value)}
+            />
+          </FormGroup>
 
-      {validated && (
-        <FormAlert>
-          <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
-            {validated}
-          </Alert>
-        </FormAlert>
-      )}
+          {validated && (
+            <FormAlert>
+              <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
+                {validated}
+              </Alert>
+            </FormAlert>
+          )}
 
-      <ActionGroup style={{ display: 'flex' }}>
-        <Button variant="primary" onClick={handleSubmit} isDisabled={!canSubmit}>
-          {t('Submit')}
-        </Button>
-        <Button variant="link" onClick={onCancel}>
-          {t('Cancel')}
-        </Button>
-      </ActionGroup>
-    </Form>
+          <ActionGroup style={{ display: 'flex' }}>
+            <Button variant="primary" onClick={handleSubmit} isDisabled={!canSubmit}>
+              {t('Submit')}
+            </Button>
+            <Button variant="link" onClick={onCancel}>
+              {t('Cancel')}
+            </Button>
+          </ActionGroup>
+        </Form>
+      </CardBody>
+    </Card>
   );
 };
 

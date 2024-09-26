@@ -38,8 +38,8 @@ const Connectors = function () {
   const { t } = useTranslation(I18nNamespace);
 
   const [areDetailsOpen, setAreDetailsOpen] = useState<boolean>(false);
-  const [showAlert, setShowAlert] = useState<boolean>(true);
   const [nameSelected, setNameSelected] = useState<string | undefined>();
+  const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showConnectorAlert') || 'show');
 
   const { data: connectors, refetch } = useQuery({
     queryKey: ['get-connectors-query'],
@@ -74,6 +74,11 @@ const Connectors = function () {
 
   const handleCloseDetails = () => {
     setNameSelected(undefined);
+  };
+
+  const handleCloseAlert = () => {
+    setShowAlert('hide');
+    sessionStorage.setItem('showConnectorAlert', 'hide');
   };
 
   const Columns: SKColumn<Connector>[] = [
@@ -158,11 +163,11 @@ const Connectors = function () {
       <CardBody>
         <Stack hasGutter>
           <StackItem>
-            {showAlert && (
+            {showAlert === 'show' && (
               <Alert
                 hidden={true}
                 variant="info"
-                actionClose={<AlertActionCloseButton onClose={() => setShowAlert(false)} />}
+                actionClose={<AlertActionCloseButton onClose={handleCloseAlert} />}
                 isInline
                 title={t(
                   'A connector binds local servers (pods, containers, or processes) to connection listeners in remote sites. Connectors are linked to listeners by a matching routing key.'
@@ -172,10 +177,10 @@ const Connectors = function () {
           </StackItem>
 
           <StackItem isFilled>
+            <Button onClick={() => setAreDetailsOpen(true)}>{t('Create a connector')}</Button>
             <Drawer isExpanded={!!nameSelected} isInline>
               <DrawerContent panelContent={panelContent}>
                 <DrawerContentBody>
-                  <Button onClick={() => setAreDetailsOpen(true)}>{t('Create a connector')}</Button>
                   <SkTable
                     columns={Columns}
                     rows={connectors || []}
@@ -190,13 +195,13 @@ const Connectors = function () {
         </Stack>
 
         <Modal
-          title={t('Create a Connector')}
+          hasNoBodyWrapper
           isOpen={areDetailsOpen}
           variant={ModalVariant.medium}
           aria-label="Form create connector"
           showClose={false}
         >
-          <ConnectorForm onSubmit={handleModalSubmit} onCancel={handleModalClose} />
+          <ConnectorForm onSubmit={handleModalSubmit} onCancel={handleModalClose} title={t('Create a Connector')} />
         </Modal>
       </CardBody>
     </Card>
