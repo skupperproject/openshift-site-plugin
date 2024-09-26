@@ -59,7 +59,7 @@ const SiteForm: FC<{
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(properties?.name || '');
   const [linkAccess, setLinkAccess] = useState(properties?.linkAccess || options[0].value);
-  const [isLinkAccessDisabled, setIsLinkAccessDisabled] = useState(!properties?.linkAccess);
+  const [isLinkAccessDisabled, setIsLinkAccessDisabled] = useState(!!properties?.linkAccess);
   const [serviceAccount, setServiceAccount] = useState(properties?.serviceAccount || '');
   const [ha, setHa] = useState(properties?.ha || false);
 
