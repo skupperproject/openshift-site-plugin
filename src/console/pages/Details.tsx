@@ -171,7 +171,7 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
                   variant="plain"
                   onClick={() => handleOpenModal({ linkAccess: true })}
                   icon={<PenIcon />}
-                  isDisabled={!site?.isReady}
+                  isDisabled={!site?.isConfigured}
                 />
               </DescriptionListDescription>
             </DescriptionListGroup>
@@ -184,7 +184,7 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
                   variant="plain"
                   onClick={() => handleOpenModal({ serviceAccount: true })}
                   icon={<PenIcon />}
-                  isDisabled={!site?.isReady}
+                  isDisabled={!site?.isConfigured}
                 />
               </DescriptionListDescription>
             </DescriptionListGroup>
@@ -197,7 +197,7 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
                   variant="plain"
                   onClick={() => handleOpenModal({ ha: true })}
                   icon={<PenIcon />}
-                  isDisabled={!site?.isReady}
+                  isDisabled={!site?.isConfigured}
                 />
               </DescriptionListDescription>
             </DescriptionListGroup>

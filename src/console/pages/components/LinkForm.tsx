@@ -66,7 +66,6 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
-
   const { data: link } = useQuery({
     queryKey: ['get-link-query', nameRef.current || fileContentRef.current],
     queryFn: () => RESTApi.findLink(nameRef.current || fileContentRef.current),
@@ -167,8 +166,8 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
         setValidated(undefined);
         setIsLoading(false);
       } else if (accessToken?.status?.status !== CR_STATUS_OK || link?.status?.status !== CR_STATUS_OK) {
-        setValidated(link?.status?.status);
         setIsLoading(false);
+        setValidated(link?.status?.status || accessToken?.status?.status);
       }
     }
   }, [accessToken?.status?.status, link?.status?.status]);

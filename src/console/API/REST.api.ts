@@ -27,7 +27,7 @@ import {
   convertConnectorCRsToConnectors,
   convertLinkCRsToLinks,
   convertListenerCRsToListeners,
-  convertSiteCRsToSites,
+  convertSiteCRToSite,
   getOtherSiteNetworksWithLinks
 } from './REST.utils';
 import { Connector, Listener, Link, SiteView, AccessGrant } from '../interfaces/REST.interfaces';
@@ -55,7 +55,7 @@ export const RESTApi = {
       return null;
     }
 
-    return convertSiteCRsToSites(sites.items[0]);
+    return convertSiteCRToSite(sites.items[0]);
   },
 
   getSites: async (): Promise<ListCrdResponse<SiteCrdResponse>> =>
@@ -124,7 +124,7 @@ export const RESTApi = {
     });
   },
 
-  getAccessToken: async (): Promise<ListCrdResponse<AccessTokenCrdResponse>> =>
+  getAccessTokens: async (): Promise<ListCrdResponse<AccessTokenCrdResponse>> =>
     axiosFetch<ListCrdResponse<AccessTokenCrdResponse>>(accessTokensPath()),
 
   findAccessToken: async (name: string): Promise<AccessTokenCrdResponse> =>

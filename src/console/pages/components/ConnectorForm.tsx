@@ -111,7 +111,7 @@ const ConnectorForm: FC<{
     setTlsCredentials(value);
   };
 
-  const canSubmit = !!(name && routingKey && port && (host || selector)); //&& !validated;
+  const canSubmit = !!(name && port); //&& !validated;
 
   return (
     <Form isHorizontal>
@@ -135,8 +135,17 @@ const ConnectorForm: FC<{
       </FormGroup>
 
       <FormGroup
-        fieldId="routing-key-input"
+        fieldId="port-input"
         isRequired
+        label={t('Port')}
+        labelIcon={<TooltipInfoButton content={t('tooltipPort')} />}
+        title=""
+      >
+        <TextInput aria-label="form port input" value={port} onChange={(_, value) => handleChangePort(value)} />
+      </FormGroup>
+
+      <FormGroup
+        fieldId="routing-key-input"
         label={t('Routing key')}
         labelIcon={<TooltipInfoButton content={t('tooltipRoutingKey')} />}
         title=""
@@ -146,16 +155,6 @@ const ConnectorForm: FC<{
           value={routingKey}
           onChange={(_, value) => handleChangeRoutingKey(value)}
         />
-      </FormGroup>
-
-      <FormGroup
-        fieldId="port-input"
-        isRequired
-        label={t('Port')}
-        labelIcon={<TooltipInfoButton content={t('tooltipPort')} />}
-        title=""
-      >
-        <TextInput aria-label="form port input" value={port} onChange={(_, value) => handleChangePort(value)} />
       </FormGroup>
 
       <FormGroup

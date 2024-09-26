@@ -17,7 +17,7 @@ import { ListenerCrdResponse } from '@interfaces/CRD_Listener';
 import { NetworkSite, SiteCrdResponse } from '@interfaces/CRD_Site';
 import { StatusAlert, Connector, Listener, Link, SiteView, AccessGrant } from '@interfaces/REST.interfaces';
 
-export function convertSiteCRsToSites({ metadata, spec, status }: SiteCrdResponse): SiteView {
+export function convertSiteCRToSite({ metadata, spec, status }: SiteCrdResponse): SiteView {
   const statusAlertSiteMap: Record<StatusSiteType | 'Error', StatusAlert> = {
     Configured: 'custom',
     Running: 'success',
