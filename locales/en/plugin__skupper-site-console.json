@@ -114,6 +114,7 @@
   "Connectors": "Connectors",
   "Create a listener": "Create a listener",
   "Update listener": "Update listener",
+  "Update connector": "Update connector",
   "A listener is a local connection endpoint that is associated with remote servers. Listeners expose a host and port for accepting connections. Listeners use a routing key to forward connection data to remote connectors.": "A listener is a local connection endpoint that is associated with remote servers. Listeners expose a host and port for accepting connections. Listeners use a routing key to forward connection data to remote connectors.",
   "Create a connector": "Create a connector",
   "A connector binds local servers (pods, containers, or processes) to connection listeners in remote sites. Connectors are linked to listeners by a matching routing key.": "A connector binds local servers (pods, containers, or processes) to connection listeners in remote sites. Connectors are linked to listeners by a matching routing key.",

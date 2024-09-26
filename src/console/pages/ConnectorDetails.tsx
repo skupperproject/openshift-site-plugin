@@ -164,15 +164,10 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
           </Card>
         </Tab>
       </Tabs>
-      <Modal
-        title={t('Update listener')}
-        isOpen={!!isOpen}
-        variant={ModalVariant.medium}
-        aria-label="Form edit listener"
-        showClose={false}
-      >
+      <Modal isOpen={!!isOpen} variant={ModalVariant.medium} aria-label="Form edit listener" showClose={false}>
         {connector && (
           <ConnectorForm
+            title={t('Update connector')}
             onSubmit={handleModalSubmit}
             onCancel={handleModalClose}
             connectorName={connector?.metadata.name}

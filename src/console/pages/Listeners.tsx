@@ -186,13 +186,13 @@ const Listeners = function () {
         </Stack>
 
         <Modal
-          title={t('Create a listener')}
+          hasNoBodyWrapper
           isOpen={!!isOpen}
           variant={ModalVariant.medium}
           aria-label="Form create listener"
           showClose={false}
         >
-          <ListenerForm onSubmit={handleModalSubmit} onCancel={handleModalClose} />
+          <ListenerForm onSubmit={handleModalSubmit} onCancel={handleModalClose} title={t('Create a listener')} />
         </Modal>
       </CardBody>
     </Card>

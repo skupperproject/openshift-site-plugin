@@ -172,10 +172,10 @@ const Connectors = function () {
           </StackItem>
 
           <StackItem isFilled>
+            <Button onClick={() => setAreDetailsOpen(true)}>{t('Create a connector')}</Button>
             <Drawer isExpanded={!!nameSelected} isInline>
               <DrawerContent panelContent={panelContent}>
                 <DrawerContentBody>
-                  <Button onClick={() => setAreDetailsOpen(true)}>{t('Create a connector')}</Button>
                   <SkTable
                     columns={Columns}
                     rows={connectors || []}
@@ -190,13 +190,13 @@ const Connectors = function () {
         </Stack>
 
         <Modal
-          title={t('Create a Connector')}
+          hasNoBodyWrapper
           isOpen={areDetailsOpen}
           variant={ModalVariant.medium}
           aria-label="Form create connector"
           showClose={false}
         >
-          <ConnectorForm onSubmit={handleModalSubmit} onCancel={handleModalClose} />
+          <ConnectorForm onSubmit={handleModalSubmit} onCancel={handleModalClose} title={t('Create a Connector')} />
         </Modal>
       </CardBody>
     </Card>

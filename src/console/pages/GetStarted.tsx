@@ -53,10 +53,14 @@ const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
     () => ({
       [Actions.Token]: <GrantForm onSubmit={handleModalClose} onCancel={handleModalClose} />,
       [Actions.Link]: <LinkForm onSubmit={handleModalClose} onCancel={handleModalClose} siteId={siteId} />,
-      [Actions.Listener]: <ListenerForm onSubmit={handleModalClose} onCancel={handleModalClose} />,
-      [Actions.Connector]: <ConnectorForm onSubmit={handleModalClose} onCancel={handleModalClose} />
+      [Actions.Listener]: (
+        <ListenerForm onSubmit={handleModalClose} onCancel={handleModalClose} title={t('Create a listener')} />
+      ),
+      [Actions.Connector]: (
+        <ConnectorForm onSubmit={handleModalClose} onCancel={handleModalClose} title={t('Create a Connector')} />
+      )
     }),
-    [handleModalClose, siteId]
+    [handleModalClose, siteId, t]
   );
 
   const DetailItem: FC<{
@@ -172,7 +176,13 @@ const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
         />
       </PageSection>
 
-      <Modal variant={ModalVariant.large} isOpen={isModalOpen} aria-label={`Form ${action}`} showClose={false}>
+      <Modal
+        hasNoBodyWrapper
+        variant={ModalVariant.large}
+        isOpen={isModalOpen}
+        aria-label={`Form ${action}`}
+        showClose={false}
+      >
         {ActionFormMap[action]}
       </Modal>
     </>

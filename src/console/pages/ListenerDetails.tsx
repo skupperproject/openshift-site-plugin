@@ -150,15 +150,10 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
           </Card>
         </Tab>
       </Tabs>
-      <Modal
-        title={t('Update listener')}
-        isOpen={!!isOpen}
-        variant={ModalVariant.medium}
-        aria-label="Form edit listener"
-        showClose={false}
-      >
+      <Modal isOpen={!!isOpen} variant={ModalVariant.medium} aria-label="Form edit listener" showClose={false}>
         {listener && (
           <ListenerForm
+            title={t('Update listener')}
             onSubmit={handleModalSubmit}
             onCancel={handleModalClose}
             listenerName={listener?.metadata.name}
