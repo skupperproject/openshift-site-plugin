@@ -1,4 +1,14 @@
-import { useState, FC, useCallback, useMemo, useRef, FormEvent, useEffect } from 'react';
+import React, {
+  useState,
+  FC,
+  useCallback,
+  FormEvent,
+  useEffect,
+  useReducer,
+  createContext,
+  useContext,
+  ReactNode
+} from 'react';
 
 import {
   Form,
@@ -23,7 +33,8 @@ import {
   WizardStep,
   Alert,
   PageSectionVariants,
-  PageSection
+  PageSection,
+  useWizardContext
 } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -36,7 +47,6 @@ import step2 from '@assets/step2.png';
 import step3 from '@assets/step3.png';
 import step4 from '@assets/step4.png';
 import { CR_STATUS_OK, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
-import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import InstructionBlock from '@core/components/InstructionBlock';
 import { createAccessTokenRequest } from '@core/utils/createCRD';
 import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
@@ -44,231 +54,103 @@ import { AccessTokenCrdParams } from '@interfaces/CRD_AccessToken';
 import { HTTPError } from '@interfaces/REST.interfaces';
 
 const DEFAULT_COST = '1';
-const ButtonName: string[] = ['Next', 'Create', 'Done'];
 const WizardContentHeight = '400px';
+
+const initialState = {
+  name: '',
+  cost: DEFAULT_COST,
+  fileName: '',
+  fileContent: ''
+};
+
+interface FormState {
+  name: string;
+  cost: string;
+  fileName: string;
+  fileContent: string;
+}
+
+type FormAction =
+  | { type: 'SET_FILE_NAME'; payload: string }
+  | { type: 'SET_FILE_CONTENT'; payload: string }
+  | { type: 'SET_NAME'; payload: string }
+  | { type: 'SET_COST'; payload: string };
+
+// Reducer function to update form fields
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case 'SET_NAME':
+      return { ...state, name: action.payload };
+    case 'SET_COST':
+      return { ...state, cost: action.payload };
+    case 'SET_FILE_NAME':
+      return { ...state, fileName: action.payload };
+    case 'SET_FILE_CONTENT':
+      return { ...state, fileContent: action.payload };
+    default:
+      return state;
+  }
+}
+
+const FormContext = createContext<{
+  state: FormState;
+  dispatch: React.Dispatch<FormAction>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  validated: string | undefined;
+  setValidated: React.Dispatch<React.SetStateAction<string | undefined>>;
+}>({
+  state: initialState,
+  dispatch: () => {},
+  isLoading: false,
+  setIsLoading: () => {},
+  validated: undefined,
+  setValidated: () => {}
+});
+
+const FormProvider: FC<{ children: ReactNode }> = function ({ children }) {
+  const [state, dispatch] = useReducer(formReducer, initialState);
+  const [isLoading, setIsLoading] = useState(false);
+  const [validated, setValidated] = useState<string | undefined>(undefined);
+
+  return (
+    <FormContext.Provider value={{ state, dispatch, isLoading, setIsLoading, validated, setValidated }}>
+      {children}
+    </FormContext.Provider>
+  );
+};
+export const useFormContext = () => useContext(FormContext);
 
 const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string }> = function ({ onSubmit, onCancel }) {
   const { t } = useTranslation(I18nNamespace);
 
-  const fileContentRef = useRef<string>('');
-  const nameRef = useRef<string>('');
-  const costRef = useRef<string>(DEFAULT_COST);
-
-  const [validated, setValidated] = useState<string | undefined>();
-
-  const [step, setStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const { data: accessToken } = useQuery({
-    queryKey: ['get-access-token-query', nameRef.current || fileContentRef.current],
-    queryFn: () => RESTApi.findAccessToken(nameRef.current || fileContentRef.current),
-    enabled: isLoading && step === 3,
-    refetchInterval: REFETCH_QUERY_INTERVAL
-  });
-
-  const { data: link } = useQuery({
-    queryKey: ['get-link-query', nameRef.current || fileContentRef.current],
-    queryFn: () => RESTApi.findLink(nameRef.current || fileContentRef.current),
-    enabled: isLoading && step === 3,
-    refetchInterval: REFETCH_QUERY_INTERVAL
-  });
-
-  const mutationCreate = useMutation({
-    mutationFn: (data: AccessTokenCrdParams) => RESTApi.createAccessToken(data),
-    onError: (data: HTTPError) => {
-      nameRef.current = '';
-      fileContentRef.current = '';
-
-      setValidated(data.descriptionMessage);
-      setIsLoading(false);
-    },
-    onSuccess: () => {
-      setValidated(undefined);
-      setIsLoading(true);
-
-      setStep(step + 1);
-    }
-  });
-
-  const handleChangeData = useCallback((data: Record<string, string>) => {
-    if (data.name) {
-      nameRef.current = data.name;
-    }
-
-    if (data.cost) {
-      costRef.current = data.cost;
-    }
-
-    if (data.filename) {
-      fileContentRef.current = data.filename;
-    }
-  }, []);
-
-  const handleSubmit = useCallback(() => {
-    if (!fileContentRef.current) {
-      setValidated(t('Fill out all required fields before continuing'));
-
-      return;
-    }
-
-    try {
-      const JsonFile = parse(fileContentRef.current) as AccessGrantCrdResponse;
-      const { metadata, status } = JsonFile;
-
-      if (!status) {
-        setValidated(t('Invalid Grant format'));
-
-        return;
-      }
-
-      nameRef.current = nameRef.current || metadata.name;
-      const data: AccessTokenCrdParams = createAccessTokenRequest({
-        metadata: {
-          name: nameRef.current
-        },
-        spec: {
-          ca: status.ca,
-          code: status.code,
-          url: status.url
-        }
-      });
-
-      mutationCreate.mutate(data);
-    } catch {
-      setValidated(t('Invalid Grant format'));
-    }
-  }, [mutationCreate, t]);
-
-  const handlePreviousStep = useCallback(() => {
-    setValidated(undefined);
-    setStep(step - 1);
-  }, [step]);
-
-  const handleNextStep = useCallback(() => {
-    setValidated(undefined);
-
-    if (step === 2) {
-      handleSubmit();
-
-      return;
-    }
-
-    if (step === 3) {
-      onSubmit();
-    }
-
-    setStep(step + 1);
-  }, [handleSubmit, onSubmit, step]);
-
-  useEffect(() => {
-    if (accessToken?.status?.status || link?.status?.status) {
-      if (link?.status?.status === CR_STATUS_OK) {
-        setValidated(undefined);
-        setIsLoading(false);
-      } else if (accessToken?.status?.status !== CR_STATUS_OK || link?.status?.status !== CR_STATUS_OK) {
-        setIsLoading(false);
-        setValidated(link?.status?.status || accessToken?.status?.status);
-      }
-    }
-  }, [accessToken?.status?.status, link?.status?.status]);
-
   const CreateLinkWizard = function () {
-    const steps = useMemo(
-      () => [
-        <WizardStep name={t('How-To')} id="1-step" key="1-step">
-          <Stack hasGutter>
-            <StackItem>
-              <InstructionBlock
-                img={step1}
-                title={t('Step 1 - Visit a remote site')}
-                description={t('Open a new browser window or tab and visit the remote site.')}
-              />
-            </StackItem>
-
-            <StackItem>
-              <InstructionBlock
-                img={step2}
-                title={t('Step 2 - Generate a grant from the remote site')}
-                description={t('Generate the grant with the web console or the CLI.')}
-                link1="https://skupper.io/docs/cli/tokens.html"
-                link1Text="More information on token creation"
-                link2="https://skupper.io/docs/cli/index.html"
-                link2Text="More information CLI"
-              />
-            </StackItem>
-
-            <StackItem>
-              <InstructionBlock
-                img={step3}
-                title={t('Step 3 - Download the grant file')}
-                description={t('Download the grant file from the remote site after generating it.')}
-              />
-            </StackItem>
-
-            <StackItem>
-              <InstructionBlock
-                img={step4}
-                title={t('Step 4 - Use the grant to create a link')}
-                description={t('Use the grant to create a link from the local site to the remote site.')}
-              />
-            </StackItem>
-          </Stack>
-        </WizardStep>,
-        <WizardStep name={t('Create a connection')} id="2-step" key="2-step">
-          <CreateForm onSubmit={handleChangeData} />
-        </WizardStep>,
-        <WizardStep name={t('Summary')} id="3-step" key="3-step">
-          <Summary isLoading={isLoading} error={validated} />{' '}
-        </WizardStep>
-      ],
-      []
-    );
-
     return (
-      <Wizard
-        startIndex={step}
-        title=""
-        header={
-          <WizardHeader
-            title={t('Create link')}
-            description="Links enable communication between sites. Once sites are linked, they form a network."
-            isCloseHidden={true}
-          />
-        }
-        footer={
-          <>
-            {validated && step === 2 && (
-              <PageSection variant={PageSectionVariants.light}>
-                <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
-                  {validated}
-                </Alert>
-              </PageSection>
-            )}
+      <FormProvider>
+        <Wizard
+          title=""
+          header={
+            <WizardHeader
+              title={t('Create link')}
+              description="Links enable communication between sites. Once sites are linked, they form a network."
+              isCloseHidden={true}
+            />
+          }
+          footer={<Footer onCancel={onCancel} onSubmit={onSubmit} />}
+        >
+          <WizardStep name={t('How-To')} id="1-step" key="1-step">
+            <HowTo />
+          </WizardStep>
 
-            <WizardFooterWrapper>
-              <Button
-                variant="secondary"
-                onClick={handlePreviousStep}
-                isDisabled={step === 1 || step === 3 || isLoading}
-              >
-                {t('Back')}
-              </Button>
+          <WizardStep name={t('Create a connection')} id="2-step" key="2-step">
+            <CreateForm />
+          </WizardStep>
 
-              <Button onClick={handleNextStep} isDisabled={isLoading || (step === 3 && !!validated)}>
-                {t(ButtonName[step - 1])}
-              </Button>
-
-              {!(step === 3 && !isLoading && !validated) && (
-                <Button variant="link" onClick={onCancel}>
-                  {step === 1 || step === 2 ? t('Cancel') : t('Dismiss')}
-                </Button>
-              )}
-            </WizardFooterWrapper>
-          </>
-        }
-      >
-        {...steps}
-      </Wizard>
+          <WizardStep name={t('Summary')} id="3-step" key="3-step">
+            <Summary />
+          </WizardStep>
+        </Wizard>
+      </FormProvider>
     );
   };
 
@@ -277,59 +159,93 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
 
 export default LinkForm;
 
-const CreateForm: FC<{ onSubmit: (data: Record<string, string>) => void }> = function ({ onSubmit }) {
+const HowTo = function () {
   const { t } = useTranslation(I18nNamespace);
 
-  const [name, setName] = useState('');
-  const [cost, setCost] = useState(DEFAULT_COST);
-  const [filename, setFilename] = useState('');
-  const [fileContent, setFileContent] = useState('');
+  return (
+    <Stack hasGutter>
+      <StackItem>
+        <InstructionBlock
+          img={step1}
+          title={t('Step 1 - Visit a remote site')}
+          description={t('Open a new browser window or tab and visit the remote site.')}
+        />
+      </StackItem>
+
+      <StackItem>
+        <InstructionBlock
+          img={step2}
+          title={t('Step 2 - Generate a grant from the remote site')}
+          description={t('Generate the grant with the web console or the CLI.')}
+          link1="https://skupper.io/docs/cli/tokens.html"
+          link1Text="More information on token creation"
+          link2="https://skupper.io/docs/cli/index.html"
+          link2Text="More information CLI"
+        />
+      </StackItem>
+
+      <StackItem>
+        <InstructionBlock
+          img={step3}
+          title={t('Step 3 - Download the grant file')}
+          description={t('Download the grant file from the remote site after generating it.')}
+        />
+      </StackItem>
+
+      <StackItem>
+        <InstructionBlock
+          img={step4}
+          title={t('Step 4 - Use the grant to create a link')}
+          description={t('Use the grant to create a link from the local site to the remote site.')}
+        />
+      </StackItem>
+    </Stack>
+  );
+};
+
+const CreateForm = function () {
+  const { t } = useTranslation(I18nNamespace);
+  const {
+    state: { name, fileName, cost, fileContent },
+    dispatch
+  } = useFormContext();
 
   const handleFileInputChange = useCallback(
     (_: DropEvent, file: File) => {
-      setFilename(file.name);
-      onSubmit({ filename: file.name });
+      dispatch({ type: 'SET_FILE_NAME', payload: getFilenameWithoutExtension(file.name) });
     },
-    [onSubmit]
+    [dispatch]
   );
 
   const handleFileContentChange = useCallback(
     (_: DropEvent, value: string) => {
-      setFileContent(value);
-      onSubmit({ filename: value });
+      dispatch({ type: 'SET_FILE_CONTENT', payload: value });
     },
-    [onSubmit]
+    [dispatch]
   );
 
   const handleChangeCost = useCallback(
     (_: FormEvent, value: string) => {
-      setCost(value);
-      onSubmit({ cost: value });
+      dispatch({ type: 'SET_COST', payload: value });
     },
-    [onSubmit]
+    [dispatch]
   );
 
   const handleChangeName = useCallback(
     (_: FormEvent, value: string = '') => {
-      setName(value);
-      onSubmit({ name: value });
+      dispatch({ type: 'SET_NAME', payload: value });
     },
-    [onSubmit]
+    [dispatch]
   );
 
   return (
     <Form isHorizontal>
-      <FormGroup
-        isRequired
-        label={t('Token')}
-        labelIcon={<TooltipInfoButton content="...." />}
-        fieldId="form-access-token"
-      >
+      <FormGroup isRequired label={t('Token')} fieldId="form-access-token">
         <FileUpload
           id="access-token-file"
           type="text"
           value={fileContent}
-          filename={filename}
+          filename={fileName}
           filenamePlaceholder="Drag and drop a file or upload one"
           browseButtonText="Upload"
           hideDefaultPreview={true}
@@ -339,7 +255,7 @@ const CreateForm: FC<{ onSubmit: (data: Record<string, string>) => void }> = fun
         />
       </FormGroup>
 
-      <FormGroup label={t('Name')} labelIcon={<TooltipInfoButton content="...." />} fieldId="form-name-input">
+      <FormGroup label={t('Name')} fieldId="form-name-input">
         <TextInput
           isRequired
           id="simple-form-name-01"
@@ -349,7 +265,7 @@ const CreateForm: FC<{ onSubmit: (data: Record<string, string>) => void }> = fun
         />
       </FormGroup>
 
-      <FormGroup label={t('Cost')} labelIcon={<TooltipInfoButton content="...." />} fieldId="form-cost-input">
+      <FormGroup label={t('Cost')} fieldId="form-cost-input">
         <TextInput
           isRequired
           id="form-cost"
@@ -363,8 +279,44 @@ const CreateForm: FC<{ onSubmit: (data: Record<string, string>) => void }> = fun
   );
 };
 
-const Summary: FC<{ isLoading: boolean; error: string | undefined }> = function ({ isLoading, error }) {
+const Summary = function () {
   const { t } = useTranslation(I18nNamespace);
+  const {
+    state: { name, fileName },
+    setIsLoading: setExternalLoading,
+    validated: error,
+    setValidated
+  } = useFormContext();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const { data: accessToken } = useQuery({
+    queryKey: ['get-access-token-query', name || fileName],
+    queryFn: () => RESTApi.findAccessToken(name || fileName),
+    refetchInterval: REFETCH_QUERY_INTERVAL
+  });
+
+  const { data: link } = useQuery({
+    queryKey: ['get-link-query', name || fileName],
+    queryFn: () => RESTApi.findLink(name || fileName),
+    refetchInterval: REFETCH_QUERY_INTERVAL
+  });
+
+  useEffect(() => {
+    if (accessToken?.status?.status || link?.status?.status) {
+      if (link?.status?.status === CR_STATUS_OK) {
+        setValidated(undefined);
+        setIsLoading(false);
+        setExternalLoading(false);
+      } else if (
+        accessToken?.status?.status !== CR_STATUS_OK ||
+        (accessToken?.status?.status && link?.status?.status && link?.status?.status !== CR_STATUS_OK)
+      ) {
+        setIsLoading(false);
+        setExternalLoading(false);
+        setValidated(link?.status?.status || accessToken?.status?.status);
+      }
+    }
+  }, [accessToken?.status?.status, link?.status?.status, setValidated, setIsLoading, setExternalLoading]);
 
   if (isLoading) {
     return (
@@ -427,3 +379,135 @@ const Summary: FC<{ isLoading: boolean; error: string | undefined }> = function 
     </div>
   );
 };
+
+const ButtonName: string[] = ['Next', 'Create', 'Done'];
+
+interface FooterProps {
+  onSubmit: () => void;
+  onCancel: () => void;
+}
+
+const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
+  const { t } = useTranslation();
+  const { activeStep, goToNextStep, goToPrevStep } = useWizardContext();
+  const {
+    state: { name, fileContent },
+    isLoading,
+    validated,
+    setIsLoading,
+    setValidated,
+    dispatch
+  } = useFormContext();
+
+  const mutationCreate = useMutation({
+    mutationFn: (data: AccessTokenCrdParams) => RESTApi.createAccessToken(data),
+    onError: (data: HTTPError) => {
+      dispatch({ type: 'SET_NAME', payload: '' });
+      dispatch({ type: 'SET_FILE_NAME', payload: '' });
+      dispatch({ type: 'SET_FILE_CONTENT', payload: '' });
+
+      setValidated(data.descriptionMessage);
+      setIsLoading(false);
+    },
+    onSuccess: () => {
+      setValidated(undefined);
+      setIsLoading(true);
+
+      goToNextStep();
+    }
+  });
+
+  const handleSubmit = useCallback(() => {
+    if (!fileContent) {
+      setValidated(t('Fill out all required fields before continuing'));
+
+      return;
+    }
+
+    try {
+      const JsonFile = parse(fileContent) as AccessGrantCrdResponse;
+      const { metadata, status } = JsonFile;
+
+      if (!status) {
+        setValidated(t('Invalid Grant format'));
+
+        return;
+      }
+
+      const data: AccessTokenCrdParams = createAccessTokenRequest({
+        metadata: {
+          name: name || metadata.name
+        },
+        spec: {
+          ca: status.ca,
+          code: status.code,
+          url: status.url
+        }
+      });
+
+      mutationCreate.mutate(data);
+    } catch {
+      setValidated(t('Invalid Grant format'));
+    }
+  }, [fileContent, mutationCreate, name, setValidated, t]);
+
+  const handlePreviousStep = useCallback(() => {
+    setValidated(undefined);
+    goToPrevStep();
+  }, [goToPrevStep, setValidated]);
+
+  const handleNextStep = useCallback(() => {
+    setValidated(undefined);
+
+    if (activeStep?.index === 2) {
+      handleSubmit();
+
+      return;
+    }
+
+    if (activeStep?.index === 3) {
+      onSubmit();
+    }
+
+    goToNextStep();
+  }, [setValidated, activeStep?.index, goToNextStep, handleSubmit, onSubmit]);
+
+  return (
+    <>
+      {validated && activeStep?.index === 2 && (
+        <PageSection variant={PageSectionVariants.light}>
+          <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
+            {validated}
+          </Alert>
+        </PageSection>
+      )}
+
+      <WizardFooterWrapper>
+        <Button
+          variant="secondary"
+          onClick={handlePreviousStep}
+          isDisabled={activeStep?.index === 1 || activeStep?.index === 3 || isLoading}
+        >
+          {t('Back')}
+        </Button>
+
+        <Button onClick={handleNextStep} isDisabled={isLoading || (activeStep?.index === 3 && !!validated)}>
+          {t(ButtonName[activeStep?.index - 1])}
+        </Button>
+
+        {!(activeStep.index === 3 && !isLoading && !validated) && (
+          <Button variant="link" onClick={onCancel}>
+            {activeStep?.index === 1 || activeStep?.index === 2 ? t('Cancel') : t('Dismiss')}
+          </Button>
+        )}
+      </WizardFooterWrapper>
+    </>
+  );
+};
+
+function getFilenameWithoutExtension(filename: string) {
+  const parts = filename.split('.');
+  parts.pop();
+
+  return parts.join('.');
+}

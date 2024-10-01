@@ -133,7 +133,7 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
           onSetCode={(value: string) => (codeRef.current = value)}
         />
       </WizardStep>,
-      <WizardStep name={t('Create link - How to')} id="2-step" key="2-step">
+      <WizardStep name={t('Create token')} id="2-step" key="2-step">
         <DownloadToken
           handleDownload={handleDownload}
           isDisabled={!grant?.status || grant.status.status !== CR_STATUS_OK}
@@ -150,7 +150,7 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
       title=""
       header={
         <WizardHeader
-          title={t('Create grant')}
+          title={t('Create token')}
           description={t('A token indicating authorization to generate a link.')}
           isCloseHidden={true}
         />
@@ -335,7 +335,7 @@ const DownloadToken: FC<{
   return (
     <Stack hasGutter>
       <StackItem>
-        <Title headingLevel="h1">{t('Create link - How to')}</Title>
+        <Title headingLevel="h1">{t('Create token - How to')}</Title>
       </StackItem>
 
       <StackItem>
