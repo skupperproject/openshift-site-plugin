@@ -44,6 +44,7 @@ export function convertSiteCRToSite({ metadata, spec, status }: SiteCrdResponse)
     linkCount: getOtherSiteNetworksWithLinks(status?.network, metadata.uid).length || 0,
     isConfigured: hasType(status?.conditions, 'Configured'),
     isReady: hasType(status?.conditions, 'Ready'),
+    hasSecondaryErrors: hasReasonError(status?.conditions),
     hasError,
     status: calculatedStatus,
     conditions: status?.conditions,
@@ -224,7 +225,7 @@ export function hasType<T>(conditions: CrdStatusCondition<T>[] = [], type: Statu
 }
 
 export function hasReasonError<T>(conditions: CrdStatusCondition<T>[] = []) {
-  return !!conditions?.some((condition) => condition.reason === 'Error' && condition.status === 'True');
+  return !!conditions?.some((condition) => condition.reason === 'Error');
 }
 
 function getLastStatusTrueByTime<T>(conditions: CrdStatusCondition<T>[] = []) {

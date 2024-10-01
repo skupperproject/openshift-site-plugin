@@ -24,7 +24,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { DEFAULT_SERVICE_ACCOUNT, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
 import { getSiteInfo } from '@config/db';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import LoadingPage from '@core/components/Loading';
@@ -155,13 +155,14 @@ const SiteForm: FC<{
             <TextInput
               aria-label="form service account input"
               value={serviceAccount}
+              placeholder={DEFAULT_SERVICE_ACCOUNT}
               onChange={(_, value) => handleChangeServiceAccount(value)}
             />
           </FormGroup>
         )}
 
         {show.ha && (
-          <FormGroup fieldId="ha-checkbox">
+          <FormGroup fieldId="ha-checkbox" className="pf-v5-u-mt-md">
             <Checkbox
               aria-label="form ha checkbox"
               id="ha checkbox"
