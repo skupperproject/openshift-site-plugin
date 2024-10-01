@@ -1,5 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 
+import { YellowExclamationTriangleIcon } from '@openshift-console/dynamic-plugin-sdk';
 import {
   DescriptionList,
   DescriptionListTerm,
@@ -17,7 +18,7 @@ import {
   Label,
   Icon
 } from '@patternfly/react-core';
-import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon, PenIcon, SyncAltIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon, InProgressIcon, PenIcon, SyncAltIcon } from '@patternfly/react-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -131,15 +132,13 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
                         <ExclamationCircleIcon />
                       </Icon>
                     )}
-                    {!site?.hasError && !!site?.isConfigured && !site?.isReady && (
-                      <Icon isInline status="success">
-                        {<CheckCircleIcon />}
-                      </Icon>
-                    )}
                     {!site?.hasError && !!site?.isConfigured && !!site?.isReady && (
                       <Icon isInline>{<SyncAltIcon />}</Icon>
                     )}
-                    {'  '} {site?.status}
+                    {'  '} {site?.status} {'  '}
+                    {!site?.hasError && site?.hasSecondaryErrors && (
+                      <Icon status="warning">{<YellowExclamationTriangleIcon />}</Icon>
+                    )}
                   </Label>
                 )}
               </Flex>
