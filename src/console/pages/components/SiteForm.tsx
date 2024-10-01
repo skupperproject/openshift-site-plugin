@@ -59,7 +59,7 @@ const SiteForm: FC<{
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(properties?.name || '');
   const [linkAccess, setLinkAccess] = useState(properties?.linkAccess || options[0].value);
-  const [isLinkAccessDisabled, setIsLinkAccessDisabled] = useState(!!properties?.linkAccess);
+  const [isLinkAccessExist, setToggleLinkAccess] = useState(!!properties?.linkAccess || (!properties && true));
   const [serviceAccount, setServiceAccount] = useState(properties?.serviceAccount || '');
   const [ha, setHa] = useState(properties?.ha || false);
 
@@ -106,7 +106,7 @@ const SiteForm: FC<{
     const data: SiteCrdParams = createSiteData({
       metadata: { name, resourceVersion: getSiteInfo()?.resourceVersion || '' },
       spec: {
-        linkAccess: isLinkAccessDisabled ? undefined : linkAccess,
+        linkAccess: isLinkAccessExist ? linkAccess : undefined,
         serviceAccount,
         ha
       }
@@ -200,8 +200,8 @@ const SiteForm: FC<{
                 <Checkbox
                   id="enable-link-access"
                   label={t('Enable link access')}
-                  onClick={() => setIsLinkAccessDisabled(!isLinkAccessDisabled)}
-                  isChecked={!isLinkAccessDisabled}
+                  onClick={() => setToggleLinkAccess(!isLinkAccessExist)}
+                  isChecked={isLinkAccessExist}
                   className="pf-v5-u-mb-md"
                 />
 
@@ -209,7 +209,7 @@ const SiteForm: FC<{
                   aria-label="form link access select"
                   value={linkAccess}
                   onChange={(_, value) => handleChangeLinkAccess(value)}
-                  isDisabled={isLinkAccessDisabled}
+                  isDisabled={!isLinkAccessExist}
                 >
                   {options.map((option, index) => (
                     <FormSelectOption

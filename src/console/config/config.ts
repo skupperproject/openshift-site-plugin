@@ -4,7 +4,7 @@ export const CR_STATUS_OK = 'OK';
 export const EMPTY_LINK_ACCESS_STATUS = 'none';
 export const DEFAULT_SERVICE_ACCOUNT = 'skupper:skupper-controller';
 export const EMPTY_VALUE_SYMBOL = '-';
-export const REFETCH_QUERY_INTERVAL = 8000;
+export const REFETCH_QUERY_INTERVAL = 6000;
 
 export const protocolOptions = [
   { value: 'tcp', label: 'tcp' },
