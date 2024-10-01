@@ -23,5 +23,6 @@ export interface LinkCrdResponse extends LinkCrdBase {
     remoteSiteId?: string;
     remoteSiteName?: string;
     conditions: CrdStatusCondition<StatusLinkType>[];
+    status: string;
   };
 }

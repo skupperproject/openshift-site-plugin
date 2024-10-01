@@ -145,7 +145,20 @@ export const RESTApi = {
   getLinks: async (): Promise<ListCrdResponse<LinkCrdResponse>> =>
     axiosFetch<ListCrdResponse<LinkCrdResponse>>(linksPath()),
 
-  findLink: async (name: string): Promise<AccessTokenCrdResponse> => axiosFetch<AccessTokenCrdResponse>(linkPath(name)),
+  findLink: async (name: string): Promise<LinkCrdResponse> => {
+    const data = await RESTApi.getLinks();
+
+    let item = data.items.find((link) => link.metadata.name === name);
+
+    if (!item) {
+      // HA case where i create 2 links with suffix 1 and 2
+      item =
+        data.items.find((link) => link.metadata.name === `${name}-1`) &&
+        data.items.find((link) => link.metadata.name === `${name}-2`);
+    }
+
+    return item || ({} as LinkCrdResponse);
+  },
 
   getLinksView: async (): Promise<Link[] | null> => {
     const [links, sites] = await Promise.all([RESTApi.getLinks(), RESTApi.getSites()]);
@@ -169,10 +182,6 @@ export const RESTApi = {
 
   deleteLink: async (name: string): Promise<void> => {
     await axiosFetch<void>(linkPath(name), {
-      method: 'DELETE'
-    });
-
-    await axiosFetch<void>(accessTokenPath(name), {
       method: 'DELETE'
     });
   },
