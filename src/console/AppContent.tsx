@@ -7,7 +7,7 @@ import EmptySite from './pages/EmptySite';
 
 const AppContent = function () {
   const { data: site, refetch } = useQuery({
-    queryKey: ['find-site-query'],
+    queryKey: ['find-site-query-init'],
     queryFn: () => RESTApi.findSiteView()
   });
 

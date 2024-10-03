@@ -18,7 +18,6 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
     return (
       <FormProvider>
         <Wizard
-          title=""
           header={
             <WizardHeader
               title={t('Create link')}

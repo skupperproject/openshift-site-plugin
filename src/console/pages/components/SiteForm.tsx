@@ -279,7 +279,11 @@ const FormPage: FC<FormPageProps> = function ({
   );
 };
 
-const WaitSiteCreation: FC<{ onReady: () => void }> = function ({ onReady }) {
+interface WaitSiteCreationProps {
+  onReady: () => void;
+}
+
+const WaitSiteCreation: FC<WaitSiteCreationProps> = function ({ onReady }) {
   const { t } = useTranslation(I18nNamespace);
 
   const { data: site, isFetching } = useQuery({
