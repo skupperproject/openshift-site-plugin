@@ -212,7 +212,7 @@ export const RESTApi = {
   findListener: async (name: string): Promise<ListenerCrdResponse> =>
     axiosFetch<ListenerCrdResponse>(listenerPath(name)),
 
-  createOrUpdateListener: async (data?: ListenerCrdParams, name?: string): Promise<void> => {
+  createOrUpdateListener: async (data?: ListenerCrdParams, name?: string): Promise<'Updated' | 'Created'> => {
     const path = name ? `${listenerPath(name)}` : listenersPath();
     const method = name ? 'PUT' : 'POST';
 
@@ -220,6 +220,8 @@ export const RESTApi = {
       method,
       data
     });
+
+    return method === 'PUT' ? 'Updated' : 'Created';
   },
 
   deleteListener: async (name: string): Promise<void> => {
@@ -244,7 +246,7 @@ export const RESTApi = {
   findConnector: async (name: string): Promise<ConnectorCrdResponse> =>
     axiosFetch<ConnectorCrdResponse>(connectorPath(name)),
 
-  createOrUpdateConnector: async (data?: ConnectorParams, name?: string): Promise<void> => {
+  createOrUpdateConnector: async (data?: ConnectorParams, name?: string): Promise<'Updated' | 'Created'> => {
     const path = name ? `${connectorPath(name)}` : connectorsPath();
     const method = name ? 'PUT' : 'POST';
 
@@ -252,6 +254,8 @@ export const RESTApi = {
       method,
       data
     });
+
+    return method === 'PUT' ? 'Updated' : 'Created';
   },
 
   deleteConnector: async (name: string): Promise<void> => {

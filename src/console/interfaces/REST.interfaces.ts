@@ -57,6 +57,7 @@ export interface Listener extends BaseView {
   serviceName: string;
   port: number;
   connected: number;
+  resourceVersion: string;
 }
 
 export interface Connector extends BaseView {
@@ -66,4 +67,5 @@ export interface Connector extends BaseView {
   port: number;
   routingKey: string;
   connected: number;
+  resourceVersion: string;
 }

@@ -31,6 +31,7 @@ import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
 import { Connector } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
+import { ImportConnectorsForm } from '@pages/components/ImportConnectorsForm';
 
 import ConnectorDetails from './ConnectorDetails';
 import ConnectorForm from '../components/forms/ConnectorForm';
@@ -39,6 +40,7 @@ const Connectors = function () {
   const { t } = useTranslation(I18nNamespace);
 
   const [areDetailsOpen, setAreDetailsOpen] = useState<boolean>(false);
+  const [isImportOpen, setIsImportOpen] = useState<boolean>();
   const [nameSelected, setNameSelected] = useState<string | undefined>();
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showConnectorAlert') || 'show');
 
@@ -62,7 +64,8 @@ const Connectors = function () {
 
   const handleModalClose = useCallback(() => {
     setAreDetailsOpen(false);
-  }, []);
+    setIsImportOpen(undefined);
+  },[]);
 
   const handleModalSubmit = useCallback(() => {
     handleModalClose();
@@ -174,7 +177,8 @@ const Connectors = function () {
           </StackItem>
 
           <StackItem isFilled>
-            <Button onClick={() => setAreDetailsOpen(true)}>{t('Create a connector')}</Button>
+            <Button onClick={() => setAreDetailsOpen(true)}>{t('Create a connector')}</Button>{' '}
+            <Button onClick={() => setIsImportOpen(true)}>{t('Import YAML')}</Button>
             <Drawer isExpanded={!!nameSelected} isInline>
               <DrawerContent panelContent={panelContent}>
                 <DrawerContentBody>
@@ -199,6 +203,16 @@ const Connectors = function () {
           showClose={false}
         >
           <ConnectorForm onSubmit={handleModalSubmit} onCancel={handleModalClose} title={t('Create a Connector')} />
+        </Modal>
+
+        <Modal
+          hasNoBodyWrapper
+          isOpen={!!isImportOpen}
+          variant={ModalVariant.large}
+          aria-label="Form import listeners"
+          showClose={false}
+        >
+          <ImportConnectorsForm oldItems={connectors || []} onSubmit={handleModalSubmit} onCancel={handleModalClose} />
         </Modal>
       </CardBody>
     </Card>

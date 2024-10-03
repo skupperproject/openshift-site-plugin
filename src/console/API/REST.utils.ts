@@ -179,7 +179,8 @@ export function convertListenerCRsToListeners(_: SiteCrdResponse, listeners: Lis
       connected: status?.matchingConnectorCount || 0,
       hasError,
       status: calculatedStatus,
-      statusAlert: calculatedStatusAlert
+      statusAlert: calculatedStatusAlert,
+      resourceVersion: metadata.resourceVersion
     };
   });
 }
@@ -213,7 +214,8 @@ export function convertConnectorCRsToConnectors(_: SiteCrdResponse, connectors: 
       connected: status?.matchingListenerCount || 0,
       hasError,
       status: calculatedStatus,
-      statusAlert: calculatedStatusAlert
+      statusAlert: calculatedStatusAlert,
+      resourceVersion: metadata.resourceVersion
     };
   });
 }
