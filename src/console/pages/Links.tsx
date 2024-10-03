@@ -10,7 +10,6 @@ import {
   ToolbarItem,
   Alert,
   AlertActionCloseButton,
-  Timestamp,
   Stack,
   StackItem,
   CardBody,
@@ -24,6 +23,7 @@ import { stringify } from 'yaml';
 import { RESTApi } from '@API/REST.api';
 import { convertAccessTokensToLinks, hasType } from '@API/REST.utils';
 import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import FormatOCPDateCell from '@core/components/FormatOCPDate';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
 import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
@@ -161,8 +161,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     {
       name: t('Status'),
       prop: 'status',
-      customCellName: 'StatusCell',
-      modifier: 'fitContent'
+      customCellName: 'StatusCell'
     },
     {
       name: t('Redemptions Allowed'),
@@ -175,7 +174,8 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     {
       name: t('Expiration'),
       prop: 'expirationWindow',
-      customCellName: 'date'
+      customCellName: 'date',
+      modifier: 'fitContent'
     },
     {
       name: '',
@@ -192,8 +192,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     {
       name: t('Status'),
       prop: 'status',
-      customCellName: 'StatusCell',
-      width: 30
+      customCellName: 'StatusCell'
     },
     {
       name: t('Linked to'),
@@ -234,7 +233,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
       const now = new Date();
       const ValidFor = new Date(value as ISO8601Timestamp);
 
-      return now > ValidFor ? t('Expired') : data.status ? <Timestamp date={ValidFor} /> : '';
+      return now > ValidFor ? t('Expired') : data.status ? <FormatOCPDateCell value={ValidFor} /> : '';
     },
     actions: ({ data }: SKComponentProps<AccessGrant>) => (
       <>

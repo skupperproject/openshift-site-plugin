@@ -26,7 +26,7 @@ export function convertSiteCRToSite({ metadata, spec, status }: SiteCrdResponse)
     Error: 'danger'
   };
 
-  const lastStatus = getLastStatusTrueByTime(status?.conditions);
+  const lastStatus = getLastStatusTrue(status?.conditions);
   const hasError = lastStatus?.reason === 'Error';
   const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
@@ -65,7 +65,7 @@ export function convertAccessGrantCRsToAccessGrants(accessGrants: AccessGrantCrd
   return accessGrants.map((accessGrant) => {
     const { metadata, spec, status } = accessGrant;
 
-    const lastStatus = getLastStatusTrueByTime(status?.conditions);
+    const lastStatus = getLastStatusTrue(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
@@ -98,7 +98,7 @@ export function convertLinkCRsToLinks(links: LinkCrdResponse[]): Link[] {
   };
 
   return links.map(({ metadata, spec, status }) => {
-    const lastStatus = getLastStatusTrueByTime(status?.conditions);
+    const lastStatus = getLastStatusTrue(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
@@ -126,7 +126,7 @@ export function convertAccessTokensToLinks(links: AccessTokenCrdResponse[]): Lin
   };
 
   return links.map(({ metadata, status }) => {
-    const lastStatus = getLastStatusTrueByTime(status?.conditions);
+    const lastStatus = getLastStatusTrue(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
     const calculatedStatusAlert =
@@ -156,7 +156,7 @@ export function convertListenerCRsToListeners(_: SiteCrdResponse, listeners: Lis
   };
 
   return listeners.map(({ metadata, spec, status }) => {
-    const lastStatus = getLastStatusTrueByTime(status?.conditions);
+    const lastStatus = getLastStatusTrue(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
@@ -190,7 +190,7 @@ export function convertConnectorCRsToConnectors(_: SiteCrdResponse, connectors: 
   };
 
   return connectors.map(({ metadata, spec, status }) => {
-    const lastStatus = getLastStatusTrueByTime(status?.conditions);
+    const lastStatus = getLastStatusTrue(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
@@ -228,7 +228,7 @@ export function hasReasonError<T>(conditions: CrdStatusCondition<T>[] = []) {
   return !!conditions?.some((condition) => condition.reason === 'Error');
 }
 
-function getLastStatusTrueByTime<T>(conditions: CrdStatusCondition<T>[] = []) {
+function getLastStatusTrue<T>(conditions: CrdStatusCondition<T>[] = []) {
   const priorityMap: Record<StatusType, number> = {
     Configured: 1,
     Resolved: 0,
@@ -249,18 +249,19 @@ function getLastStatusTrueByTime<T>(conditions: CrdStatusCondition<T>[] = []) {
   }
 
   // Sort the filtered conditions by lastTransitionTime in descending order
-  trueConditions.sort((a, b) => {
-    const dateA = new Date(a.lastTransitionTime);
-    const dateB = new Date(b.lastTransitionTime);
+  trueConditions.sort(
+    (a, b) =>
+      // const dateA = new Date(a.lastTransitionTime);
+      // const dateB = new Date(b.lastTransitionTime);
 
-    const value = Number(dateB) - Number(dateA);
+      // const value = Number(dateB) - Number(dateA);
 
-    if (value === 0) {
-      return priorityMap[b.type as StatusType] - priorityMap[a.type as StatusType];
-    }
+      // if (value === 0) {
+      priorityMap[b.type as StatusType] - priorityMap[a.type as StatusType]
+    //}
 
-    return value;
-  });
+    // return value;
+  );
 
   // Return the first condition in the sorted array (the most recent one)
   return trueConditions.length > 0 ? trueConditions[0] : null;

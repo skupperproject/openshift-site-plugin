@@ -18,7 +18,7 @@ import {
   Label,
   Icon
 } from '@patternfly/react-core';
-import { ExclamationCircleIcon, InProgressIcon, PenIcon, SyncAltIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon, PenIcon, SyncAltIcon } from '@patternfly/react-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -75,30 +75,41 @@ const Details: FC<{ onGoTo: (page: number) => void; onReady: () => void }> = fun
     {
       name: t('Status'),
       prop: 'status',
-      width: 20
+      width: 20,
+      customCellName: 'StatusCell'
+    },
+
+    {
+      name: t('Reason'),
+      prop: 'reason'
+    },
+    {
+      name: t('Message'),
+      prop: 'message',
+      customCellName: 'ValueOrEmptyCell'
     },
     {
       name: t('Updated'),
       prop: 'lastTransitionTime',
       customCellName: 'FormatOCPDateCell',
-      width: 20
-    },
-    {
-      name: t('Reason'),
-      prop: 'reason',
-      customCellName: 'ValueOrEmpty'
-    },
-    {
-      name: t('Message'),
-      prop: 'message',
-      customCellName: 'ValueOrEmpty'
+      modifier: 'fitContent'
     }
   ];
 
   const customSiteCells = {
     FormatOCPDateCell,
-    ValueOrEmpty: ({ value }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
-      value !== CR_STATUS_OK ? value : EMPTY_VALUE_SYMBOL
+    ValueOrEmptyCell: ({ data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
+      data.reason !== CR_STATUS_OK ? data.status : EMPTY_VALUE_SYMBOL,
+    StatusCell: ({ data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
+      data.status === 'False' ? (
+        <Icon status="danger">
+          <ExclamationCircleIcon />
+        </Icon>
+      ) : (
+        <Icon status="success">
+          <CheckCircleIcon />
+        </Icon>
+      )
   };
 
   return (

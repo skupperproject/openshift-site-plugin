@@ -19,7 +19,6 @@ import {
   Tab,
   TabTitleText,
   Tabs,
-  Timestamp,
   Title
 } from '@patternfly/react-core';
 import { useQuery } from '@tanstack/react-query';
@@ -28,6 +27,7 @@ import { stringify } from 'yaml';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
+import FormatOCPDateCell from '@core/components/FormatOCPDate';
 
 import ListenerForm from './components/ListenerForm';
 
@@ -134,7 +134,7 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
                   <DescriptionListGroup>
                     <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
                     <DescriptionListDescription>
-                      <Timestamp date={new Date(listener.metadata.creationTimestamp)} />
+                      <FormatOCPDateCell value={new Date(listener.metadata.creationTimestamp)} />
                     </DescriptionListDescription>
                   </DescriptionListGroup>
                 )}
