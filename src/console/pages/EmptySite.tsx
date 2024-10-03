@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 
 import {
   Bullseye,
@@ -21,18 +21,18 @@ import { I18nNamespace } from '@config/config';
 import SiteForm from './components/SiteForm';
 
 interface InitProps {
-  onSubmit: () => void;
+  onReady: () => void;
 }
 
-const EmptySite: FC<InitProps> = function ({ onSubmit }) {
+const EmptySite: FC<InitProps> = function ({ onReady }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSubmit = () => {
+  const handleReady = useCallback(() => {
     setIsModalOpen(false);
-    onSubmit();
-  };
+    onReady();
+  }, [onReady]);
 
   return (
     <>
@@ -61,7 +61,7 @@ const EmptySite: FC<InitProps> = function ({ onSubmit }) {
         aria-label="Form create site"
         showClose={false}
       >
-        <SiteForm onSubmit={handleSubmit} onCancel={() => setIsModalOpen(false)} />
+        <SiteForm onReady={handleReady} onCancel={() => setIsModalOpen(false)} />
       </Modal>
     </>
   );

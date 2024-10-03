@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 
 import { YellowExclamationTriangleIcon } from '@openshift-console/dynamic-plugin-sdk';
 import {
@@ -40,17 +40,14 @@ import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 import DeleteSiteButton from './components/DeleteSiteButton';
 import SiteForm from './components/SiteForm';
 
-const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }> = function ({
-  onGoTo,
-  onDataUpdated
-}) {
+const Details: FC<{ onGoTo: (page: number) => void; onReady: () => void }> = function ({ onGoTo, onReady }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [visibleModalPros, setVisibleModalProps] = useState<Record<string, boolean>>({});
 
   const { data: site, refetch } = useQuery({
-    queryKey: ['find-site-query-details'],
+    queryKey: ['find-site-query'],
     queryFn: () => RESTApi.findSiteView(),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
@@ -60,20 +57,14 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
     setVisibleModalProps(props);
   };
 
-  const handleSubmit = () => {
+  const handleClose = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
+
+  const handleReady = useCallback(() => {
     handleClose();
     refetch();
-  };
-
-  const handleClose = () => {
-    setIsModalOpen(false);
-  };
-
-  useEffect(() => {
-    if (site?.name && site?.resourceVersion) {
-      onDataUpdated();
-    }
-  }, [site?.isConfigured, site?.name, site?.resourceVersion, onDataUpdated]);
+  }, [handleClose, refetch]);
 
   const ConditionsColumns: SKColumn<CrdStatusCondition<StatusSiteType>>[] = [
     {
@@ -143,9 +134,11 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
                 )}
               </Flex>
             </FlexItem>
-            <FlexItem>
-              <DeleteSiteButton onClick={onDataUpdated} />
-            </FlexItem>
+            {site?.name && (
+              <FlexItem>
+                <DeleteSiteButton id={site.name} onClick={onReady} />
+              </FlexItem>
+            )}
           </Flex>
         </CardHeader>
 
@@ -279,20 +272,16 @@ const Details: FC<{ onGoTo: (page: number) => void; onDataUpdated: () => void }>
         aria-label="Form edit site"
         showClose={false}
       >
-        {site?.isConfigured && (
-          <SiteForm
-            show={visibleModalPros}
-            onSubmit={handleSubmit}
-            onCancel={handleClose}
-            properties={{
-              name: site.name,
-              linkAccess: site.linkAccess,
-              ha: site.ha,
-              serviceAccount: site.serviceAccount
-            }}
-            siteName={site.name}
-          />
-        )}
+        <SiteForm
+          siteName={site?.name}
+          linkAccess={site?.linkAccess}
+          serviceAccount={site?.serviceAccount}
+          ha={site?.ha}
+          show={visibleModalPros}
+          resourceVersion={site?.resourceVersion}
+          onReady={handleReady}
+          onCancel={handleClose}
+        />
       </Modal>
     </>
   );

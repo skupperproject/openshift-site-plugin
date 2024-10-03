@@ -86,21 +86,21 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     }
   });
 
-  // const mutationDeleteAccessToken = useMutation({
-  //   mutationFn: (name: string) => RESTApi.deleteAccessToken(name)
-  // });
+  const mutationDeleteAccessToken = useMutation({
+    mutationFn: (name: string) => RESTApi.deleteAccessToken(name)
+  });
 
   function handleDeleteLink(name: string) {
-    // let accessTokenName = accessTokens?.items.find((item) => item.metadata.name === name);
+    let accessTokenName = accessTokens?.items.find((item) => item.metadata.name === name);
 
-    // if (!accessTokenName) {
-    //   // HA case
-    //   accessTokenName = accessTokens?.items.find((item) => name.includes(item.metadata.name));
-    // }
+    if (!accessTokenName) {
+      // HA case
+      accessTokenName = accessTokens?.items.find((item) => name.includes(item.metadata.name));
+    }
 
-    // if (accessTokenName) {
-    //   mutationDeleteAccessToken.mutate(accessTokenName?.metadata.name);
-    // }
+    if (accessTokenName) {
+      mutationDeleteAccessToken.mutate(accessTokenName?.metadata.name);
+    }
 
     mutationDeleteLink.mutate(name);
   }
