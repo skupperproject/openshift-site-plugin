@@ -31,10 +31,10 @@ const MenuTabsMapKey = {
   connectors: 5
 };
 
-const SiteContainer: FC<{ siteId: string; isSiteActive: boolean; onDataUpdated: () => void }> = function ({
+const SiteContainer: FC<{ siteId: string; isSiteActive: boolean; onReady: () => void }> = function ({
   siteId,
   isSiteActive,
-  onDataUpdated
+  onReady
 }) {
   const { t } = useTranslation(I18nNamespace);
 
@@ -52,7 +52,7 @@ const SiteContainer: FC<{ siteId: string; isSiteActive: boolean; onDataUpdated: 
 
   const MenuTabs: ReactNode[] = [
     <GetStarted key={1} siteId={siteId || ''} />,
-    <Details key={2} onGoTo={handleTabClick} onDataUpdated={onDataUpdated} />,
+    <Details key={2} onGoTo={handleTabClick} onReady={onReady} />,
     <YAML key={3} />,
     <Links siteId={siteId || ''} key={4} />,
     <Listeners key={5} />,

@@ -25,11 +25,10 @@ import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { DEFAULT_SERVICE_ACCOUNT, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
-import { getSiteInfo } from '@config/db';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import LoadingPage from '@core/components/Loading';
 import { createSiteData } from '@core/utils/createCRD';
-import { SiteCrdParams, SiteSpec } from '@interfaces/CRD_Site';
+import { SiteCrdParams } from '@interfaces/CRD_Site';
 import { HTTPError } from '@interfaces/REST.interfaces';
 import useValidatedInput from 'console/hooks/useValidation';
 
@@ -39,50 +38,96 @@ const options = [
   { value: 'default', label: 'default', disabled: false }
 ];
 
-const SiteForm: FC<{
+interface SiteFormProps {
+  siteName?: string;
+  linkAccess?: string;
+  serviceAccount?: string;
+  ha?: boolean;
+  resourceVersion?: string;
+  show?: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: boolean };
+  onReady: () => void;
+  onCancel: () => void;
+}
+
+const SiteForm: FC<SiteFormProps> = function ({
+  siteName,
+  linkAccess: initLinkAccess,
+  serviceAccount: initServiceAccount,
+  ha: initHa,
+  resourceVersion,
+  show = { linkAccess: true, name: true, ha: true, serviceAccount: true },
+  onReady,
+  onCancel
+}) {
+  const [step, setNextStep] = useState(0);
+
+  const handleReady = () => {
+    siteName ? onReady() : setNextStep(1);
+  };
+
+  const steps = [
+    <FormPage
+      key={1}
+      show={show}
+      siteName={siteName}
+      initLinkAccess={initLinkAccess}
+      initServiceAccount={initServiceAccount}
+      initHa={initHa}
+      resourceVersion={resourceVersion}
+      onSubmit={handleReady}
+      onCancel={onCancel}
+    />,
+    <WaitSiteCreation key={2} onReady={onReady} />
+  ];
+
+  return steps[step];
+};
+
+export default SiteForm;
+
+interface FormPageProps {
+  siteName?: string;
+  initLinkAccess?: string;
+  initServiceAccount?: string;
+  initHa?: boolean;
+  resourceVersion?: string;
+  show: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: boolean };
   onSubmit: () => void;
   onCancel: () => void;
-  properties?: SiteSpec;
-  siteName?: string;
-  show?: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: string };
-}> = function ({
-  onSubmit,
-  onCancel,
-  properties,
+}
+
+const FormPage: FC<FormPageProps> = function ({
+  show,
   siteName,
-  show = { linkAccess: true, name: true, ha: true, serviceAccount: true }
+  initLinkAccess,
+  initServiceAccount,
+  initHa,
+  resourceVersion,
+  onSubmit,
+  onCancel
 }) {
   const { t } = useTranslation(I18nNamespace);
-
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [name, setName] = useState(properties?.name || '');
-  const [linkAccess, setLinkAccess] = useState(properties?.linkAccess || options[0].value);
-  const [isLinkAccessExist, setToggleLinkAccess] = useState(!!properties?.linkAccess || (!properties && true));
-  const [serviceAccount, setServiceAccount] = useState(properties?.serviceAccount || '');
-  const [ha, setHa] = useState(properties?.ha || false);
-
-  const { validated, validateInput } = useValidatedInput();
-
-  const { data: site } = useQuery({
-    queryKey: ['find-site-query'],
-    queryFn: () => RESTApi.findSiteView(),
-    enabled: isLoading,
-    refetchInterval(data) {
-      return isLoading && data?.isConfigured ? 0 : REFETCH_QUERY_INTERVAL;
-    }
-  });
 
   const mutationCreateOrUpdate = useMutation({
     mutationFn: (data: SiteCrdParams) => RESTApi.createOrUpdateSite(data, siteName),
     onError: (data: HTTPError) => {
       validateInput(data.descriptionMessage);
     },
-    onSuccess: () => {
-      setIsLoading(true);
-    }
+    onSuccess: onSubmit
   });
+
+  const [name, setName] = useState(siteName || '');
+  const [linkAccess, setLinkAccess] = useState(initLinkAccess || options[0].value);
+  const [isLinkAccessExist, setToggleLinkAccess] = useState(!!initLinkAccess || (!siteName && true));
+  const [serviceAccount, setServiceAccount] = useState(initServiceAccount || '');
+  const [ha, setHa] = useState(initHa || false);
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { validated, validateInput } = useValidatedInput();
+
+  const handleToggle = useCallback(() => {
+    setIsExpanded(!isExpanded);
+  }, [isExpanded]);
 
   const handleChangeName = (value: string) => {
     // validateInput(value, [validateRFC1123Subdomain]);
@@ -104,7 +149,7 @@ const SiteForm: FC<{
 
   const handleSubmit = () => {
     const data: SiteCrdParams = createSiteData({
-      metadata: { name, resourceVersion: getSiteInfo()?.resourceVersion || '' },
+      metadata: { name, resourceVersion },
       spec: {
         linkAccess: isLinkAccessExist ? linkAccess : undefined,
         serviceAccount,
@@ -114,34 +159,6 @@ const SiteForm: FC<{
 
     mutationCreateOrUpdate.mutate(data);
   };
-
-  const handleToggle = useCallback(() => {
-    setIsExpanded(!isExpanded);
-  }, [isExpanded]);
-
-  useEffect(() => {
-    if (isLoading && site?.identity && site.isConfigured) {
-      setIsLoading(false);
-      onSubmit();
-    }
-  }, [onSubmit, site?.identity, site?.isConfigured, isLoading]);
-
-  if (isLoading && site?.identity && !site.isConfigured) {
-    return (
-      <Card isPlain>
-        <CardBody>
-          <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
-            <LoadingPage message={t('Please wait while the Site is being installed. This may take a few seconds...')} />
-          </PageSection>
-        </CardBody>
-        <Button variant="link" onClick={onSubmit} style={{ display: 'flex' }}>
-          {t('Dismiss')}
-        </Button>
-      </Card>
-    );
-  }
-
-  const canSubmit = !!name; //&& !validated;
 
   const SecondaryOptions = function () {
     return (
@@ -176,6 +193,8 @@ const SiteForm: FC<{
     );
   };
 
+  const canSubmit = !!name; //&& !validated;
+
   return (
     <Form isHorizontal>
       {(show.name || show.ha) && (
@@ -184,7 +203,7 @@ const SiteForm: FC<{
             aria-label="form name input"
             value={name}
             onChange={(_, value) => handleChangeName(value)}
-            isDisabled={!!properties?.name}
+            isDisabled={!!siteName}
           />
         </FormGroup>
       )}
@@ -260,4 +279,31 @@ const SiteForm: FC<{
   );
 };
 
-export default SiteForm;
+const WaitSiteCreation: FC<{ onReady: () => void }> = function ({ onReady }) {
+  const { t } = useTranslation(I18nNamespace);
+
+  const { data: site, isFetching } = useQuery({
+    queryKey: ['find-site-query'],
+    queryFn: () => RESTApi.findSiteView(),
+    refetchInterval: REFETCH_QUERY_INTERVAL
+  });
+
+  useEffect(() => {
+    if (!isFetching && site?.isConfigured) {
+      onReady();
+    }
+  }, [isFetching, site?.isConfigured, onReady]);
+
+  return (
+    <Card isPlain>
+      <CardBody>
+        <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
+          <LoadingPage message={t('Please wait while the Site is being installed. This may take a few seconds...')} />
+        </PageSection>
+      </CardBody>
+      <Button variant="link" onClick={onReady} style={{ display: 'flex' }}>
+        {t('Dismiss')}
+      </Button>
+    </Card>
+  );
+};

@@ -9,7 +9,7 @@ const AlertStatus = function () {
   const { t } = useTranslation(I18nNamespace);
 
   const { data: site } = useQuery({
-    queryKey: ['find-yaml-alert'],
+    queryKey: ['find-site-query'],
     queryFn: () => RESTApi.findSiteView(),
     refetchInterval: (data) => (data?.isReady ? 0 : REFETCH_QUERY_INTERVAL / 2)
   });

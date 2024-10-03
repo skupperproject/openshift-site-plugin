@@ -7,9 +7,8 @@ import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
-import { getSiteInfo } from '@config/db';
 
-const DeleteSiteButton: FC<{ onClick: () => void }> = function ({ onClick }) {
+const DeleteSiteButton: FC<{ id: string; onClick: () => void }> = function ({ id, onClick }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,24 +16,13 @@ const DeleteSiteButton: FC<{ onClick: () => void }> = function ({ onClick }) {
 
   const mutationDeleteSite = useMutation({
     mutationFn: (name: string) => RESTApi.deleteSite(name, removeAllResources),
-    onSuccess: () => {
-      handleClose();
-      setTimeout(() => {
-        onClick();
-      }, 500);
-    }
+    onSuccess: () => onClick()
   });
 
   const handleDeleteSite = () => {
-    const name = getSiteInfo()?.name;
-
-    if (name) {
-      mutationDeleteSite.mutate(name);
+    if (id) {
+      mutationDeleteSite.mutate(id);
     }
-  };
-
-  const handleClose = () => {
-    setIsModalOpen(false);
   };
 
   return (
@@ -47,7 +35,7 @@ const DeleteSiteButton: FC<{ onClick: () => void }> = function ({ onClick }) {
         isOpen={isModalOpen}
         title={t('Permanently remove the site')}
         showClose={false}
-        onClose={handleClose}
+        onClose={() => setIsModalOpen(false)}
         onConfirm={handleDeleteSite}
         confirmButtonVariant={ButtonVariant.danger}
       >
