@@ -19,7 +19,7 @@ const AlertStatus = function () {
   }
 
   if (site?.hasError) {
-    return <Alert variant="warning" isInline title={site.status} />;
+    return <Alert variant={site.statusAlert} isInline title={site.status} />;
   }
 
   return (

@@ -28,7 +28,7 @@ export function convertSiteCRToSite({ metadata, spec, status }: SiteCrdResponse)
 
   const lastStatus = getLastStatusTrue(status?.conditions);
   const hasError = lastStatus?.reason === 'Error';
-  const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
+  const calculatedStatus = hasError ? lastStatus.message || status?.status : lastStatus?.type;
 
   const calculatedStatusAlert =
     (hasError && statusAlertSiteMap.Error) || (lastStatus?.type && statusAlertSiteMap[lastStatus.type]) || undefined;

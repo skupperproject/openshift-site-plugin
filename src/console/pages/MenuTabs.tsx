@@ -1,5 +1,5 @@
 // TabNavigation.tsx
-import { FC, KeyboardEvent, MouseEvent } from 'react';
+import { FC, KeyboardEvent, MouseEvent, useEffect } from 'react';
 
 import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
 import { useQuery } from '@tanstack/react-query';
@@ -32,6 +32,12 @@ export const TabNavigation: FC<TabNavigationProps> = function ({ activeTabKey, s
   });
 
   const isSiteActive = site?.isConfigured;
+
+  useEffect(() => {
+    if (site?.hasError) {
+      setActiveTabKey(1);
+    }
+  }, [setActiveTabKey, site?.hasError]);
 
   return (
     <Tabs
