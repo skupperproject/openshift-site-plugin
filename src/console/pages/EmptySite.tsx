@@ -1,4 +1,4 @@
-import { FC, useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import {
   Bullseye,
@@ -20,19 +20,10 @@ import { I18nNamespace } from '@config/config';
 
 import SiteForm from './components/SiteForm';
 
-interface InitProps {
-  onReady: () => void;
-}
-
-const EmptySite: FC<InitProps> = function ({ onReady }) {
+const EmptySite = function () {
   const { t } = useTranslation(I18nNamespace);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleReady = useCallback(() => {
-    setIsModalOpen(false);
-    onReady();
-  }, [onReady]);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
@@ -48,7 +39,7 @@ const EmptySite: FC<InitProps> = function ({ onReady }) {
           </EmptyStateBody>
           <EmptyStateFooter>
             <EmptyStateActions>
-              <Button onClick={() => setIsModalOpen(true)}>{t('Create site')}</Button>
+              <Button onClick={() => setIsOpen(true)}>{t('Create site')}</Button>
             </EmptyStateActions>
           </EmptyStateFooter>
         </EmptyState>
@@ -57,11 +48,11 @@ const EmptySite: FC<InitProps> = function ({ onReady }) {
       <Modal
         title={t('Create site')}
         variant={ModalVariant.medium}
-        isOpen={isModalOpen}
+        isOpen={isOpen}
         aria-label="Form create site"
         showClose={false}
       >
-        <SiteForm onReady={handleReady} onCancel={() => setIsModalOpen(false)} />
+        <SiteForm onCancel={() => setIsOpen(false)} />
       </Modal>
     </>
   );

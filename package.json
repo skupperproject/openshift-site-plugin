@@ -1,6 +1,6 @@
 {
   "name": "skupper-site-console",
-  "version": "0.0.2",
+  "version": "0.0.0",
   "private": true,
   "repository": "git@github.com:skupperproject/skupper-site-console.git",
   "license": "Apache-2.0",
@@ -18,11 +18,11 @@
     "find-deadcode": "ts-prune"
   },
   "dependencies": {
-    "@patternfly/patternfly": "^5.4.0",
+    "@patternfly/patternfly": "^5.4.1",
     "@patternfly/react-component-groups": "^5.2.0",
-    "@patternfly/react-core": "^5.4.0",
+    "@patternfly/react-core": "^5.4.1",
     "@patternfly/react-icons": "^5.4.0",
-    "@patternfly/react-table": "^5.4.0",
+    "@patternfly/react-table": "^5.4.1",
     "@tanstack/react-query": "4.36.1",
     "axios": "^1.7.7",
     "i18next": "^23.15.1",
@@ -35,20 +35,20 @@
   "devDependencies": {
     "@openshift-console/dynamic-plugin-sdk": "1.6.0",
     "@openshift-console/dynamic-plugin-sdk-webpack": "1.2.0",
-    "@types/node": "^22.5.5",
+    "@types/node": "^22.7.4",
     "@types/react-dom": "^18.3.0",
     "@types/react-router-dom": "^5.3.3",
-    "@typescript-eslint/eslint-plugin": "^8.6.0",
-    "@typescript-eslint/parser": "^8.6.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
-    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.8.3",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react": "^7.36.1",
+    "eslint-plugin-react": "^7.37.1",
     "eslint-plugin-react-hooks": "^4.6.2",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.6.0",
@@ -75,9 +75,6 @@
     "description": " Service Interconnect for OpenShift console plugins.",
     "exposedModules": {
       "ProjectEntryTab": "./openshift/ProjectEntryTab"
-    },
-    "dependencies": {
-      "@console/pluginAPI": "*"
     }
   }
 }

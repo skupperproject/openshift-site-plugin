@@ -26,12 +26,14 @@ export function convertSiteCRToSite({ metadata, spec, status }: SiteCrdResponse)
     Error: 'danger'
   };
 
-  const lastStatus = getLastStatusTrue(status?.conditions);
-  const hasError = lastStatus?.reason === 'Error';
-  const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
+  const lastStatus = calculateStatus(status?.conditions);
+  const lastStatusHasError = lastStatus?.reason === 'Error';
+  const lastStatusLabel = lastStatusHasError ? lastStatus.reason : lastStatus?.type;
 
   const calculatedStatusAlert =
-    (hasError && statusAlertSiteMap.Error) || (lastStatus?.type && statusAlertSiteMap[lastStatus.type]) || undefined;
+    (lastStatusHasError && statusAlertSiteMap.Error) ||
+    (lastStatus?.type && statusAlertSiteMap[lastStatus.type]) ||
+    undefined;
 
   return {
     identity: metadata.uid,
@@ -44,9 +46,10 @@ export function convertSiteCRToSite({ metadata, spec, status }: SiteCrdResponse)
     linkCount: getOtherSiteNetworksWithLinks(status?.network, metadata.uid).length || 0,
     isConfigured: hasType(status?.conditions, 'Configured'),
     isReady: hasType(status?.conditions, 'Ready'),
-    hasSecondaryErrors: hasReasonError(status?.conditions),
-    hasError,
-    status: calculatedStatus,
+    isResolved: hasType(status?.conditions, 'Resolved'),
+    status: lastStatusLabel,
+    hasError: lastStatusHasError,
+    hasSecondaryErrors: hasErrors(status?.conditions),
     conditions: status?.conditions,
     platform: findSiteNetwork(status?.network, metadata.uid)?.platform || EMPTY_VALUE_SYMBOL,
     sitesInNetwork: status?.sitesInNetwork || 0,
@@ -65,7 +68,7 @@ export function convertAccessGrantCRsToAccessGrants(accessGrants: AccessGrantCrd
   return accessGrants.map((accessGrant) => {
     const { metadata, spec, status } = accessGrant;
 
-    const lastStatus = getLastStatusTrue(status?.conditions);
+    const lastStatus = calculateStatus(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
@@ -98,7 +101,7 @@ export function convertLinkCRsToLinks(links: LinkCrdResponse[]): Link[] {
   };
 
   return links.map(({ metadata, spec, status }) => {
-    const lastStatus = getLastStatusTrue(status?.conditions);
+    const lastStatus = calculateStatus(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
@@ -126,7 +129,7 @@ export function convertAccessTokensToLinks(links: AccessTokenCrdResponse[]): Lin
   };
 
   return links.map(({ metadata, status }) => {
-    const lastStatus = getLastStatusTrue(status?.conditions);
+    const lastStatus = calculateStatus(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
     const calculatedStatusAlert =
@@ -156,7 +159,7 @@ export function convertListenerCRsToListeners(_: SiteCrdResponse, listeners: Lis
   };
 
   return listeners.map(({ metadata, spec, status }) => {
-    const lastStatus = getLastStatusTrue(status?.conditions);
+    const lastStatus = calculateStatus(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
@@ -190,7 +193,7 @@ export function convertConnectorCRsToConnectors(_: SiteCrdResponse, connectors: 
   };
 
   return connectors.map(({ metadata, spec, status }) => {
-    const lastStatus = getLastStatusTrue(status?.conditions);
+    const lastStatus = calculateStatus(status?.conditions);
     const hasError = lastStatus?.reason === 'Error';
     const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
@@ -224,11 +227,11 @@ export function hasType<T>(conditions: CrdStatusCondition<T>[] = [], type: Statu
   return !!conditions?.some((condition) => condition.type === type && condition.status === 'True');
 }
 
-export function hasReasonError<T>(conditions: CrdStatusCondition<T>[] = []) {
+export function hasErrors<T>(conditions: CrdStatusCondition<T>[] = []) {
   return !!conditions?.some((condition) => condition.reason === 'Error');
 }
 
-function getLastStatusTrue<T>(conditions: CrdStatusCondition<T>[] = []) {
+function calculateStatus<T>(conditions: CrdStatusCondition<T>[] = []) {
   const priorityMap: Record<StatusType, number> = {
     Configured: 1,
     Resolved: 0,
@@ -240,31 +243,22 @@ function getLastStatusTrue<T>(conditions: CrdStatusCondition<T>[] = []) {
     Redeemed: 1
   };
 
-  let trueConditions = conditions.filter(
-    (condition) => condition.status === 'True' && condition.type !== 'Ready' && condition.type !== 'Resolved'
+  const filteredConditions = conditions.filter(
+    (condition) => condition.type !== 'Ready' && condition.type !== 'Resolved'
   );
 
-  if (!trueConditions.length) {
-    trueConditions = conditions.filter((condition) => condition.status === 'False' && condition.reason === 'Error');
+  let statusConditions = filteredConditions
+    .filter((condition) => condition.status === 'True')
+    .sort((a, b) => priorityMap[b.type as StatusType] - priorityMap[a.type as StatusType]);
+
+  if (!statusConditions.length) {
+    statusConditions = filteredConditions
+      .filter((condition) => condition.status === 'False' && condition.reason === 'Error')
+      .sort((a, b) => priorityMap[a.type as StatusType] - priorityMap[b.type as StatusType]);
   }
 
-  // Sort the filtered conditions by lastTransitionTime in descending order
-  trueConditions.sort(
-    (a, b) =>
-      // const dateA = new Date(a.lastTransitionTime);
-      // const dateB = new Date(b.lastTransitionTime);
 
-      // const value = Number(dateB) - Number(dateA);
-
-      // if (value === 0) {
-      priorityMap[b.type as StatusType] - priorityMap[a.type as StatusType]
-    //}
-
-    // return value;
-  );
-
-  // Return the first condition in the sorted array (the most recent one)
-  return trueConditions.length > 0 ? trueConditions[0] : null;
+  return statusConditions.length > 0 ? statusConditions[0] : null;
 }
 
 export function getOtherSiteNetworksWithLinks(network: NetworkSite[] = [], siteId: string) {

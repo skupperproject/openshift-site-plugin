@@ -7,8 +7,6 @@ import type { Configuration as WebpackDevServerConfiguration } from 'webpack-dev
 
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-const ROOT = process.cwd();
-
 const config: webpack.Configuration & {
   devServer?: WebpackDevServerConfiguration;
 } = {
@@ -22,7 +20,7 @@ const config: webpack.Configuration & {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    plugins: [new TsConfigPathsPlugin({ configFile: path.join(ROOT, 'tsconfig.json') })]
+    plugins: [new TsConfigPathsPlugin({ configFile: path.join(__dirname, 'tsconfig.json') })]
   },
   module: {
     rules: [

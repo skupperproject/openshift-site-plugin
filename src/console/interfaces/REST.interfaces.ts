@@ -29,6 +29,7 @@ export interface SiteView extends BaseView {
   linkCount: number;
   isConfigured: boolean;
   isReady: boolean;
+  isResolved: boolean;
   hasSecondaryErrors: boolean;
   resourceVersion: string;
   sitesInNetwork: number;

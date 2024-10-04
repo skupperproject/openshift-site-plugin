@@ -2,40 +2,37 @@ import { FC, useState } from 'react';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { Button, ButtonVariant, Checkbox } from '@patternfly/react-core';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
 
-const DeleteSiteButton: FC<{ id: string; onClick: () => void }> = function ({ id, onClick }) {
+const DeleteSiteButton: FC<{ id: string }> = function ({ id }) {
   const { t } = useTranslation(I18nNamespace);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [removeAllResources, setRemoveAllResources] = useState(true);
 
+  const queryClient = useQueryClient();
   const mutationDeleteSite = useMutation({
     mutationFn: (name: string) => RESTApi.deleteSite(name, removeAllResources),
-    onSuccess: () => onClick()
+    onSuccess: () => queryClient.invalidateQueries(['find-site-query-init']) // Invalidate the site query to refetch and switch back to EmptySite
   });
 
-  const handleDeleteSite = () => {
-    if (id) {
-      mutationDeleteSite.mutate(id);
-    }
-  };
+  const handleDeleteSite = () => mutationDeleteSite.mutate(id);
 
   return (
     <>
-      <Button variant="secondary" onClick={() => setIsModalOpen(true)}>
+      <Button variant="secondary" onClick={() => setIsOpen(true)}>
         {t('Delete site')}
       </Button>
 
       <WarningModal
-        isOpen={isModalOpen}
+        isOpen={isOpen}
         title={t('Permanently remove the site')}
         showClose={false}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => setIsOpen(false)}
         onConfirm={handleDeleteSite}
         confirmButtonVariant={ButtonVariant.danger}
       >
