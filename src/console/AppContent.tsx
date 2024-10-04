@@ -6,7 +6,7 @@ import SiteContainer from '@pages/SiteContainer';
 import EmptySite from './pages/EmptySite';
 
 const AppContent = function () {
-  const { data: site, refetch } = useQuery({
+  const { data: site } = useQuery({
     queryKey: ['find-site-query-init'],
     queryFn: () => RESTApi.findSiteView()
   });
@@ -14,10 +14,10 @@ const AppContent = function () {
   const siteId = site?.identity;
 
   if (!siteId) {
-    return <EmptySite onReady={refetch} />;
+    return <EmptySite />;
   }
 
-  return <SiteContainer siteId={siteId} isSiteActive={site.isConfigured} onReady={refetch} />;
+  return <SiteContainer siteId={siteId} isSiteActive={site.isConfigured} />;
 };
 
 export default AppContent;

@@ -40,7 +40,7 @@ import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 import DeleteSiteButton from './components/DeleteSiteButton';
 import SiteForm from './components/SiteForm';
 
-const Details: FC<{ onGoTo: (page: number) => void; onReady: () => void }> = function ({ onGoTo, onReady }) {
+const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -147,7 +147,7 @@ const Details: FC<{ onGoTo: (page: number) => void; onReady: () => void }> = fun
             </FlexItem>
             {site?.name && (
               <FlexItem>
-                <DeleteSiteButton id={site.name} onClick={onReady} />
+                <DeleteSiteButton id={site.name} />
               </FlexItem>
             )}
           </Flex>

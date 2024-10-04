@@ -20,7 +20,7 @@ import {
   CardBody,
   ExpandableSection
 } from '@patternfly/react-core';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
@@ -45,7 +45,7 @@ interface SiteFormProps {
   ha?: boolean;
   resourceVersion?: string;
   show?: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: boolean };
-  onReady: () => void;
+  onReady?: () => void;
   onCancel: () => void;
 }
 
@@ -62,7 +62,7 @@ const SiteForm: FC<SiteFormProps> = function ({
   const [step, setNextStep] = useState(0);
 
   const handleReady = () => {
-    siteName ? onReady() : setNextStep(1);
+    siteName ? onReady?.() : setNextStep(1);
   };
 
   const steps = [
@@ -77,7 +77,7 @@ const SiteForm: FC<SiteFormProps> = function ({
       onSubmit={handleReady}
       onCancel={onCancel}
     />,
-    <WaitSiteCreation key={2} onReady={onReady} />
+    <WaitSiteCreation key={2} />
   ];
 
   return steps[step];
@@ -279,11 +279,7 @@ const FormPage: FC<FormPageProps> = function ({
   );
 };
 
-interface WaitSiteCreationProps {
-  onReady: () => void;
-}
-
-const WaitSiteCreation: FC<WaitSiteCreationProps> = function ({ onReady }) {
+const WaitSiteCreation = function () {
   const { t } = useTranslation(I18nNamespace);
 
   const { data: site, isFetching } = useQuery({
@@ -292,11 +288,14 @@ const WaitSiteCreation: FC<WaitSiteCreationProps> = function ({ onReady }) {
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
+  const queryClient = useQueryClient();
+  const handleReady = useCallback(async () => queryClient.invalidateQueries(['find-site-query-init']), [queryClient]);
+
   useEffect(() => {
     if (!isFetching && site?.isConfigured) {
-      onReady();
+      handleReady();
     }
-  }, [isFetching, site?.isConfigured, onReady]);
+  }, [handleReady, isFetching, site?.isConfigured]);
 
   return (
     <Card isPlain>
@@ -305,7 +304,7 @@ const WaitSiteCreation: FC<WaitSiteCreationProps> = function ({ onReady }) {
           <LoadingPage message={t('Please wait while the Site is being installed. This may take a few seconds...')} />
         </PageSection>
       </CardBody>
-      <Button variant="link" onClick={onReady} style={{ display: 'flex' }}>
+      <Button variant="link" onClick={handleReady} style={{ display: 'flex' }}>
         {t('Dismiss')}
       </Button>
     </Card>
