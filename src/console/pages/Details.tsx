@@ -66,6 +66,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
     refetch();
   }, [handleClose, refetch]);
 
+
   const ConditionsColumns: SKColumn<CrdStatusCondition<StatusSiteType>>[] = [
     {
       name: t('Type'),
@@ -98,8 +99,8 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
 
   const customSiteCells = {
     FormatOCPDateCell,
-    ValueOrEmptyCell: ({ data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
-      data.reason !== CR_STATUS_OK ? data.status : EMPTY_VALUE_SYMBOL,
+    ValueOrEmptyCell: ({ value, data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
+      data.reason !== CR_STATUS_OK ? value || EMPTY_VALUE_SYMBOL : EMPTY_VALUE_SYMBOL,
     StatusCell: ({ data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
       data.status === 'False' ? (
         <Icon status="danger">
