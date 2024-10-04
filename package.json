@@ -1,6 +1,6 @@
 {
   "name": "skupper-site-console",
-  "version": "0.0.2",
+  "version": "0.0.0",
   "private": true,
   "repository": "git@github.com:skupperproject/skupper-site-console.git",
   "license": "Apache-2.0",

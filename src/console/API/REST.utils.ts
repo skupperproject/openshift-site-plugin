@@ -28,7 +28,7 @@ export function convertSiteCRToSite({ metadata, spec, status }: SiteCrdResponse)
 
   const lastStatus = calculateStatus(status?.conditions);
   const lastStatusHasError = lastStatus?.reason === 'Error';
-  const lastStatusLabel = lastStatusHasError ? lastStatus.message || status?.status : lastStatus?.type;
+  const lastStatusLabel = lastStatusHasError ? lastStatus.reason : lastStatus?.type;
 
   const calculatedStatusAlert =
     (lastStatusHasError && statusAlertSiteMap.Error) ||
@@ -46,9 +46,10 @@ export function convertSiteCRToSite({ metadata, spec, status }: SiteCrdResponse)
     linkCount: getOtherSiteNetworksWithLinks(status?.network, metadata.uid).length || 0,
     isConfigured: hasType(status?.conditions, 'Configured'),
     isReady: hasType(status?.conditions, 'Ready'),
+    isResolved: hasType(status?.conditions, 'Resolved'),
     status: lastStatusLabel,
     hasError: lastStatusHasError,
-    hasSecondaryErrors: hasReasonError(status?.conditions),
+    hasSecondaryErrors: hasErrors(status?.conditions),
     conditions: status?.conditions,
     platform: findSiteNetwork(status?.network, metadata.uid)?.platform || EMPTY_VALUE_SYMBOL,
     sitesInNetwork: status?.sitesInNetwork || 0,
@@ -226,7 +227,7 @@ export function hasType<T>(conditions: CrdStatusCondition<T>[] = [], type: Statu
   return !!conditions?.some((condition) => condition.type === type && condition.status === 'True');
 }
 
-export function hasReasonError<T>(conditions: CrdStatusCondition<T>[] = []) {
+export function hasErrors<T>(conditions: CrdStatusCondition<T>[] = []) {
   return !!conditions?.some((condition) => condition.reason === 'Error');
 }
 
@@ -246,28 +247,16 @@ function calculateStatus<T>(conditions: CrdStatusCondition<T>[] = []) {
     (condition) => condition.type !== 'Ready' && condition.type !== 'Resolved'
   );
 
-  let statusConditions = filteredConditions.filter((condition) => condition.status === 'True');
+  let statusConditions = filteredConditions
+    .filter((condition) => condition.status === 'True')
+    .sort((a, b) => priorityMap[b.type as StatusType] - priorityMap[a.type as StatusType]);
 
   if (!statusConditions.length) {
-    statusConditions = filteredConditions.filter(
-      (condition) => condition.status === 'False' && condition.reason === 'Error'
-    );
+    statusConditions = filteredConditions
+      .filter((condition) => condition.status === 'False' && condition.reason === 'Error')
+      .sort((a, b) => priorityMap[a.type as StatusType] - priorityMap[b.type as StatusType]);
   }
 
-  // Sort the filtered conditions by lastTransitionTime in descending order
-  statusConditions.sort(
-    (a, b) =>
-      // const dateA = new Date(a.lastTransitionTime);
-      // const dateB = new Date(b.lastTransitionTime);
-
-      // const value = Number(dateB) - Number(dateA);
-
-      // if (value === 0) {
-      priorityMap[a.type as StatusType] - priorityMap[b.type as StatusType]
-    //}
-
-    // return value;
-  );
 
   return statusConditions.length > 0 ? statusConditions[0] : null;
 }

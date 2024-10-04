@@ -282,13 +282,14 @@ const FormPage: FC<FormPageProps> = function ({
 const WaitSiteCreation = function () {
   const { t } = useTranslation(I18nNamespace);
 
+  const queryClient = useQueryClient();
+
   const { data: site, isFetching } = useQuery({
     queryKey: ['find-site-query'],
     queryFn: () => RESTApi.findSiteView(),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
-  const queryClient = useQueryClient();
   const handleReady = useCallback(async () => queryClient.invalidateQueries(['find-site-query-init']), [queryClient]);
 
   useEffect(() => {

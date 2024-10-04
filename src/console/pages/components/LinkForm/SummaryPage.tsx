@@ -34,22 +34,32 @@ export const SummaryPage = function () {
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
+  const hasStatus = accessToken?.status?.status || link?.status?.status;
+  const isConfigured = link?.status?.conditions.find(({ type, status }) => type === 'Configured' && status === 'True');
+  const hasError =
+    accessToken?.status?.status !== CR_STATUS_OK ||
+    (accessToken?.status?.status && link?.status?.status && link?.status?.status !== CR_STATUS_OK);
+  const errorMessage = link?.status?.status || accessToken?.status?.status;
+
   useEffect(() => {
-    if (accessToken?.status?.status || link?.status?.status) {
-      if (link?.status?.status === CR_STATUS_OK) {
-        setValidated(undefined);
-        setIsLoading(false);
-        setExternalLoading(false);
-      } else if (
-        accessToken?.status?.status !== CR_STATUS_OK ||
-        (accessToken?.status?.status && link?.status?.status && link?.status?.status !== CR_STATUS_OK)
-      ) {
-        setIsLoading(false);
-        setExternalLoading(false);
-        setValidated(link?.status?.status || accessToken?.status?.status);
-      }
+    if (!hasStatus) {
+      return;
     }
-  }, [accessToken?.status?.status, link?.status?.status, setValidated, setIsLoading, setExternalLoading]);
+
+    if (isConfigured) {
+      setValidated(undefined);
+      setIsLoading(false);
+      setExternalLoading(false);
+
+      return;
+    }
+
+    if (hasError) {
+      setIsLoading(false);
+      setExternalLoading(false);
+      setValidated(errorMessage);
+    }
+  }, [setValidated, setIsLoading, setExternalLoading, isConfigured, hasError, hasStatus, errorMessage]);
 
   if (isLoading) {
     return (

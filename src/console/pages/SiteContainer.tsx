@@ -1,4 +1,4 @@
-import { FC, ReactNode, Suspense, useEffect, useState } from 'react';
+import { FC, ReactNode, Suspense, useState } from 'react';
 
 import { PageSection, PageSectionVariants, PageNavigation, Bullseye, Spinner } from '@patternfly/react-core';
 
@@ -12,18 +12,12 @@ import GetStarted from './GetStarted';
 import Links from './Links';
 import { TabNavigation } from './MenuTabs';
 
-const SiteContainer: FC<{ siteId: string; isSiteActive: boolean }> = function ({ siteId, isSiteActive }) {
+const SiteContainer: FC<{ siteId: string }> = function ({ siteId }) {
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
 
   const handleTabClick = (tabIndex: string | number) => {
     setActiveTabKey(tabIndex);
   };
-
-  useEffect(() => {
-    if (!isSiteActive) {
-      setActiveTabKey(1);
-    }
-  }, [isSiteActive]);
 
   const MenuTabs: ReactNode[] = [
     <GetStarted key={1} siteId={siteId || ''} />,

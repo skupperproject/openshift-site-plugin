@@ -11,13 +11,8 @@ const AppContent = function () {
     queryFn: () => RESTApi.findSiteView()
   });
 
-  const siteId = site?.identity;
 
-  if (!siteId) {
-    return <EmptySite />;
-  }
-
-  return <SiteContainer siteId={siteId} isSiteActive={site.isConfigured} />;
+  return site?.identity ? <SiteContainer siteId={site?.identity} /> : <EmptySite />;
 };
 
 export default AppContent;

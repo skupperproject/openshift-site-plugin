@@ -14,22 +14,26 @@ const AlertStatus = function () {
     refetchInterval: (data) => (data?.isReady ? 0 : REFETCH_QUERY_INTERVAL / 2)
   });
 
-  if ((!site?.hasError && !site?.isConfigured) || site?.isReady) {
-    return null;
-  }
-
-  if (site?.hasError) {
-    return <Alert variant={site.statusAlert} isInline title={site.status} />;
-  }
-
   return (
-    <Alert
-      variant="warning"
-      isInline
-      title={t(
-        'The site is Configured: you can create resources, but until the router is ready the effect is not usable'
+    <>
+      {site?.isConfigured && !site?.isReady && (
+        <Alert
+          variant="warning"
+          isInline
+          title={t(
+            'The site is Configured: you can create resources, but until the router is ready the effect is not usable'
+          )}
+        />
       )}
-    />
+
+      {site?.isResolved && (site?.hasError || site?.hasSecondaryErrors) && (
+        <Alert
+          variant="danger"
+          isInline
+          title={t('There is one or more errors. Please check the conditions on the Details page for more information')}
+        />
+      )}
+    </>
   );
 };
 

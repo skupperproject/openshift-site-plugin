@@ -34,10 +34,10 @@ export const TabNavigation: FC<TabNavigationProps> = function ({ activeTabKey, s
   const isSiteActive = site?.isConfigured;
 
   useEffect(() => {
-    if (site?.hasError) {
+    if (!isSiteActive || site?.hasError) {
       setActiveTabKey(1);
     }
-  }, [setActiveTabKey, site?.hasError]);
+  }, [isSiteActive, setActiveTabKey, site?.hasError]);
 
   return (
     <Tabs
