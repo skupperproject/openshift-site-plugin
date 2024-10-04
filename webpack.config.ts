@@ -3,15 +3,11 @@ import * as path from 'path';
 import { ConsoleRemotePlugin } from '@openshift-console/dynamic-plugin-sdk-webpack';
 import TsConfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import * as webpack from 'webpack';
-import type { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
+
 
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-const ROOT = process.cwd();
-
-const config: webpack.Configuration & {
-  devServer?: WebpackDevServerConfiguration;
-} = {
+const config: webpack.Configuration = {
   mode: 'development',
   context: path.resolve(__dirname, 'src'),
   entry: {},
@@ -22,7 +18,7 @@ const config: webpack.Configuration & {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    plugins: [new TsConfigPathsPlugin({ configFile: path.join(ROOT, 'tsconfig.json') })]
+    plugins: [new TsConfigPathsPlugin({ configFile: path.join(__dirname, 'tsconfig.json') })]
   },
   module: {
     rules: [
@@ -64,21 +60,7 @@ const config: webpack.Configuration & {
   }
 };
 
-if (process.env.NODE_ENV !== 'production') {
-  config.devServer = {
-    static: './dist',
-    port: 9001,
-    allowedHosts: 'all',
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      'Access-Control-Allow-Headers': 'X-Requested-With, Content-Type, Authorization'
-    },
-    devMiddleware: {
-      writeToDisk: true
-    }
-  };
-} else {
+if (process.env.NODE_ENV === 'production') {
   config.mode = 'production';
   if (config.output) {
     config.output.filename = '[name]-bundle-[hash].min.js';

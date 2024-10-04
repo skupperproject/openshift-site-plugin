@@ -4,10 +4,10 @@ This plugin for Openshift installs a tab in **Projects** -> **< project name >**
 
 ## Pre-requisites
 
-- Openshift >= 4.15 
+- Openshift >= 4.15
 - Skupper V2 CRDs installed
 
-```
+```shell
 kubectl apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/api/types/crds/skupper_access_grant_crd.yaml
 kubectl apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/api/types/crds/skupper_access_token_crd.yaml
 kubectl apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/api/types/crds/skupper_attached_connector_anchor_crd.yaml
@@ -42,7 +42,9 @@ To install the dynamic plugin, follow these steps:
 
 ## Dynamic Plugin development
 
-- **Install the modules:**
+### Steps to develop
+
+- **Install the necessary modules:**
 
   ```shell
   yarn install
