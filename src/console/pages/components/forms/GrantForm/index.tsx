@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { QueryKeys } from '@config/reactQuery';
 import { createAccessGrantRequest } from '@core/utils/createCRD';
 import { AccessGrantCrdParams, AccessGrantParams } from '@interfaces/CRD_AccessGrant';
 import { HTTPError } from '@interfaces/REST.interfaces';
@@ -47,7 +48,7 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
   const codeRef = useRef<string>('');
 
   const { data: grant } = useQuery({
-    queryKey: ['find-grant-token-query', name],
+    queryKey: [QueryKeys.FindGrantToken, name],
     queryFn: () => RESTApi.findGrant(name),
     cacheTime: 0,
     enabled: step === 2,

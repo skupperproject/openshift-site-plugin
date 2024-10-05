@@ -5,8 +5,9 @@ import { Bullseye, Spinner } from '@patternfly/react-core';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 
 import AppContent from './AppContent';
-import SkupperVersionValidator from './SkupperVersionValidator';
-import { Wrapper } from './Wrapper';
+import AppVersionValidator from './AppVersionValidator';
+import { AppApiContext } from './context/AppApiContext';
+import { AppContext } from './context/AppContext';
 
 import '@patternfly/patternfly/patternfly.css';
 
@@ -14,7 +15,7 @@ import './App.css';
 
 const App = function () {
   return (
-    <Wrapper>
+    <AppApiContext>
       <QueryErrorResetBoundary>
         <ErrorBoundaryContent errorTitle="An Error occurred" headerTitle="">
           <Suspense
@@ -24,13 +25,15 @@ const App = function () {
               </Bullseye>
             }
           >
-            <SkupperVersionValidator>
-              <AppContent />
-            </SkupperVersionValidator>
+            <AppVersionValidator>
+              <AppContext>
+                <AppContent />
+              </AppContext>
+            </AppVersionValidator>
           </Suspense>
         </ErrorBoundaryContent>
       </QueryErrorResetBoundary>
-    </Wrapper>
+    </AppApiContext>
   );
 };
 

@@ -274,18 +274,18 @@
   resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-5.4.1.tgz#54911a5f774a86b5ec74808e1ffed84e7af502aa"
   integrity sha512-0+KxsQJrFzOMANALW82BHAO7bSm9tEbG1RrOlGT23ME1CaBoetGSMRLymutvojn/b/EKfJIr5rLzQa+14Lvg2g==
 
-"@patternfly/react-component-groups@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@patternfly/react-component-groups/-/react-component-groups-5.2.0.tgz#7c12e0cb65f068d644d0b35e4b88290b8b371ec4"
-  integrity sha512-kb57OOVJ9L5fbY/kiil8awPWuJVops8Rz1ZNFtkEb72mF3lhmRadYNheLBeaD8T9GE1dOaVJRMMf133ZSKN87g==
+"@patternfly/react-component-groups@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@patternfly/react-component-groups/-/react-component-groups-5.4.0.tgz#d52309f676ea8e6b7896dcc95bcbfc33110b7abe"
+  integrity sha512-faRrjz/D4saTjNgQa2p8tSlEXeeyBMGK9eGqdOKc5DG0smP1e+lN7dXDYNPARpKXj9fmaUltzux+w/7NLwxUhw==
   dependencies:
-    "@patternfly/react-core" "^5.1.1"
-    "@patternfly/react-icons" "^5.1.1"
-    "@patternfly/react-table" "^5.1.1"
-    clsx "^2.0.0"
+    "@patternfly/react-core" "^5.3.3"
+    "@patternfly/react-icons" "^5.4.0"
+    "@patternfly/react-table" "^5.3.3"
+    clsx "^2.1.1"
     react-jss "^10.10.0"
 
-"@patternfly/react-core@^5.1.1", "@patternfly/react-core@^5.3.3":
+"@patternfly/react-core@^5.3.3":
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/@patternfly/react-core/-/react-core-5.3.3.tgz#06f589f5b0bb95dd231a0ca9379fa68d242899ab"
   integrity sha512-qq3j0M+Vi+Xmd+a/MhRhGgjdRh9Hnm79iA+L935HwMIVDcIWRYp6Isib/Ha4+Jk+f3Qdl0RT3dBDvr/4m6OpVQ==
@@ -309,7 +309,7 @@
     react-dropzone "^14.2.3"
     tslib "^2.6.3"
 
-"@patternfly/react-icons@^5.1.1", "@patternfly/react-icons@^5.3.2":
+"@patternfly/react-icons@^5.3.2":
   version "5.3.2"
   resolved "https://registry.yarnpkg.com/@patternfly/react-icons/-/react-icons-5.3.2.tgz#f594ed67b0d39f486ea0f0367de058d4bd056605"
   integrity sha512-GEygYbl0H4zD8nZuTQy2dayKIrV2bMMeWKSOEZ16Y3EYNgYVUOUnN+J0naAEuEGH39Xb1DE9n+XUbE1PC4CxPA==
@@ -329,19 +329,7 @@
   resolved "https://registry.yarnpkg.com/@patternfly/react-styles/-/react-styles-5.4.0.tgz#2460bdfa71a411f2213dd348ba35fce411bb6acc"
   integrity sha512-4ZE0s6LkX/0KsN0FOeogrDoj18m+BPA73YKnabZGB4SDRzrBNeBh2a6bSt546ZseEjkoJ+S81kOG0G8YckPQYg==
 
-"@patternfly/react-table@^5.1.1":
-  version "5.3.3"
-  resolved "https://registry.yarnpkg.com/@patternfly/react-table/-/react-table-5.3.3.tgz#866ec3d2d57d506199b6d53dbd7d01a98abb321a"
-  integrity sha512-uaRmsJABvVPH8gYTh+EUcDz61knIxe9qor/VGUYDLONYBL5G3IaltwG42IsJ9jShxiwFmIPy+QARPpaadTpv5w==
-  dependencies:
-    "@patternfly/react-core" "^5.3.3"
-    "@patternfly/react-icons" "^5.3.2"
-    "@patternfly/react-styles" "^5.3.1"
-    "@patternfly/react-tokens" "^5.3.1"
-    lodash "^4.17.19"
-    tslib "^2.5.0"
-
-"@patternfly/react-table@^5.4.1":
+"@patternfly/react-table@^5.3.3", "@patternfly/react-table@^5.4.1":
   version "5.4.1"
   resolved "https://registry.yarnpkg.com/@patternfly/react-table/-/react-table-5.4.1.tgz#56b42793ca9568295e8c2fdcff9e448e7e205d6e"
   integrity sha512-T05djy6YPqjbGWjpnwUs9oqup8oqqIOBnDOcThnHukgzlwnZvLNywgdoMR5XAKxTcIx/iBE1cu8ieETlITOGLw==
@@ -1452,7 +1440,7 @@ clone-deep@^4.0.1:
     kind-of "^6.0.2"
     shallow-clone "^3.0.0"
 
-clsx@^2.0.0:
+clsx@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-2.1.1.tgz#eed397c9fd8bd882bfb18deab7102049a2f32999"
   integrity sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==
@@ -3727,7 +3715,7 @@ lodash.merge@^4.6.2:
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
   integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
 
-lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21:
+lodash@^4.17.20, lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==

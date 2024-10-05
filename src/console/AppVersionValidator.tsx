@@ -3,16 +3,17 @@ import { ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { RESTApi } from '@API/REST.api';
-import ErrorOldSkupperVersion from '@pages/ErrorOldSkupperVersion';
+import { QueryKeys } from '@config/reactQuery';
+import ErrorOldSkupperVersionPage from '@pages/ErrorOldSkupperVersionPage';
 
-const SkupperVersionValidator = function ({ children }: { children: ReactNode }) {
+const AppVersionValidator = function ({ children }: { children: ReactNode }) {
   const { data: isOldVersionSkupper } = useQuery({
-    queryKey: ['find-skupper-router-query'],
-    queryFn: () => RESTApi.isOldVersionSkupper()
+    queryKey: [QueryKeys.IsOldAppVersion],
+    queryFn: () => RESTApi.isOldVersion()
   });
 
   if (isOldVersionSkupper) {
-    return <ErrorOldSkupperVersion />;
+    return <ErrorOldSkupperVersionPage />;
   }
 
   // Keep fragment tags to maintain height responsiveness in the YAML
@@ -20,4 +21,4 @@ const SkupperVersionValidator = function ({ children }: { children: ReactNode })
   return <>{children}</>;
 };
 
-export default SkupperVersionValidator;
+export default AppVersionValidator;

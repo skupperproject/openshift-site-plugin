@@ -26,13 +26,14 @@ import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { QueryKeys } from '@config/reactQuery';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
 import { Connector } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
-import ConnectorForm from './components/ConnectorForm';
 import ConnectorDetails from './ConnectorDetails';
+import ConnectorForm from '../components/forms/ConnectorForm';
 
 const Connectors = function () {
   const { t } = useTranslation(I18nNamespace);
@@ -42,7 +43,7 @@ const Connectors = function () {
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showConnectorAlert') || 'show');
 
   const { data: connectors, refetch } = useQuery({
-    queryKey: ['get-connectors-query'],
+    queryKey: [QueryKeys.GetConnectors],
     queryFn: () => RESTApi.getConnectorsView(),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
@@ -59,27 +60,27 @@ const Connectors = function () {
     mutationDelete.mutate(name);
   }
 
+  const handleModalClose = useCallback(() => {
+    setAreDetailsOpen(false);
+  }, []);
+
   const handleModalSubmit = useCallback(() => {
     handleModalClose();
     refetch();
-  }, [refetch]);
+  }, [handleModalClose, refetch]);
 
-  const handleModalClose = () => {
-    setAreDetailsOpen(false);
-  };
-
-  const handleOpenDetails = (name: string) => {
+  const handleOpenDetails = useCallback((name: string) => {
     setNameSelected(name);
-  };
+  }, []);
 
-  const handleCloseDetails = () => {
+  const handleCloseDetails = useCallback(() => {
     setNameSelected(undefined);
-  };
+  }, []);
 
-  const handleCloseAlert = () => {
+  const handleCloseAlert = useCallback(() => {
     setShowAlert('hide');
     sessionStorage.setItem('showConnectorAlert', 'hide');
-  };
+  }, []);
 
   const Columns: SKColumn<Connector>[] = [
     {

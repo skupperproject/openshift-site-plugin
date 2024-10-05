@@ -27,24 +27,25 @@ import { stringify } from 'yaml';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
+import { QueryKeys } from '@config/reactQuery';
 import FormatOCPDateCell from '@core/components/FormatOCPDate';
 
-import ConnectorForm from './components/ConnectorForm';
+import ListenerForm from '../components/forms/ListenerForm';
 
-interface ConnectorDetailsProps {
+interface ListenerDetailsProps {
   name: string;
   onUpdate?: () => void;
 }
 
-const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }) {
+const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const [isOpen, setIsOpen] = useState<boolean | undefined>();
 
-  const { data: connector, refetch } = useQuery({
-    queryKey: ['find-connector-query', name],
-    queryFn: () => RESTApi.findConnector(name),
+  const { data: listener, refetch } = useQuery({
+    queryKey: [QueryKeys.FindListener, name],
+    queryFn: () => RESTApi.findListener(name),
     enabled: false
   });
 
@@ -69,13 +70,13 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
   return (
     <>
       <Tabs activeKey={activeTabKey} onSelect={handleTabClick}>
-        <Tab eventKey={0} title={<TabTitleText>Details</TabTitleText>}>
+        <Tab eventKey={0} title={<TabTitleText>{t('Details')}</TabTitleText>}>
           <Card isPlain>
             <CardHeader>
               <Flex grow={{ default: 'grow' }}>
                 <FlexItem>
                   <CardTitle>
-                    <Title headingLevel="h1">Settings</Title>
+                    <Title headingLevel="h1">{t('Settings')}</Title>
                   </CardTitle>
                 </FlexItem>
                 <FlexItem align={{ default: 'alignRight' }}>
@@ -94,44 +95,30 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
 
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Routing key')}</DescriptionListTerm>
-                  <DescriptionListDescription>{connector?.spec.routingKey}</DescriptionListDescription>
+                  <DescriptionListDescription>{listener?.spec.routingKey}</DescriptionListDescription>
                 </DescriptionListGroup>
 
-                {connector?.spec.selector && (
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Selector')}</DescriptionListTerm>
-                    <DescriptionListDescription>{connector?.spec.selector}</DescriptionListDescription>
-                  </DescriptionListGroup>
-                )}
-
-                {connector?.spec.host && (
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>{t('Host')}</DescriptionListTerm>
-                    <DescriptionListDescription>{connector?.spec.host}</DescriptionListDescription>
-                  </DescriptionListGroup>
-                )}
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Service name')}</DescriptionListTerm>
+                  <DescriptionListDescription>{listener?.spec.host}</DescriptionListDescription>
+                </DescriptionListGroup>
 
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Port')}</DescriptionListTerm>
-                  <DescriptionListDescription>{connector?.spec.port}</DescriptionListDescription>
+                  <DescriptionListDescription>{listener?.spec.port}</DescriptionListDescription>
                 </DescriptionListGroup>
 
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Type')}</DescriptionListTerm>
-                  <DescriptionListDescription>{connector?.spec.type}</DescriptionListDescription>
+                  <DescriptionListDescription>{listener?.spec.type}</DescriptionListDescription>
                 </DescriptionListGroup>
 
-                {connector?.spec.tlsCredentials && (
+                {listener?.spec.tlsCredentials && (
                   <DescriptionListGroup>
                     <DescriptionListTerm>{t('TLS secret')}</DescriptionListTerm>
-                    <DescriptionListDescription>{connector?.spec.tlsCredentials}</DescriptionListDescription>
+                    <DescriptionListDescription>{listener?.spec.tlsCredentials}</DescriptionListDescription>
                   </DescriptionListGroup>
                 )}
-
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Include not ready')}</DescriptionListTerm>
-                  <DescriptionListDescription>{`${connector?.spec.includeNotReady}`}</DescriptionListDescription>
-                </DescriptionListGroup>
               </DescriptionList>
             </CardBody>
           </Card>
@@ -144,11 +131,11 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
             </CardHeader>
             <CardBody>
               <DescriptionList>
-                {connector?.metadata.creationTimestamp && (
+                {listener?.metadata.creationTimestamp && (
                   <DescriptionListGroup>
                     <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
                     <DescriptionListDescription>
-                      <FormatOCPDateCell value={new Date(connector.metadata.creationTimestamp)} />
+                      <FormatOCPDateCell value={new Date(listener.metadata.creationTimestamp)} />
                     </DescriptionListDescription>
                   </DescriptionListGroup>
                 )}
@@ -159,21 +146,21 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
         <Tab eventKey={1} title={<TabTitleText>{t('YAML')}</TabTitleText>}>
           <Card>
             <CodeBlock>
-              <CodeBlockCode id="code-content">{stringify(connector)}</CodeBlockCode>
+              <CodeBlockCode id="code-content">{stringify(listener)}</CodeBlockCode>
             </CodeBlock>
           </Card>
         </Tab>
       </Tabs>
       <Modal isOpen={!!isOpen} variant={ModalVariant.medium} aria-label="Form edit listener" showClose={false}>
-        {connector && (
-          <ConnectorForm
-            title={t('Update connector')}
+        {listener && (
+          <ListenerForm
+            title={t('Update listener')}
             onSubmit={handleModalSubmit}
             onCancel={handleModalClose}
-            connectorName={connector?.metadata.name}
+            listenerName={listener?.metadata.name}
             attributes={{
-              ...connector.spec,
-              ...connector.metadata
+              ...listener.spec,
+              ...listener.metadata
             }}
           />
         )}
@@ -182,4 +169,4 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
   );
 };
 
-export default ConnectorDetails;
+export default ListenerDetails;

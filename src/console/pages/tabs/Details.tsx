@@ -19,26 +19,24 @@ import {
   Icon
 } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon, PenIcon, SyncAltIcon } from '@patternfly/react-icons';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { RESTApi } from '@API/REST.api';
 import {
   CR_STATUS_OK,
   DEFAULT_SERVICE_ACCOUNT,
-  EMPTY_LINK_ACCESS_STATUS,
+  EMPTY_LINK_ACCESS,
   EMPTY_VALUE_SYMBOL,
-  I18nNamespace,
-  REFETCH_QUERY_INTERVAL
+  I18nNamespace
 } from '@config/config';
 import FormatOCPDateCell from '@core/components/FormatOCPDate';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import SkTable from '@core/components/SkTable';
 import { CrdStatusCondition, StatusSiteType } from '@interfaces/CRD_Base';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
+import { useSiteData } from 'console/context/AppContext';
 
-import DeleteSiteButton from './components/DeleteSiteButton';
-import SiteForm from './components/SiteForm';
+import DeleteSiteButton from '../components/DeleteSiteButton';
+import SiteForm from '../components/forms/SiteForm';
 
 const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
   const { t } = useTranslation(I18nNamespace);
@@ -46,11 +44,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [visibleModalPros, setVisibleModalProps] = useState<Record<string, boolean>>({});
 
-  const { data: site, refetch } = useQuery({
-    queryKey: ['find-site-query'],
-    queryFn: () => RESTApi.findSiteView(),
-    refetchInterval: REFETCH_QUERY_INTERVAL
-  });
+  const { site, onRefetch } = useSiteData();
 
   const handleOpenModal = (props: Record<string, boolean>) => {
     setIsModalOpen(true);
@@ -63,9 +57,8 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
 
   const handleReady = useCallback(() => {
     handleClose();
-    refetch();
-  }, [handleClose, refetch]);
-
+    onRefetch();
+  }, [handleClose, onRefetch]);
 
   const ConditionsColumns: SKColumn<CrdStatusCondition<StatusSiteType>>[] = [
     {
@@ -170,7 +163,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
                 {t('Link access')} <TooltipInfoButton content={t('tooltipSiteLinkAccess')} />
               </DescriptionListTerm>
               <DescriptionListDescription>
-                {site?.linkAccess || EMPTY_LINK_ACCESS_STATUS}{' '}
+                {site?.linkAccess || EMPTY_LINK_ACCESS}{' '}
                 <Button
                   variant="plain"
                   onClick={() => handleOpenModal({ linkAccess: true })}
