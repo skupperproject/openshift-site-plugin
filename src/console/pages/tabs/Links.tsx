@@ -23,6 +23,7 @@ import { stringify } from 'yaml';
 import { RESTApi } from '@API/REST.api';
 import { convertAccessTokensToLinks, hasType } from '@API/REST.utils';
 import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { QueryKeys } from '@config/reactQuery';
 import FormatOCPDateCell from '@core/components/FormatOCPDate';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
@@ -32,8 +33,8 @@ import { ISO8601Timestamp } from '@interfaces/CRD_Base';
 import { AccessGrant, Link } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
-import GrantForm from './components/GrantForm';
-import LinkForm from './components/LinkForm';
+import GrantForm from '../components/forms/GrantForm';
+import LinkForm from '../components/forms/LinkForm';
 
 const Links: FC<{ siteId: string }> = function ({ siteId }) {
   const { t } = useTranslation(I18nNamespace);
@@ -43,25 +44,25 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showALinkAlert') || 'show');
 
   const { data: accessGrants, refetch: refetchAccessGrants } = useQuery({
-    queryKey: ['get-grants-query'],
+    queryKey: [QueryKeys.GetAccessGrants],
     queryFn: () => RESTApi.getAccessGrantsView(),
     refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
   const { data: accessTokens, refetch: refetchAccessTokens } = useQuery({
-    queryKey: ['get-claims-query'],
+    queryKey: [QueryKeys.GetAccessTokens],
     queryFn: () => RESTApi.getAccessTokens(),
     refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
   const { data: links, refetch: refetchLinks } = useQuery({
-    queryKey: ['get-links-query'],
+    queryKey: [QueryKeys.GetLinks],
     queryFn: () => RESTApi.getLinksView(),
     refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });
 
   const { data: remoteLinks, refetch: refetchRemoteLinks } = useQuery({
-    queryKey: ['get-remote-links-query'],
+    queryKey: [`remote-${QueryKeys.GetLinks}`, siteId],
     queryFn: () => RESTApi.getRemoteLinks(siteId),
     refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
   });

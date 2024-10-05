@@ -5,6 +5,7 @@ export const EMPTY_LINK_ACCESS = 'none';
 export const DEFAULT_SERVICE_ACCOUNT = 'skupper:skupper-controller';
 export const EMPTY_VALUE_SYMBOL = '-';
 export const REFETCH_QUERY_INTERVAL = 6000;
+export const MAX_TRANSITION_TIME = 30; // Maximum time after which to display an error message from the creation of the Site
 
 export const protocolOptions = [
   { value: 'tcp', label: 'tcp' },

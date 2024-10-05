@@ -26,13 +26,14 @@ import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { QueryKeys } from '@config/reactQuery';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
 import { Listener } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
-import ListenerForm from './components/ListenerForm';
 import ListenerDetails from './ListenerDetails';
+import ListenerForm from '../components/forms/ListenerForm';
 
 const Listeners = function () {
   const { t } = useTranslation(I18nNamespace);
@@ -42,7 +43,7 @@ const Listeners = function () {
   const [nameSelected, setNameSelected] = useState<string | undefined>();
 
   const { data: listeners, refetch } = useQuery({
-    queryKey: ['get-listeners-query'],
+    queryKey: [QueryKeys.GetListeners],
     queryFn: () => RESTApi.getListenersView(),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
@@ -55,31 +56,34 @@ const Listeners = function () {
     }
   });
 
-  function handleDelete(name: string) {
-    mutationDelete.mutate(name);
-  }
+  const handleDelete = useCallback(
+    (name: string) => {
+      mutationDelete.mutate(name);
+    },
+    [mutationDelete]
+  );
+
+  const handleModalClose = useCallback(() => {
+    setIsOpen(undefined);
+  }, []);
 
   const handleModalSubmit = useCallback(() => {
     handleModalClose();
     refetch();
-  }, [refetch]);
+  }, [handleModalClose, refetch]);
 
-  const handleModalClose = () => {
-    setIsOpen(undefined);
-  };
-
-  const handleOpenDetails = (name: string) => {
+  const handleOpenDetails = useCallback((name: string) => {
     setNameSelected(name);
-  };
+  }, []);
 
-  const handleCloseDetails = () => {
+  const handleCloseDetails = useCallback(() => {
     setNameSelected(undefined);
-  };
+  }, []);
 
-  const handleCloseAlert = () => {
+  const handleCloseAlert = useCallback(() => {
     setShowAlert('hide');
     sessionStorage.setItem('showListenerAlert', 'hide');
-  };
+  }, []);
 
   const Columns: SKColumn<Listener>[] = [
     {

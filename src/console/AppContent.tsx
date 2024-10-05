@@ -2,17 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 
 import { RESTApi } from '@API/REST.api';
 import { QueryKeys } from '@config/reactQuery';
-import SiteContainer from '@pages/SiteContainer';
+import SitePage from '@pages/SitePage';
 
-import EmptySite from './pages/EmptySite';
+import CreateSitePage from './pages/CreateSitePage';
 
 const AppContent = function () {
   const { data: site } = useQuery({
-    queryKey: [QueryKeys.FindSiteInit],
-    queryFn: () => RESTApi.findSiteView()
+    queryKey: [QueryKeys.FindSite],
+    queryFn: () => RESTApi.findSite()
   });
 
-return site?.identity ? <SiteContainer siteId={site?.identity} /> : <EmptySite />;
+  return site?.metadata.uid ? <SitePage siteId={site?.metadata.uid} /> : <CreateSitePage />;
 };
 
 export default AppContent;

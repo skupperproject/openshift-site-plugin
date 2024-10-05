@@ -3,8 +3,8 @@ import { useMemo } from 'react';
 import { Alert } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
 
-import { I18nNamespace } from '@config/config';
-import { useSiteData } from 'console/SiteContext';
+import { I18nNamespace, MAX_TRANSITION_TIME } from '@config/config';
+import { useSiteData } from 'console/context/AppContext';
 
 const AlertStatus = function () {
   const { t } = useTranslation(I18nNamespace);
@@ -53,5 +53,5 @@ function checkTransitionTimeDifference(
   const now = new Date().getTime();
   const resolvedTime = new Date(resolvedCondition.lastTransitionTime).getTime();
 
-  return now / 1000 - resolvedTime / 1000 >= 15;
+  return now / 1000 - resolvedTime / 1000 >= MAX_TRANSITION_TIME;
 }

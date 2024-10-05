@@ -4,7 +4,7 @@ import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
 
 import { I18nNamespace } from '@config/config';
-import { useSiteData } from 'console/SiteContext';
+import { useSiteData } from 'console/context/AppContext';
 
 const MenuTabsMapKey = {
   getStarted: 0,

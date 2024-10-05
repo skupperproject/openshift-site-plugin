@@ -18,9 +18,9 @@ import { useTranslation } from 'react-i18next';
 
 import { I18nNamespace } from '@config/config';
 
-import SiteForm from './components/SiteForm';
+import SiteForm from './components/forms/SiteForm';
 
-const EmptySite = function () {
+const CreateSitePage = function () {
   const { t } = useTranslation(I18nNamespace);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -58,4 +58,4 @@ const EmptySite = function () {
   );
 };
 
-export default EmptySite;
+export default CreateSitePage;

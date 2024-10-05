@@ -33,10 +33,10 @@ import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import SkTable from '@core/components/SkTable';
 import { CrdStatusCondition, StatusSiteType } from '@interfaces/CRD_Base';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
-import { useSiteData } from 'console/SiteContext';
+import { useSiteData } from 'console/context/AppContext';
 
-import DeleteSiteButton from './components/DeleteSiteButton';
-import SiteForm from './components/SiteForm';
+import DeleteSiteButton from '../components/DeleteSiteButton';
+import SiteForm from '../components/forms/SiteForm';
 
 const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
   const { t } = useTranslation(I18nNamespace);

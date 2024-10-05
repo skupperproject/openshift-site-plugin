@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { CR_STATUS_OK, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { QueryKeys } from '@config/reactQuery';
 
 import { useLinkForm } from './hooks/useLinkForm';
 
@@ -23,13 +24,13 @@ export const SummaryPage = function () {
 
   const [isLoading, setIsLoading] = useState(true);
   const { data: accessToken } = useQuery({
-    queryKey: ['get-access-token-query', name || fileName],
+    queryKey: [QueryKeys.FindAccessToken, name || fileName],
     queryFn: () => RESTApi.findAccessToken(name || fileName),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
   const { data: link } = useQuery({
-    queryKey: ['get-link-query', name || fileName],
+    queryKey: [QueryKeys.FindLink, name || fileName],
     queryFn: () => RESTApi.findLink(name || fileName),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });

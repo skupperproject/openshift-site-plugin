@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import { createContext, ReactNode, useContext } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -17,13 +17,13 @@ const ApiDataContext = createContext<{
   onRefetch: () => null
 });
 
-export const SiteDataProvider = function ({ children }: { children: React.ReactNode }) {
+export const AppContext = function ({ children }: { children: ReactNode }) {
   const {
     data: site,
     isFetching,
     refetch
   } = useQuery({
-    queryKey: [QueryKeys.FindSite],
+    queryKey: [QueryKeys.FindSiteView],
     queryFn: () => RESTApi.findSiteView(),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });

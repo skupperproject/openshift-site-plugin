@@ -31,8 +31,8 @@ import LoadingPage from '@core/components/Loading';
 import { createSiteData } from '@core/utils/createCRD';
 import { SiteCrdParams } from '@interfaces/CRD_Site';
 import { HTTPError } from '@interfaces/REST.interfaces';
+import { useSiteData } from 'console/context/AppContext';
 import useValidatedInput from 'console/hooks/useValidation';
-import { useSiteData } from 'console/SiteContext';
 
 const options = [
   { value: 'route', label: 'route', disabled: false },
@@ -287,7 +287,7 @@ const WaitSiteCreation = function () {
   const { site, isFetching } = useSiteData();
 
   const queryClient = useQueryClient();
-  const handleReady = useCallback(async () => queryClient.invalidateQueries([QueryKeys.FindSiteInit]), [queryClient]);
+  const handleReady = useCallback(async () => queryClient.invalidateQueries([QueryKeys.FindSite]), [queryClient]);
 
   useEffect(() => {
     if (!isFetching && site?.isConfigured) {

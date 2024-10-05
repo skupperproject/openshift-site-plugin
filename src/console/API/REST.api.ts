@@ -33,7 +33,7 @@ import {
 import { Connector, Listener, Link, SiteView, AccessGrant } from '../interfaces/REST.interfaces';
 
 export const RESTApi = {
-  isOldVersionSkupper: async (): Promise<boolean> => {
+  isOldVersion: async (): Promise<boolean> => {
     const [skupperInstance, sites] = await Promise.all([
       axiosFetch<PartialDeploymentResponse>(deploymentPath('skupper-router')),
       RESTApi.getSites()
@@ -48,6 +48,19 @@ export const RESTApi = {
     return false;
   },
 
+  getSites: async (): Promise<ListCrdResponse<SiteCrdResponse>> =>
+    axiosFetch<ListCrdResponse<SiteCrdResponse>>(sitesPath()),
+
+  findSite: async (): Promise<SiteCrdResponse | null> => {
+    const sites = await RESTApi.getSites();
+
+    if (!sites.items.length) {
+      return null;
+    }
+
+    return sites.items[0];
+  },
+
   findSiteView: async (): Promise<SiteView | null> => {
     const sites = await RESTApi.getSites();
 
@@ -57,9 +70,6 @@ export const RESTApi = {
 
     return convertSiteCRToSite(sites.items[0]);
   },
-
-  getSites: async (): Promise<ListCrdResponse<SiteCrdResponse>> =>
-    axiosFetch<ListCrdResponse<SiteCrdResponse>>(sitesPath()),
 
   createOrUpdateSite: async (data: SiteCrdParams, name?: string): Promise<SiteCrdResponse> => {
     const path = name ? `${sitePath(name)}` : sitesPath();

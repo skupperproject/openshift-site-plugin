@@ -5,18 +5,19 @@ import { stringify } from 'yaml';
 
 import { RESTApi } from '@API/REST.api';
 import { REFETCH_QUERY_INTERVAL } from '@config/config';
+import { QueryKeys } from '@config/reactQuery';
 
 const YAML = function () {
-  const { data: sites } = useQuery({
-    queryKey: ['find-yaml-query'],
-    queryFn: () => RESTApi.getSites(),
+  const { data: site } = useQuery({
+    queryKey: [QueryKeys.FindSite],
+    queryFn: () => RESTApi.findSite(),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
   return (
     <Card isFullHeight>
       <CardBody>
-        <CodeEditor value={stringify(sites?.items[0])} options={{ readOnly: true }} minHeight={'95%'} />
+        <CodeEditor value={stringify(site)} options={{ readOnly: true }} minHeight={'95%'} />
       </CardBody>
     </Card>
   );

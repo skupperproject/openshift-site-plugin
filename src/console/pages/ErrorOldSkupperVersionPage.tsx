@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 
 import { I18nNamespace } from '@config/config';
 
-const ErrorOldSkupperVersion = function () {
+const ErrorOldSkupperVersionPage = function () {
   const { t } = useTranslation(I18nNamespace);
 
   return (
@@ -35,4 +35,4 @@ const ErrorOldSkupperVersion = function () {
   );
 };
 
-export default ErrorOldSkupperVersion;
+export default ErrorOldSkupperVersionPage;

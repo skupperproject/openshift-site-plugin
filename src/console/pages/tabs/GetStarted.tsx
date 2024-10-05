@@ -22,10 +22,10 @@ import { useTranslation } from 'react-i18next';
 import { I18nNamespace } from '@config/config';
 import ExternalLink from '@core/components/ExternalLink';
 
-import ConnectorForm from './components/ConnectorForm';
-import GrantForm from './components/GrantForm';
-import LinkForm from './components/LinkForm';
-import ListenerForm from './components/ListenerForm';
+import ConnectorForm from '../components/forms/ConnectorForm';
+import GrantForm from '../components/forms/GrantForm';
+import LinkForm from '../components/forms/LinkForm';
+import ListenerForm from '../components/forms/ListenerForm';
 
 enum Actions {
   Token = 'token',
