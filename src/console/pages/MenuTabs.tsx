@@ -1,12 +1,10 @@
-// TabNavigation.tsx
 import { FC, KeyboardEvent, MouseEvent, useEffect } from 'react';
 
 import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { I18nNamespace } from '@config/config';
+import { useSiteData } from 'console/SiteContext';
 
 const MenuTabsMapKey = {
   getStarted: 0,
@@ -25,19 +23,15 @@ interface TabNavigationProps {
 export const TabNavigation: FC<TabNavigationProps> = function ({ activeTabKey, setActiveTabKey }) {
   const { t } = useTranslation(I18nNamespace);
 
-  const { data: site } = useQuery({
-    queryKey: ['find-site-query'],
-    queryFn: () => RESTApi.findSiteView(),
-    refetchInterval: (data) => (data?.isReady ? 0 : REFETCH_QUERY_INTERVAL / 2)
-  });
+  const { site } = useSiteData();
 
-  const isSiteActive = site?.isConfigured;
+  const isConfigured = site?.isConfigured;
 
   useEffect(() => {
-    if (!isSiteActive || site?.hasError) {
+    if (!isConfigured || site?.hasError) {
       setActiveTabKey(1);
     }
-  }, [isSiteActive, setActiveTabKey, site?.hasError]);
+  }, [isConfigured, setActiveTabKey, site?.hasError]);
 
   return (
     <Tabs
@@ -49,24 +43,24 @@ export const TabNavigation: FC<TabNavigationProps> = function ({ activeTabKey, s
       <Tab
         eventKey={MenuTabsMapKey.getStarted}
         title={<TabTitleText>{t('GetStartedTab')}</TabTitleText>}
-        isDisabled={!isSiteActive}
+        isDisabled={!isConfigured}
       />
       <Tab eventKey={MenuTabsMapKey.details} title={<TabTitleText>{t('DetailsTab')}</TabTitleText>} />
       <Tab eventKey={MenuTabsMapKey.yaml} title={<TabTitleText>{t('YamlTab')}</TabTitleText>} />
       <Tab
         eventKey={MenuTabsMapKey.links}
         title={<TabTitleText>{t('LinksTab')}</TabTitleText>}
-        isDisabled={!isSiteActive}
+        isDisabled={!isConfigured}
       />
       <Tab
         eventKey={MenuTabsMapKey.listeners}
         title={<TabTitleText>{t('ListenersTab')}</TabTitleText>}
-        isDisabled={!isSiteActive}
+        isDisabled={!isConfigured}
       />
       <Tab
         eventKey={MenuTabsMapKey.connectors}
         title={<TabTitleText>{t('ConnectorsTab')}</TabTitleText>}
-        isDisabled={!isSiteActive}
+        isDisabled={!isConfigured}
       />
     </Tabs>
   );

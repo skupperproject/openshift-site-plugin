@@ -1,18 +1,19 @@
+import { useMemo } from 'react';
+
 import { Alert } from '@patternfly/react-core';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { I18nNamespace } from '@config/config';
+import { useSiteData } from 'console/SiteContext';
 
 const AlertStatus = function () {
   const { t } = useTranslation(I18nNamespace);
 
-  const { data: site } = useQuery({
-    queryKey: ['find-site-query'],
-    queryFn: () => RESTApi.findSiteView(),
-    refetchInterval: (data) => (data?.isReady ? 0 : REFETCH_QUERY_INTERVAL / 2)
-  });
+  const { site } = useSiteData();
+  const hasExceededTransitionLimit = useMemo(
+    () => checkTransitionTimeDifference(site?.conditions || []),
+    [site?.conditions]
+  );
 
   return (
     <>
@@ -26,7 +27,7 @@ const AlertStatus = function () {
         />
       )}
 
-      {site?.isResolved && (site?.hasError || site?.hasSecondaryErrors) && (
+      {hasExceededTransitionLimit && (site?.hasError || site?.hasSecondaryErrors) && (
         <Alert
           variant="danger"
           isInline
@@ -38,3 +39,19 @@ const AlertStatus = function () {
 };
 
 export default AlertStatus;
+
+function checkTransitionTimeDifference(
+  conditions: Array<{ lastTransitionTime: string; type: string }>
+): boolean | string {
+  const readyCondition = conditions.find((cond) => cond.type === 'Ready');
+  const resolvedCondition = conditions.find((cond) => cond.type === 'Resolved');
+
+  if (!readyCondition || !resolvedCondition) {
+    return false;
+  }
+
+  const now = new Date().getTime();
+  const resolvedTime = new Date(resolvedCondition.lastTransitionTime).getTime();
+
+  return now / 1000 - resolvedTime / 1000 >= 15;
+}

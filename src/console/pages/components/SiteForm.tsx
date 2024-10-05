@@ -20,17 +20,19 @@ import {
   CardBody,
   ExpandableSection
 } from '@patternfly/react-core';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { DEFAULT_SERVICE_ACCOUNT, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
+import { DEFAULT_SERVICE_ACCOUNT, I18nNamespace } from '@config/config';
+import { QueryKeys } from '@config/reactQuery';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import LoadingPage from '@core/components/Loading';
 import { createSiteData } from '@core/utils/createCRD';
 import { SiteCrdParams } from '@interfaces/CRD_Site';
 import { HTTPError } from '@interfaces/REST.interfaces';
 import useValidatedInput from 'console/hooks/useValidation';
+import { useSiteData } from 'console/SiteContext';
 
 const options = [
   { value: 'route', label: 'route', disabled: false },
@@ -282,15 +284,10 @@ const FormPage: FC<FormPageProps> = function ({
 const WaitSiteCreation = function () {
   const { t } = useTranslation(I18nNamespace);
 
+  const { site, isFetching } = useSiteData();
+
   const queryClient = useQueryClient();
-
-  const { data: site, isFetching } = useQuery({
-    queryKey: ['find-site-query'],
-    queryFn: () => RESTApi.findSiteView(),
-    refetchInterval: REFETCH_QUERY_INTERVAL
-  });
-
-  const handleReady = useCallback(async () => queryClient.invalidateQueries(['find-site-query-init']), [queryClient]);
+  const handleReady = useCallback(async () => queryClient.invalidateQueries([QueryKeys.FindSiteInit]), [queryClient]);
 
   useEffect(() => {
     if (!isFetching && site?.isConfigured) {

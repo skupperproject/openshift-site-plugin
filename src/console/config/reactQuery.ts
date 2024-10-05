@@ -17,3 +17,8 @@ export const queryClientConfig: QueryClientConfig = {
     }
   }
 };
+
+export enum QueryKeys {
+  FindSiteInit= 'find-site-init-query',
+  FindSite= 'find-site-query'
+};

@@ -5,6 +5,7 @@ import { Bullseye, Spinner } from '@patternfly/react-core';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 
 import AppContent from './AppContent';
+import { SiteDataProvider } from './SiteContext';
 import SkupperVersionValidator from './SkupperVersionValidator';
 import { Wrapper } from './Wrapper';
 
@@ -25,7 +26,9 @@ const App = function () {
             }
           >
             <SkupperVersionValidator>
-              <AppContent />
+              <SiteDataProvider>
+                <AppContent />
+              </SiteDataProvider>
             </SkupperVersionValidator>
           </Suspense>
         </ErrorBoundaryContent>
