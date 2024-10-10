@@ -29,6 +29,7 @@ export interface SiteSpec {
   name?: string;
   linkAccess?: string;
   serviceAccount: string;
+  defaultIssuer: string;
   ha: boolean;
 }
 

@@ -3,6 +3,7 @@ export const I18nNamespace = 'plugin__skupper-site-console'; // Namespace for i1
 export const CR_STATUS_OK = 'OK';
 export const EMPTY_LINK_ACCESS = 'none';
 export const DEFAULT_SERVICE_ACCOUNT = 'skupper:skupper-controller';
+export const DEFAULT_ISSUER = 'skupper-site-ca';
 export const EMPTY_VALUE_SYMBOL = '-';
 export const REFETCH_QUERY_INTERVAL = 6000;
 export const MAX_TRANSITION_TIME = 30; // Maximum time after which to display an error message from the creation of the Site

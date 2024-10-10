@@ -117,11 +117,6 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
                   <DescriptionListDescription>{connector?.spec.port}</DescriptionListDescription>
                 </DescriptionListGroup>
 
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Type')}</DescriptionListTerm>
-                  <DescriptionListDescription>{connector?.spec.type}</DescriptionListDescription>
-                </DescriptionListGroup>
-
                 {connector?.spec.tlsCredentials && (
                   <DescriptionListGroup>
                     <DescriptionListTerm>{t('TLS secret')}</DescriptionListTerm>

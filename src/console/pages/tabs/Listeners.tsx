@@ -104,10 +104,6 @@ const Listeners = function () {
       prop: 'port'
     },
     {
-      name: t('Type'),
-      prop: 'type'
-    },
-    {
       name: t('Status'),
       prop: 'status',
       customCellName: 'StatusCell'

@@ -12,7 +12,7 @@ const AppContent = function () {
     queryFn: () => RESTApi.findSite()
   });
 
-  return site?.metadata.uid ? <SitePage siteId={site?.metadata.uid} /> : <CreateSitePage />;
+  return site ? <SitePage siteId={site?.metadata.uid} /> : <CreateSitePage />;
 };
 
 export default AppContent;

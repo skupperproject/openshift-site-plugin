@@ -8,8 +8,6 @@ import {
   Button,
   FormAlert,
   Alert,
-  FormSelect,
-  FormSelectOption,
   Title,
   Card,
   CardTitle,
@@ -19,7 +17,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace, protocolOptions } from '@config/config';
+import { I18nNamespace } from '@config/config';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import { createListenerRequest } from '@core/utils/createCRD';
 import { ListenerCrdParams, ListenerSpec } from '@interfaces/CRD_Listener';
@@ -44,7 +42,6 @@ const ListenerForm: FC<{
   const [routingKey, setRoutingKey] = useState(attributes?.routingKey || '');
   const [host, setHost] = useState(attributes?.host || '');
   const [port, setPort] = useState<string | number | undefined>(attributes?.port);
-  const [type, setType] = useState(attributes?.type || protocolOptions[0].value);
   const [tlsCredentials, setTlsCredentials] = useState(attributes?.tlsCredentials || '');
 
   const { validated, validateInput } = useValidatedInput();
@@ -67,7 +64,6 @@ const ListenerForm: FC<{
         routingKey,
         host,
         port: Number(port),
-        type,
         tlsCredentials
       }
     });
@@ -93,10 +89,6 @@ const ListenerForm: FC<{
   const handleChangeName = (value: string) => {
     //validateInput(value, [validateRFC1123Subdomain]);
     setName(value);
-  };
-
-  const handleChangeType = (value: string) => {
-    setType(value);
   };
 
   const handleChangeTlsCredentials = (value: string) => {
@@ -155,19 +147,6 @@ const ListenerForm: FC<{
               value={host}
               onChange={(_, value) => handleChangeServiceName(value)}
             />
-          </FormGroup>
-
-          <FormGroup
-            fieldId="form-type"
-            label={t('Type')}
-            labelIcon={<TooltipInfoButton content={t('tooltipProtocolType')} />}
-            title=""
-          >
-            <FormSelect aria-label="form type select" value={type} onChange={(_, value) => handleChangeType(value)}>
-              {protocolOptions.map((option, index) => (
-                <FormSelectOption key={index} value={option.value} label={option.label} />
-              ))}
-            </FormSelect>
           </FormGroup>
 
           <FormGroup

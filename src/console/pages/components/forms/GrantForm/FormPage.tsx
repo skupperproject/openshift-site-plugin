@@ -98,8 +98,15 @@ export const FormPage: FC<{
 
       <StackItem>
         <Form isHorizontal>
-          <FormGroup fieldId="filename-input" isRequired label={t('File name')} title="">
-            <TextInput aria-label="filename input" isRequired type="text" value={name} onChange={handleSetName} />
+          <FormGroup fieldId="filename-input" isRequired label={t('File name')} title=" ">
+            <TextInput
+              aria-label="filename input"
+              isRequired
+              type="text"
+              value={name}
+              onChange={handleSetName}
+              autoFocus
+            />
           </FormGroup>
 
           <FormGroup

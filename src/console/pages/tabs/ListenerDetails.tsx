@@ -108,10 +108,6 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
                   <DescriptionListDescription>{listener?.spec.port}</DescriptionListDescription>
                 </DescriptionListGroup>
 
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Type')}</DescriptionListTerm>
-                  <DescriptionListDescription>{listener?.spec.type}</DescriptionListDescription>
-                </DescriptionListGroup>
 
                 {listener?.spec.tlsCredentials && (
                   <DescriptionListGroup>

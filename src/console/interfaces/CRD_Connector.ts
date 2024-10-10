@@ -15,7 +15,6 @@ export interface ConnectorSpec {
   port: number;
   host?: string;
   selector?: string;
-  type: string;
   tlsCredentials?: string;
   includeNotReady: boolean;
 }

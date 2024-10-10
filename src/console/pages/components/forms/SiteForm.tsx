@@ -1,4 +1,4 @@
-import { useState, FC, useEffect, useCallback } from 'react';
+import { useState, FC, useEffect, useCallback, KeyboardEvent } from 'react';
 
 import {
   Form,
@@ -24,7 +24,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { DEFAULT_SERVICE_ACCOUNT, I18nNamespace } from '@config/config';
+import { DEFAULT_ISSUER, DEFAULT_SERVICE_ACCOUNT, I18nNamespace } from '@config/config';
+import { getSkupperNamespace } from '@config/db';
 import { QueryKeys } from '@config/reactQuery';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import LoadingPage from '@core/components/Loading';
@@ -44,9 +45,10 @@ interface SiteFormProps {
   siteName?: string;
   linkAccess?: string;
   serviceAccount?: string;
+  defaultIssuer?: string;
   ha?: boolean;
   resourceVersion?: string;
-  show?: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: boolean };
+  show?: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: boolean; defaultIssuer?: boolean };
   onReady?: () => void;
   onCancel: () => void;
 }
@@ -55,9 +57,10 @@ const SiteForm: FC<SiteFormProps> = function ({
   siteName,
   linkAccess: initLinkAccess,
   serviceAccount: initServiceAccount,
+  defaultIssuer: initDefaultIssuer,
   ha: initHa,
   resourceVersion,
-  show = { linkAccess: true, name: true, ha: true, serviceAccount: true },
+  show = { linkAccess: true, name: true, ha: true, serviceAccount: true, defaultIssuer: true },
   onReady,
   onCancel
 }) {
@@ -74,6 +77,7 @@ const SiteForm: FC<SiteFormProps> = function ({
       siteName={siteName}
       initLinkAccess={initLinkAccess}
       initServiceAccount={initServiceAccount}
+      initDefaultIssuer={initDefaultIssuer}
       initHa={initHa}
       resourceVersion={resourceVersion}
       onSubmit={handleReady}
@@ -91,9 +95,10 @@ interface FormPageProps {
   siteName?: string;
   initLinkAccess?: string;
   initServiceAccount?: string;
+  initDefaultIssuer?: string;
   initHa?: boolean;
   resourceVersion?: string;
-  show: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: boolean };
+  show: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: boolean; defaultIssuer?: boolean };
   onSubmit: () => void;
   onCancel: () => void;
 }
@@ -103,6 +108,7 @@ const FormPage: FC<FormPageProps> = function ({
   siteName,
   initLinkAccess,
   initServiceAccount,
+  initDefaultIssuer,
   initHa,
   resourceVersion,
   onSubmit,
@@ -118,10 +124,11 @@ const FormPage: FC<FormPageProps> = function ({
     onSuccess: onSubmit
   });
 
-  const [name, setName] = useState(siteName || '');
+  const [name, setName] = useState(siteName || getSkupperNamespace());
   const [linkAccess, setLinkAccess] = useState(initLinkAccess || options[0].value);
   const [isLinkAccessExist, setToggleLinkAccess] = useState(!!initLinkAccess || (!siteName && true));
   const [serviceAccount, setServiceAccount] = useState(initServiceAccount || '');
+  const [defaultIssuer, setDefaultIssuer] = useState(initDefaultIssuer || '');
   const [ha, setHa] = useState(initHa || false);
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -140,14 +147,19 @@ const FormPage: FC<FormPageProps> = function ({
     setLinkAccess(value);
   };
 
-  const handleChangeServiceAccount = (value: string) => {
+  const handleChangeServiceAccount = useCallback((value: string) => {
     // validateInput(value, [validateRFC1123Subdomain]);
     setServiceAccount(value);
-  };
+  }, []);
 
-  const handleChangeHa = (value: boolean) => {
+  const handleDefaultIssuer = useCallback((value: string) => {
+    // validateInput(value, [validateRFC1123Subdomain]);
+    setDefaultIssuer(value);
+  }, []);
+
+  const handleChangeHa = useCallback((value: boolean) => {
     setHa(value);
-  };
+  }, []);
 
   const handleSubmit = () => {
     const data: SiteCrdParams = createSiteData({
@@ -155,6 +167,7 @@ const FormPage: FC<FormPageProps> = function ({
       spec: {
         linkAccess: isLinkAccessExist ? linkAccess : undefined,
         serviceAccount,
+        defaultIssuer,
         ha
       }
     });
@@ -162,43 +175,17 @@ const FormPage: FC<FormPageProps> = function ({
     mutationCreateOrUpdate.mutate(data);
   };
 
-  const SecondaryOptions = function () {
-    return (
-      <>
-        {show.serviceAccount && (
-          <FormGroup
-            fieldId="service-account-input"
-            label={t('Service account')}
-            labelIcon={<TooltipInfoButton content={t('tooltipServiceAccount')} />}
-          >
-            <TextInput
-              aria-label="form service account input"
-              value={serviceAccount}
-              placeholder={DEFAULT_SERVICE_ACCOUNT}
-              onChange={(_, value) => handleChangeServiceAccount(value)}
-            />
-          </FormGroup>
-        )}
-
-        {show.ha && (
-          <FormGroup fieldId="ha-checkbox" className="pf-v5-u-mt-md">
-            <Checkbox
-              aria-label="form ha checkbox"
-              id="ha checkbox"
-              label={t('tooltipHighAvailability')}
-              onClick={() => handleChangeHa(!ha)}
-              isChecked={ha}
-            />
-          </FormGroup>
-        )}
-      </>
-    );
+  const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' && !!name) {
+      event.preventDefault(); // Prevents the default Enter key behavior
+      handleSubmit();
+    }
   };
 
   const canSubmit = !!name; //&& !validated;
 
   return (
-    <Form isHorizontal>
+    <Form isHorizontal onKeyDown={handleKeyPress}>
       {(show.name || show.ha) && (
         <FormGroup fieldId="name-input" isRequired label={t('Name')}>
           <TextInput
@@ -248,7 +235,19 @@ const FormPage: FC<FormPageProps> = function ({
         </FormGroup>
       )}
 
-      {!(show.serviceAccount && show.ha) && <SecondaryOptions />}
+      {!(show.serviceAccount && show.ha) && (
+        <SecondaryOptions
+          showServiceAccount={show.serviceAccount ?? false}
+          showHa={show.ha ?? false}
+          showDefaultIssuer={show.defaultIssuer ?? false}
+          serviceAccount={serviceAccount}
+          defaultIssuer={defaultIssuer}
+          ha={ha}
+          onChangeServiceAccount={handleChangeServiceAccount}
+          onDefaultIssuer={handleDefaultIssuer}
+          onChangeHa={handleChangeHa}
+        />
+      )}
 
       {show.serviceAccount && show.ha && (
         <ExpandableSection
@@ -256,7 +255,17 @@ const FormPage: FC<FormPageProps> = function ({
           onToggle={handleToggle}
           isExpanded={isExpanded}
         >
-          <SecondaryOptions />
+          <SecondaryOptions
+            showServiceAccount={show.serviceAccount ?? false}
+            showHa={show.ha ?? false}
+            showDefaultIssuer={show.defaultIssuer ?? false}
+            serviceAccount={serviceAccount}
+            defaultIssuer={defaultIssuer}
+            ha={ha}
+            onChangeServiceAccount={handleChangeServiceAccount}
+            onDefaultIssuer={handleDefaultIssuer}
+            onChangeHa={handleChangeHa}
+          />
         </ExpandableSection>
       )}
 
@@ -287,7 +296,15 @@ const WaitSiteCreation = function () {
   const { site, isFetching } = useSiteData();
 
   const queryClient = useQueryClient();
-  const handleReady = useCallback(async () => queryClient.invalidateQueries([QueryKeys.FindSite]), [queryClient]);
+  const handleReady = useCallback(() => queryClient.invalidateQueries([QueryKeys.FindSite]), [queryClient]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleReady);
+
+    return () => {
+      window.removeEventListener('keydown', handleReady); // Cleanup listener on unmount
+    };
+  }, [handleReady]);
 
   useEffect(() => {
     if (!isFetching && site?.isConfigured) {
@@ -306,5 +323,78 @@ const WaitSiteCreation = function () {
         {t('Dismiss')}
       </Button>
     </Card>
+  );
+};
+
+interface SecondaryOptionsProps {
+  showServiceAccount: boolean;
+  showHa: boolean;
+  showDefaultIssuer: boolean;
+  serviceAccount: string;
+  defaultIssuer: string;
+  ha: boolean;
+  onChangeServiceAccount: (value: string) => void;
+  onDefaultIssuer: (value: string) => void;
+  onChangeHa: (value: boolean) => void;
+}
+
+export const SecondaryOptions: FC<SecondaryOptionsProps> = function ({
+  showServiceAccount,
+  showHa,
+  showDefaultIssuer,
+  serviceAccount,
+  defaultIssuer,
+  ha,
+  onChangeServiceAccount,
+  onDefaultIssuer,
+  onChangeHa
+}) {
+  const { t } = useTranslation(I18nNamespace);
+
+  return (
+    <>
+      {showServiceAccount && (
+        <FormGroup
+          fieldId="service-account-input"
+          label={t('Service account')}
+          labelIcon={<TooltipInfoButton content={t('tooltipServiceAccount')} />}
+        >
+          <TextInput
+            aria-label="form service account input"
+            value={serviceAccount}
+            placeholder={DEFAULT_SERVICE_ACCOUNT}
+            onChange={(_, value) => onChangeServiceAccount(value)}
+          />
+        </FormGroup>
+      )}
+
+      {showDefaultIssuer && (
+        <FormGroup
+          fieldId="defaultIssuer-checkbox"
+          label={t('Default Issuer')}
+          labelIcon={<TooltipInfoButton content={t('tooltipDefaultIssuer')} />}
+          className="pf-v5-u-mt-md"
+        >
+          <TextInput
+            aria-label="form Default Issuer input"
+            value={defaultIssuer}
+            placeholder={DEFAULT_ISSUER}
+            onChange={(_, value) => onDefaultIssuer(value)}
+          />
+        </FormGroup>
+      )}
+
+      {showHa && (
+        <FormGroup fieldId="ha-checkbox" className="pf-v5-u-mt-md">
+          <Checkbox
+            aria-label="form ha checkbox"
+            id="ha-checkbox"
+            label={t('tooltipHighAvailability')}
+            onClick={() => onChangeHa(!ha)}
+            isChecked={ha}
+          />
+        </FormGroup>
+      )}
+    </>
   );
 };

@@ -31,6 +31,7 @@
   "Links": "Links",
   "Link access": "Link access",
   "Service account": "Service account",
+  "Default issuer": "Default issuer",
   "Links from remote sites": "Links from remote sites",
   "Name": "Name",
   "File name": "File name",
@@ -133,6 +134,7 @@
   "tooltipSiteLinkAccess": "Enable external access for links from remote sites. The default value is route if the environment is OpenShift, otherwise loadbalancer.",
   "tooltipHighAvailability": "High availability",
   "tooltipServiceAccount": "The Kubernetes service account under which to run the Skupper controller. The default value is skupper:skupper-controller",
+  "tooltipDefaultIssuer": "Issuer automatically used to get TLS certificates if none is defined",
 
   "tooltipRedemptionAllowed": "The number of times an access grant for this grant can be redeemed.",
   "tooltipExpirationWindow": "The period of time in which an access grant for this grant can be redeemed.",
