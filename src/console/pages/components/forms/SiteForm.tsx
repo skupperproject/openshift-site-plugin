@@ -306,6 +306,7 @@ const WaitSiteCreation = function () {
     window.addEventListener('keydown', handleReady);
 
     return () => {
+      console.log('WaitSiteCreation', 'remove component');
       window.removeEventListener('keydown', handleReady); // Cleanup listener on unmount
     };
   }, [handleReady]);
