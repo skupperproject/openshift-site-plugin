@@ -18,7 +18,11 @@ const DeleteSiteButton: FC<{ id: string }> = function ({ id }) {
   const queryClient = useQueryClient();
   const mutationDeleteSite = useMutation({
     mutationFn: (name: string) => RESTApi.deleteSite(name, removeAllResources),
-    onSuccess: () => queryClient.invalidateQueries([QueryKeys.FindSite]) // Invalidate the site query to refetch and switch back to EmptySite
+    onSuccess: () => {
+      console.log('deleted successfully');
+      queryClient.invalidateQueries([QueryKeys.FindSite]);
+      queryClient.invalidateQueries([QueryKeys.FindSite]);
+    } // Invalidate the site query to refetch and switch back to EmptySite
   });
 
   const handleDeleteSite = () => mutationDeleteSite.mutate(id);
