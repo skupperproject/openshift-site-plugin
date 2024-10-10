@@ -296,7 +296,11 @@ const WaitSiteCreation = function () {
   const { site, isFetching } = useSiteData();
 
   const queryClient = useQueryClient();
-  const handleReady = useCallback(() => queryClient.invalidateQueries([QueryKeys.FindSite]), [queryClient]);
+  const handleReady = useCallback(() => {
+    console.log('WaitSiteCreation', 'refresh');
+    queryClient.invalidateQueries([QueryKeys.FindSite]);
+    queryClient.invalidateQueries([QueryKeys.FindSite]);
+  }, [queryClient]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleReady);
@@ -371,12 +375,12 @@ export const SecondaryOptions: FC<SecondaryOptionsProps> = function ({
       {showDefaultIssuer && (
         <FormGroup
           fieldId="defaultIssuer-checkbox"
-          label={t('Default Issuer')}
+          label={t('Default issuer')}
           labelIcon={<TooltipInfoButton content={t('tooltipDefaultIssuer')} />}
           className="pf-v5-u-mt-md"
         >
           <TextInput
-            aria-label="form Default Issuer input"
+            aria-label="form Default issuer input"
             value={defaultIssuer}
             placeholder={DEFAULT_ISSUER}
             onChange={(_, value) => onDefaultIssuer(value)}
