@@ -48,7 +48,7 @@ export const ImportConnectorsForm: FC<{ oldItems: Connector[]; onSubmit: () => v
 
     const handleImport = useCallback(async () => {
       const newItemsPromised = items.map(
-        async ({ name, routingKey, selector, host, port, type, tlsCredentials, includeNotReady }) => {
+        async ({ name, routingKey, selector, host, port, tlsCredentials, includeNotReady }) => {
           const data: ConnectorCrdParams = createConnectorRequest({
             metadata: {
               name
@@ -58,7 +58,6 @@ export const ImportConnectorsForm: FC<{ oldItems: Connector[]; onSubmit: () => v
               host,
               port: Number(port),
               selector,
-              type,
               tlsCredentials,
               includeNotReady
             }
@@ -103,8 +102,7 @@ export const ImportConnectorsForm: FC<{ oldItems: Connector[]; onSubmit: () => v
             host: spec.host,
             port: spec.port,
             tlsCredentials: spec.tlsCredentials,
-            includeNotReady: spec.includeNotReady,
-            type: spec.type
+            includeNotReady: spec.includeNotReady
           }))
       );
     }, []);
@@ -134,10 +132,6 @@ export const ImportConnectorsForm: FC<{ oldItems: Connector[]; onSubmit: () => v
       {
         name: t('Port'),
         prop: 'port'
-      },
-      {
-        name: t('Type'),
-        prop: 'type'
       },
       {
         name: t('Status'),

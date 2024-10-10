@@ -49,7 +49,7 @@ export const ImportListenersForm: FC<{ oldItems: Listener[]; onSubmit: () => voi
   });
 
   const handleImport = useCallback(async () => {
-    const newItemsPromised = items.map(async ({ name, routingKey, host, port, type, tlsCredentials }) => {
+    const newItemsPromised = items.map(async ({ name, routingKey, host, port, tlsCredentials }) => {
       const data: ListenerCrdParams = createListenerRequest({
         metadata: {
           name
@@ -58,7 +58,6 @@ export const ImportListenersForm: FC<{ oldItems: Listener[]; onSubmit: () => voi
           routingKey,
           host,
           port: Number(port),
-          type,
           tlsCredentials
         }
       });
@@ -99,7 +98,6 @@ export const ImportListenersForm: FC<{ oldItems: Listener[]; onSubmit: () => voi
           routingKey: spec.routingKey,
           host: spec.host,
           port: spec.port,
-          type: spec.type,
           tlsCredentials: spec.tlsCredentials
         }))
     );
@@ -126,10 +124,6 @@ export const ImportListenersForm: FC<{ oldItems: Listener[]; onSubmit: () => voi
     {
       name: t('Port'),
       prop: 'port'
-    },
-    {
-      name: t('Type'),
-      prop: 'type'
     },
     {
       name: t('Status'),
