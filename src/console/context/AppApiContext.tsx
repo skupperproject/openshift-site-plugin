@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 
 import { QueryClient, QueryClientConfig, QueryClientProvider } from '@tanstack/react-query';
 
@@ -11,10 +11,13 @@ const QueryClientContext = function ({
   config?: QueryClientConfig;
   children: ReactElement;
 }) {
-  const queryClient = new QueryClient({
-    ...queryClientConfig,
-    ...config
-  });
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        ...queryClientConfig,
+        ...config
+      })
+  );
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };

@@ -296,18 +296,13 @@ const WaitSiteCreation = function () {
   const { site, isFetching } = useSiteData();
 
   const queryClient = useQueryClient();
-  const handleReady = useCallback(() => {
-    console.log('WaitSiteCreation', 'refresh');
-    queryClient.invalidateQueries([QueryKeys.FindSite]);
-    queryClient.invalidateQueries([QueryKeys.FindSite]);
-  }, [queryClient]);
+  const handleReady = useCallback(() => queryClient.refetchQueries([QueryKeys.FindSite]), [queryClient]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleReady);
 
     return () => {
-      console.log('WaitSiteCreation', 'remove component');
-      window.removeEventListener('keydown', handleReady); // Cleanup listener on unmount
+      window.removeEventListener('keydown', handleReady);
     };
   }, [handleReady]);
 
