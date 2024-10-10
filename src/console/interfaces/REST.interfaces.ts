@@ -24,6 +24,7 @@ export interface SiteView extends BaseView {
   identity: string;
   linkAccess: string;
   serviceAccount: string;
+  defaultIssuer: string;
   ha: boolean;
   platform: string;
   linkCount: number;
@@ -52,11 +53,9 @@ export interface Link extends BaseView {
 
 export interface Listener extends BaseView {
   id: string;
-
   routingKey: string;
   serviceName: string;
   port: number;
-  type: string;
   connected: number;
 }
 
@@ -66,6 +65,5 @@ export interface Connector extends BaseView {
   host?: string;
   port: number;
   routingKey: string;
-  type: string;
   connected: number;
 }

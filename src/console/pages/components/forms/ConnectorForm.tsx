@@ -8,8 +8,6 @@ import {
   Button,
   FormAlert,
   Alert,
-  FormSelect,
-  FormSelectOption,
   Checkbox,
   Card,
   CardTitle,
@@ -20,7 +18,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace, protocolOptions } from '@config/config';
+import { I18nNamespace } from '@config/config';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import { createConnectorRequest } from '@core/utils/createCRD';
 import { ConnectorCrdParams, ConnectorParams, ConnectorSpec } from '@interfaces/CRD_Connector';
@@ -46,7 +44,6 @@ const ConnectorForm: FC<{
   const [selector, setSelector] = useState(attributes?.selector || '');
   const [host, setHost] = useState(attributes?.host || '');
   const [port, setPort] = useState<number | string | undefined>(attributes?.port);
-  const [type, setType] = useState(attributes?.type || protocolOptions[0].value);
   const [tlsCredentials, setTlsCredentials] = useState(attributes?.tlsCredentials || '');
   const [includeNotReady, setIncludeNotReady] = useState(attributes?.includeNotReady || false);
 
@@ -73,7 +70,6 @@ const ConnectorForm: FC<{
         routingKey,
         [key]: value,
         port: Number(port),
-        type,
         tlsCredentials,
         includeNotReady
       }
@@ -105,10 +101,6 @@ const ConnectorForm: FC<{
   const handleChangePort = (value: string) => {
     //validateInput(value, [validatePort]);
     setPort(value);
-  };
-
-  const handleChangeType = (value: string) => {
-    setType(value);
   };
 
   const handleChangeTlsCredentials = (value: string) => {
@@ -188,19 +180,6 @@ const ConnectorForm: FC<{
             title=""
           >
             <TextInput aria-label="form host input" value={host} onChange={(_, value) => handleChangeHost(value)} />
-          </FormGroup>
-
-          <FormGroup
-            fieldId="form-type"
-            label={t('Type')}
-            labelIcon={<TooltipInfoButton content={t('tooltipProtocolType')} />}
-            title=""
-          >
-            <FormSelect aria-label="form type select" value={type} onChange={(_, value) => handleChangeType(value)}>
-              {protocolOptions.map((option, index) => (
-                <FormSelectOption key={index} value={option.value} label={option.label} />
-              ))}
-            </FormSelect>
           </FormGroup>
 
           <FormGroup

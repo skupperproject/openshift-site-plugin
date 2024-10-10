@@ -1,4 +1,4 @@
-import { useState, FC, useCallback, useMemo, useRef } from 'react';
+import { useState, FC, useCallback, useMemo, useRef, useEffect } from 'react';
 
 import {
   Button,
@@ -87,7 +87,29 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
     if (step === 1) {
       handleSubmit();
     }
-  }, [handleSubmit, step]);
+
+    if (step === 2) {
+      onCancel?.();
+    }
+  }, [handleSubmit, onCancel, step]);
+
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        handleNextStep();
+      }
+    },
+    [handleNextStep]
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress); // Cleanup listener on unmount
+    };
+  }, [handleKeyPress]);
 
   const steps = useMemo(
     () => [
@@ -131,10 +153,7 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
           )}
 
           <WizardFooterWrapper>
-            <Button
-              onClick={step - 1 === ButtonName.length - 1 ? onCancel : handleNextStep}
-              isDisabled={step === 2 && !grant?.status}
-            >
+            <Button onClick={handleNextStep} isDisabled={step === 2 && !grant?.status}>
               {t(ButtonName[step - 1])}
             </Button>
             {step === 1 && (

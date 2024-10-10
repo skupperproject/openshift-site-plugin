@@ -14,7 +14,6 @@ export interface ListenerSpec {
   routingKey: string;
   port: number;
   host: string;
-  type: string;
   tlsCredentials?: string;
 }
 

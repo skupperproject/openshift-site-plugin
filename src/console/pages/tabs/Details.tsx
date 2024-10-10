@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   CR_STATUS_OK,
+  DEFAULT_ISSUER,
   DEFAULT_SERVICE_ACCOUNT,
   EMPTY_LINK_ACCESS,
   EMPTY_VALUE_SYMBOL,
@@ -187,6 +188,19 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
             </DescriptionListGroup>
 
             <DescriptionListGroup>
+              <DescriptionListTerm>{t('Default issuer')}</DescriptionListTerm>
+              <DescriptionListDescription>
+                {`${site?.defaultIssuer}` || DEFAULT_ISSUER}{' '}
+                <Button
+                  variant="plain"
+                  onClick={() => handleOpenModal({ defaultIssuer: true })}
+                  icon={<PenIcon />}
+                  isDisabled={!site?.isConfigured}
+                />
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+
+            <DescriptionListGroup>
               <DescriptionListTerm>{t('tooltipHighAvailability')}</DescriptionListTerm>
               <DescriptionListDescription>
                 {`${site?.ha}`}{' '}
@@ -281,6 +295,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
           siteName={site?.name}
           linkAccess={site?.linkAccess}
           serviceAccount={site?.serviceAccount}
+          defaultIssuer={site?.defaultIssuer}
           ha={site?.ha}
           show={visibleModalPros}
           resourceVersion={site?.resourceVersion}
