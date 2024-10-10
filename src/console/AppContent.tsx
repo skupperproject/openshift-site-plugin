@@ -12,8 +12,6 @@ const AppContent = function () {
     queryFn: () => RESTApi.findSite()
   });
 
-  console.log('AppContent', 'site', site?.metadata);
-
   return site ? <SitePage siteId={site?.metadata.uid} /> : <CreateSitePage />;
 };
 
