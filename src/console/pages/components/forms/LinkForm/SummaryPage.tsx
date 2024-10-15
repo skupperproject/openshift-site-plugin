@@ -16,7 +16,7 @@ const WizardContentHeight = '400px';
 export const SummaryPage = function () {
   const { t } = useTranslation(I18nNamespace);
   const {
-    state: { name, fileName },
+    state: { name, fileNames },
     setIsLoading: setExternalLoading,
     validated: error,
     setValidated
@@ -24,14 +24,14 @@ export const SummaryPage = function () {
 
   const [isLoading, setIsLoading] = useState(true);
   const { data: accessToken } = useQuery({
-    queryKey: [QueryKeys.FindAccessToken, name || fileName],
-    queryFn: () => RESTApi.findAccessToken(name || fileName),
+    queryKey: [QueryKeys.FindAccessToken, name || fileNames[0]],
+    queryFn: () => RESTApi.findAccessToken(name || fileNames[0]),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
   const { data: link } = useQuery({
-    queryKey: [QueryKeys.FindLink, name || fileName],
-    queryFn: () => RESTApi.findLink(name || fileName),
+    queryKey: [QueryKeys.FindLink, name || fileNames[0]],
+    queryFn: () => RESTApi.findLink(name || fileNames[0]),
     refetchInterval: REFETCH_QUERY_INTERVAL
   });
 
