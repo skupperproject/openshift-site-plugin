@@ -1,4 +1,4 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 
 import {
   FileUpload,
@@ -10,9 +10,11 @@ import {
   Button,
   CardFooter,
   Stack,
-  StackItem
+  StackItem,
+  Icon,
+  TextContent
 } from '@patternfly/react-core';
-import { ImportIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, ExclamationCircleIcon, ImportIcon } from '@patternfly/react-icons';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { parse } from 'yaml';
@@ -23,7 +25,7 @@ import SkTable from '@core/components/SkTable';
 import { createConnectorRequest } from '@core/utils/createCRD';
 import { ConnectorCrdParams, ConnectorParams, ConnectorSpec } from '@interfaces/CRD_Connector';
 import { Connector } from '@interfaces/REST.interfaces';
-import { SKColumn } from '@interfaces/SkTable.interfaces';
+import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
 interface ConnectorCrdAttributes extends ConnectorSpec {
   name: string;
@@ -114,8 +116,7 @@ export const ImportConnectorsForm: FC<{ oldItems: Connector[]; onSubmit: () => v
     const Columns: SKColumn<ConnectorCrdAttributes>[] = [
       {
         name: t('Name'),
-        prop: 'name',
-        customCellName: 'linkCell'
+        prop: 'name'
       },
       {
         name: t('Routing key'),
@@ -135,9 +136,45 @@ export const ImportConnectorsForm: FC<{ oldItems: Connector[]; onSubmit: () => v
       },
       {
         name: t('Status'),
-        prop: 'status'
+        prop: 'status',
+        customCellName: 'ImportStatusCell'
       }
     ];
+
+    const customCells = useMemo(
+      () => ({
+        ImportStatusCell: ({ value }: SKComponentProps<ConnectorCrdAttributes>) => (
+          <>
+            {!value && null}
+            {value === 'Created' && (
+              <TextContent>
+                <Icon isInline status="success">
+                  <CheckCircleIcon />
+                </Icon>{' '}
+                {value}
+              </TextContent>
+            )}
+            {value === 'Updated' && (
+              <TextContent>
+                <Icon isInline status="info">
+                  <CheckCircleIcon />
+                </Icon>{' '}
+                {value}
+              </TextContent>
+            )}
+            {value === 'Error' && (
+              <TextContent>
+                <Icon isInline status="danger">
+                  <ExclamationCircleIcon />
+                </Icon>{' '}
+                {value}
+              </TextContent>
+            )}
+          </>
+        )
+      }),
+      []
+    );
 
     return (
       <Card isPlain>
@@ -167,7 +204,7 @@ export const ImportConnectorsForm: FC<{ oldItems: Connector[]; onSubmit: () => v
             </StackItem>
 
             <StackItem>
-              <SkTable columns={Columns} rows={items} alwaysShowPagination={false} isPlain />
+              <SkTable columns={Columns} customCells={customCells} rows={items} alwaysShowPagination={false} isPlain />
             </StackItem>
           </Stack>
         </CardBody>

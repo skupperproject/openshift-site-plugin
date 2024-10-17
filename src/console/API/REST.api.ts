@@ -206,7 +206,7 @@ export const RESTApi = {
       return null;
     }
 
-    return convertListenerCRsToListeners(sites.items[0], listeners.items);
+    return convertListenerCRsToListeners(listeners.items);
   },
 
   findListener: async (name: string): Promise<ListenerCrdResponse> =>
@@ -240,7 +240,7 @@ export const RESTApi = {
       return null;
     }
 
-    return convertConnectorCRsToConnectors(sites.items[0], connectors.items);
+    return convertConnectorCRsToConnectors(connectors.items);
   },
 
   findConnector: async (name: string): Promise<ConnectorCrdResponse> =>

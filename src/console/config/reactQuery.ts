@@ -32,4 +32,4 @@ export enum QueryKeys {
   GetConnectors = 'get-connectors-query',
   GetListeners = 'get-listeners-query',
   IsOldAppVersion = 'find-is-old-app-version-query'
-};
+}

@@ -32,7 +32,6 @@ import LoadingPage from '@core/components/Loading';
 import { createSiteData } from '@core/utils/createCRD';
 import { SiteCrdParams } from '@interfaces/CRD_Site';
 import { HTTPError } from '@interfaces/REST.interfaces';
-import { useSiteData } from 'console/context/AppContext';
 import useValidatedInput from 'console/hooks/useValidation';
 
 const options = [
@@ -49,7 +48,6 @@ interface SiteFormProps {
   ha?: boolean;
   resourceVersion?: string;
   show?: { linkAccess?: boolean; name?: boolean; ha?: boolean; serviceAccount?: boolean; defaultIssuer?: boolean };
-  onReady?: () => void;
   onCancel: () => void;
 }
 
@@ -61,13 +59,12 @@ const SiteForm: FC<SiteFormProps> = function ({
   ha: initHa,
   resourceVersion,
   show = { linkAccess: true, name: true, ha: true, serviceAccount: true, defaultIssuer: true },
-  onReady,
   onCancel
 }) {
   const [step, setNextStep] = useState(0);
 
   const handleReady = () => {
-    siteName ? onReady?.() : setNextStep(1);
+    siteName ? onCancel?.() : setNextStep(1);
   };
 
   const steps = [
@@ -293,8 +290,6 @@ const FormPage: FC<FormPageProps> = function ({
 const WaitSiteCreation = function () {
   const { t } = useTranslation(I18nNamespace);
 
-  const { site, isFetching } = useSiteData();
-
   const queryClient = useQueryClient();
   const handleReady = useCallback(() => queryClient.refetchQueries([QueryKeys.FindSite]), [queryClient]);
 
@@ -305,12 +300,6 @@ const WaitSiteCreation = function () {
       window.removeEventListener('keydown', handleReady);
     };
   }, [handleReady]);
-
-  useEffect(() => {
-    if (!isFetching && site?.isConfigured) {
-      handleReady();
-    }
-  }, [handleReady, isFetching, site?.isConfigured]);
 
   return (
     <Card isPlain>
@@ -338,7 +327,7 @@ interface SecondaryOptionsProps {
   onChangeHa: (value: boolean) => void;
 }
 
-export const SecondaryOptions: FC<SecondaryOptionsProps> = function ({
+const SecondaryOptions: FC<SecondaryOptionsProps> = function ({
   showServiceAccount,
   showHa,
   showDefaultIssuer,

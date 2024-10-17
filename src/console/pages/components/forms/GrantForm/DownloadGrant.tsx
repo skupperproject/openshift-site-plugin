@@ -1,4 +1,4 @@
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 
 import { Button, Title, Stack, StackItem, Spinner } from '@patternfly/react-core';
 import { DownloadIcon } from '@patternfly/react-icons';
@@ -10,15 +10,20 @@ import cStep2 from '@assets/cstep2.png';
 import cStep3 from '@assets/cstep3.png';
 import { CR_STATUS_OK, I18nNamespace } from '@config/config';
 import InstructionBlock from '@core/components/InstructionBlock';
-import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 export const DownloadGrant: FC<{
-  grant?: AccessGrantCrdResponse;
-}> = function ({ grant }) {
+  name?: string;
+}> = function ({ name = '' }) {
   const { t } = useTranslation(I18nNamespace);
 
+  const [isDownloading, setIsDownloading] = useState<boolean | undefined>();
+  const { data: grants } = useWatchedSkupperResource({ kind: 'AccessGrant', isList: false, name });
+  const grant = grants?.[0]?.rawData;
+
   const handleDownload = useCallback(() => {
-    if (grant?.status) {
+    if (grant && !isDownloading) {
+      setIsDownloading(true);
       const blob = new Blob([stringify(grant)], { type: 'application/json' });
 
       const link = document.createElement('a');
@@ -28,10 +33,18 @@ export const DownloadGrant: FC<{
 
       document.body.appendChild(link).click();
       document.body.removeChild(link);
+      setTimeout(() => setIsDownloading(false), 3000);
     }
-  }, [grant]);
+  }, [grant, isDownloading]);
 
-  const isDisabled = !grant?.status || grant.status.status !== CR_STATUS_OK;
+  const isDisabled = !grant?.status || grant.status.status !== CR_STATUS_OK || isDownloading;
+
+  // Download the grant automatically when ready after few ms
+  useEffect(() => {
+    if (!isDisabled && isDownloading === undefined) {
+      setTimeout(() => handleDownload(), 250);
+    }
+  }, [handleDownload, isDisabled, isDownloading]);
 
   return (
     <Stack hasGutter>
@@ -53,7 +66,11 @@ export const DownloadGrant: FC<{
               isDisabled={isDisabled}
             >
               <small>
-                {isDisabled ? t('Generating the grant, please wait...') : t('Download the grant')}
+                {isDisabled
+                  ? isDownloading
+                    ? t('Downloading the grant...')
+                    : t('Generating the grant, please wait...')
+                  : t('Download the grant')}
                 {isDisabled && <Spinner size="md" />}
               </small>
             </Button>

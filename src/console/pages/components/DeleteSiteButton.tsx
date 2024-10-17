@@ -2,12 +2,11 @@ import { FC, useState } from 'react';
 
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { Button, ButtonVariant, Checkbox } from '@patternfly/react-core';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
-import { QueryKeys } from '@config/reactQuery';
 
 const DeleteSiteButton: FC<{ id: string }> = function ({ id }) {
   const { t } = useTranslation(I18nNamespace);
@@ -15,10 +14,8 @@ const DeleteSiteButton: FC<{ id: string }> = function ({ id }) {
   const [isOpen, setIsOpen] = useState(false);
   const [removeAllResources, setRemoveAllResources] = useState(true);
 
-  const queryClient = useQueryClient();
   const mutationDeleteSite = useMutation({
-    mutationFn: (name: string) => RESTApi.deleteSite(name, removeAllResources),
-    onSuccess: () => queryClient.refetchQueries([QueryKeys.FindSite])
+    mutationFn: (name: string) => RESTApi.deleteSite(name, removeAllResources)
   });
 
   const handleDeleteSite = () => mutationDeleteSite.mutate(id);

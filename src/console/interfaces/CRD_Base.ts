@@ -1,7 +1,7 @@
 export type ISO8601Timestamp = string & { __brand: 'ISO8601Timestamp' };
 
-export type ReasonStatus = 'OK' | 'Error';
-export type Status = 'True' | 'False';
+type ReasonStatus = 'OK' | 'Error';
+type Status = 'True' | 'False';
 export type StatusAccessGrantType = 'Processed' | 'Ready' | 'Resolved';
 export type StatusAccessTokenType = 'Redeemed';
 export type StatusLinkType = 'Configured' | 'Ready' | 'Operational';
@@ -38,7 +38,6 @@ export interface CrdMetaDataResponse {
   resourceVersion: string;
   creationTimestamp: ISO8601Timestamp;
 }
-
 export interface ApiVersion {
   apiVersion: 'skupper.io/v1alpha1';
 }

@@ -34,18 +34,17 @@ import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import SkTable from '@core/components/SkTable';
 import { CrdStatusCondition, StatusSiteType } from '@interfaces/CRD_Base';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
-import { useSiteData } from 'console/context/AppContext';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import DeleteSiteButton from '../components/DeleteSiteButton';
 import SiteForm from '../components/forms/SiteForm';
 
 const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
   const { t } = useTranslation(I18nNamespace);
+  const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [visibleModalPros, setVisibleModalProps] = useState<Record<string, boolean>>({});
-
-  const { site, onRefetch } = useSiteData();
 
   const handleOpenModal = (props: Record<string, boolean>) => {
     setIsModalOpen(true);
@@ -55,11 +54,6 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
   const handleClose = useCallback(() => {
     setIsModalOpen(false);
   }, []);
-
-  const handleReady = useCallback(() => {
-    handleClose();
-    onRefetch();
-  }, [handleClose, onRefetch]);
 
   const ConditionsColumns: SKColumn<CrdStatusCondition<StatusSiteType>>[] = [
     {
@@ -106,6 +100,8 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
         </Icon>
       )
   };
+
+  const site = sites?.[0];
 
   return (
     <>
@@ -299,7 +295,6 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
           ha={site?.ha}
           show={visibleModalPros}
           resourceVersion={site?.resourceVersion}
-          onReady={handleReady}
           onCancel={handleClose}
         />
       </Modal>

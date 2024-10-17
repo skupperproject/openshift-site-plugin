@@ -1,4 +1,4 @@
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 
 import {
   Button,
@@ -64,7 +64,7 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
       return;
     }
 
-    files.forEach((fileContent) => {
+    files.forEach((fileContent, index) => {
       try {
         const JsonFile = parse(fileContent.toString()) as AccessGrantCrdResponse;
         const { metadata, status } = JsonFile;
@@ -77,7 +77,7 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
 
         const data: AccessTokenCrdParams = createAccessTokenRequest({
           metadata: {
-            name: name || metadata.name
+            name: files.length > 1 ? `${name}-${index}` : name || metadata.name
           },
           spec: {
             ca: status.ca,
@@ -113,6 +113,24 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
 
     goToNextStep();
   }, [setValidated, activeStep?.index, goToNextStep, handleSubmit, onSubmit]);
+
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        handleNextStep();
+      }
+    },
+    [handleNextStep]
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress); // Cleanup listener on unmount
+    };
+  }, [handleKeyPress]);
 
   return (
     <>

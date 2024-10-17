@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import {
   Button,
@@ -21,17 +21,17 @@ import {
   CardBody
 } from '@patternfly/react-core';
 import { CheckCircleIcon, TimesIcon } from '@patternfly/react-icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
-import { QueryKeys } from '@config/reactQuery';
+import { I18nNamespace } from '@config/config';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
 import { Listener } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 import { ImportListenersForm } from '@pages/components/ImportListenersForm';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import ListenerDetails from './ListenerDetails';
 import ListenerForm from '../components/forms/ListenerForm';
@@ -44,18 +44,11 @@ const Listeners = function () {
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showListenerAlert') || 'show');
   const [nameSelected, setNameSelected] = useState<string | undefined>();
 
-  const { data: listeners, refetch } = useQuery({
-    queryKey: [QueryKeys.GetListeners],
-    queryFn: () => RESTApi.getListenersView(),
-    refetchInterval: REFETCH_QUERY_INTERVAL
-  });
+  const { data: listeners } = useWatchedSkupperResource({ kind: 'Listener' });
 
   const mutationDelete = useMutation({
     mutationFn: (name: string) => RESTApi.deleteListener(name),
-    onSuccess: () => {
-      handleCloseDetails();
-      refetch();
-    }
+    onSuccess: () => handleCloseDetails()
   });
 
   const handleDelete = useCallback(
@@ -68,13 +61,7 @@ const Listeners = function () {
   const handleModalClose = useCallback(() => {
     setIsOpen(undefined);
     setIsImportOpen(undefined);
-  },[]);
-
-  const handleModalSubmit = useCallback(() => {
-    handleModalClose();
-    refetch();
-  }, [handleModalClose, refetch]);
-
+  }, []);
 
   const handleOpenDetails = useCallback((name: string) => {
     setNameSelected(name);
@@ -123,27 +110,30 @@ const Listeners = function () {
     }
   ];
 
-  const customCells = {
-    linkCell: ({ data }: SKComponentProps<Listener>) => (
-      <Button variant="link" onClick={() => handleOpenDetails(data.name)}>
-        {data.name}
-      </Button>
-    ),
+  const customCells = useMemo(
+    () => ({
+      linkCell: ({ data }: SKComponentProps<Listener>) => (
+        <Button variant="link" onClick={handleOpenDetails.bind(null, data.name)}>
+          {data.name}
+        </Button>
+      ),
 
-    StatusCell,
+      StatusCell,
 
-    connectedCell: ({ value }: SKComponentProps<Listener>) => (
-      <Icon isInline status={value ? 'success' : 'danger'}>
-        {value ? <CheckCircleIcon /> : <TimesIcon />}
-      </Icon>
-    ),
+      connectedCell: ({ value }: SKComponentProps<Listener>) => (
+        <Icon isInline status={value ? 'success' : 'danger'}>
+          {value ? <CheckCircleIcon /> : <TimesIcon />}
+        </Icon>
+      ),
 
-    actions: ({ data }: SKComponentProps<Listener>) => (
-      <Button onClick={() => handleDelete(data.name)} variant="link">
-        {t('Delete')}
-      </Button>
-    )
-  };
+      actions: ({ data }: SKComponentProps<Listener>) => (
+        <Button onClick={handleDelete.bind(null, data.name)} variant="link">
+          {t('Delete')}
+        </Button>
+      )
+    }),
+    [handleDelete, handleOpenDetails, t]
+  );
 
   const panelContent = (
     <DrawerPanelContent isResizable minSize="30%">
@@ -153,7 +143,7 @@ const Listeners = function () {
         </DrawerActions>
       </DrawerHead>
       <DrawerPanelBody>
-        {nameSelected && <ListenerDetails name={nameSelected} onUpdate={handleModalSubmit} />}
+        {nameSelected && <ListenerDetails name={nameSelected} onUpdate={handleModalClose} />}
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
@@ -202,7 +192,7 @@ const Listeners = function () {
           aria-label="Form create listener"
           showClose={false}
         >
-          <ListenerForm onSubmit={handleModalSubmit} onCancel={handleModalClose} title={t('Create a listener')} />
+          <ListenerForm onSubmit={handleModalClose} onCancel={handleModalClose} title={t('Create a listener')} />
         </Modal>
 
         <Modal
@@ -212,7 +202,7 @@ const Listeners = function () {
           aria-label="Form import listeners"
           showClose={false}
         >
-          <ImportListenersForm oldItems={listeners || []} onSubmit={handleModalSubmit} onCancel={handleModalClose} />
+          <ImportListenersForm oldItems={listeners || []} onSubmit={handleModalClose} onCancel={handleModalClose} />
         </Modal>
       </CardBody>
     </Card>

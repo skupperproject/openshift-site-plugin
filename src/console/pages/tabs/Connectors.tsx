@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import {
   Button,
@@ -21,17 +21,17 @@ import {
   CardBody
 } from '@patternfly/react-core';
 import { CheckCircleIcon, TimesIcon } from '@patternfly/react-icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
-import { QueryKeys } from '@config/reactQuery';
+import { I18nNamespace } from '@config/config';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
 import { Connector } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 import { ImportConnectorsForm } from '@pages/components/ImportConnectorsForm';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import ConnectorDetails from './ConnectorDetails';
 import ConnectorForm from '../components/forms/ConnectorForm';
@@ -44,33 +44,24 @@ const Connectors = function () {
   const [nameSelected, setNameSelected] = useState<string | undefined>();
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showConnectorAlert') || 'show');
 
-  const { data: connectors, refetch } = useQuery({
-    queryKey: [QueryKeys.GetConnectors],
-    queryFn: () => RESTApi.getConnectorsView(),
-    refetchInterval: REFETCH_QUERY_INTERVAL
-  });
+  const { data: connectors } = useWatchedSkupperResource({ kind: 'Connector' });
 
   const mutationDelete = useMutation({
     mutationFn: (name: string) => RESTApi.deleteConnector(name),
-    onSuccess: () => {
-      handleCloseDetails();
-      refetch();
-    }
+    onSuccess: () => handleCloseDetails()
   });
 
-  function handleDelete(name: string) {
-    mutationDelete.mutate(name);
-  }
+  const handleDelete = useCallback(
+    (name: string) => {
+      mutationDelete.mutate(name);
+    },
+    [mutationDelete]
+  );
 
   const handleModalClose = useCallback(() => {
     setAreDetailsOpen(false);
     setIsImportOpen(undefined);
-  },[]);
-
-  const handleModalSubmit = useCallback(() => {
-    handleModalClose();
-    refetch();
-  }, [handleModalClose, refetch]);
+  }, []);
 
   const handleOpenDetails = useCallback((name: string) => {
     setNameSelected(name);
@@ -123,27 +114,30 @@ const Connectors = function () {
     }
   ];
 
-  const customCells = {
-    linkCell: ({ data }: SKComponentProps<Connector>) => (
-      <Button variant="link" onClick={() => handleOpenDetails(data.name)}>
-        {data.name}
-      </Button>
-    ),
+  const customCells = useMemo(
+    () => ({
+      linkCell: ({ data }: SKComponentProps<Connector>) => (
+        <Button variant="link" onClick={handleOpenDetails.bind(null, data.name)}>
+          {data.name}
+        </Button>
+      ),
 
-    StatusCell,
+      StatusCell,
 
-    connectedCell: ({ value }: SKComponentProps<Connector>) => (
-      <Icon isInline status={value ? 'success' : 'danger'}>
-        {value ? <CheckCircleIcon /> : <TimesIcon />}
-      </Icon>
-    ),
+      connectedCell: ({ value }: SKComponentProps<Connector>) => (
+        <Icon isInline status={value ? 'success' : 'danger'}>
+          {value ? <CheckCircleIcon /> : <TimesIcon />}
+        </Icon>
+      ),
 
-    actions: ({ data }: SKComponentProps<Connector>) => (
-      <Button onClick={() => handleDelete(data.name)} variant="link">
-        {t('Delete')}
-      </Button>
-    )
-  };
+      actions: ({ data }: SKComponentProps<Connector>) => (
+        <Button onClick={handleDelete.bind(null, data.name)} variant="link">
+          {t('Delete')}
+        </Button>
+      )
+    }),
+    [handleDelete, handleOpenDetails, t]
+  );
 
   const panelContent = (
     <DrawerPanelContent isResizable minSize="30%">
@@ -153,7 +147,7 @@ const Connectors = function () {
         </DrawerActions>
       </DrawerHead>
       <DrawerPanelBody>
-        {nameSelected && <ConnectorDetails name={nameSelected} onUpdate={handleModalSubmit} />}
+        {nameSelected && <ConnectorDetails name={nameSelected} onUpdate={handleModalClose} />}
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
@@ -202,7 +196,7 @@ const Connectors = function () {
           aria-label="Form create connector"
           showClose={false}
         >
-          <ConnectorForm onSubmit={handleModalSubmit} onCancel={handleModalClose} title={t('Create a Connector')} />
+          <ConnectorForm onSubmit={handleModalClose} onCancel={handleModalClose} title={t('Create a Connector')} />
         </Modal>
 
         <Modal
@@ -212,7 +206,7 @@ const Connectors = function () {
           aria-label="Form import listeners"
           showClose={false}
         >
-          <ImportConnectorsForm oldItems={connectors || []} onSubmit={handleModalSubmit} onCancel={handleModalClose} />
+          <ImportConnectorsForm oldItems={connectors || []} onSubmit={handleModalClose} onCancel={handleModalClose} />
         </Modal>
       </CardBody>
     </Card>

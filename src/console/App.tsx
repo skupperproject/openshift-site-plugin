@@ -1,13 +1,9 @@
-import { Suspense } from 'react';
-
 import ErrorBoundaryContent from '@patternfly/react-component-groups/dist/dynamic/ErrorBoundary';
-import { Bullseye, Spinner } from '@patternfly/react-core';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 
 import AppContent from './AppContent';
 import AppVersionValidator from './AppVersionValidator';
 import { AppApiContext } from './context/AppApiContext';
-import { AppContext } from './context/AppContext';
 
 import '@patternfly/patternfly/patternfly.css';
 
@@ -18,19 +14,9 @@ const App = function () {
     <AppApiContext>
       <QueryErrorResetBoundary>
         <ErrorBoundaryContent errorTitle="An Error occurred" headerTitle="">
-          <Suspense
-            fallback={
-              <Bullseye>
-                <Spinner size="xl" />
-              </Bullseye>
-            }
-          >
-            <AppVersionValidator>
-              <AppContext>
-                <AppContent />
-              </AppContext>
-            </AppVersionValidator>
-          </Suspense>
+          <AppVersionValidator>
+            <AppContent />
+          </AppVersionValidator>
         </ErrorBoundaryContent>
       </QueryErrorResetBoundary>
     </AppApiContext>

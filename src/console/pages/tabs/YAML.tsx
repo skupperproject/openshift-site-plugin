@@ -1,18 +1,12 @@
 import { CodeEditor } from '@openshift-console/dynamic-plugin-sdk';
 import { Card, CardBody } from '@patternfly/react-core';
-import { useQuery } from '@tanstack/react-query';
 import { stringify } from 'yaml';
 
-import { RESTApi } from '@API/REST.api';
-import { REFETCH_QUERY_INTERVAL } from '@config/config';
-import { QueryKeys } from '@config/reactQuery';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 const YAML = function () {
-  const { data: site } = useQuery({
-    queryKey: [QueryKeys.FindSite],
-    queryFn: () => RESTApi.findSite(),
-    refetchInterval: REFETCH_QUERY_INTERVAL
-  });
+  const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });
+  const site = sites?.[0].rawData;
 
   return (
     <Card isFullHeight>

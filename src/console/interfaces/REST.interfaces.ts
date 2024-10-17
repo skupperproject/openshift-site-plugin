@@ -1,7 +1,12 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { AccessGrantCrdResponse } from './CRD_AccessGrant';
+import { AccessTokenCrdResponse } from './CRD_AccessToken';
 import { CrdStatusCondition, ISO8601Timestamp, StatusSiteType } from './CRD_Base';
+import { ConnectorCrdResponse } from './CRD_Connector';
+import { LinkCrdResponse } from './CRD_Link';
+import { ListenerCrdResponse } from './CRD_Listener';
+import { SiteCrdResponse } from './CRD_Site';
 
 export type FetchWithOptions = AxiosRequestConfig;
 export type StatusAlert = 'danger' | 'success' | 'warning' | 'custom' | 'info' | undefined;
@@ -28,6 +33,7 @@ export interface SiteView extends BaseView {
   ha: boolean;
   platform: string;
   linkCount: number;
+  remoteLinks: string[];
   isConfigured: boolean;
   isReady: boolean;
   isResolved: boolean;
@@ -35,6 +41,7 @@ export interface SiteView extends BaseView {
   resourceVersion: string;
   sitesInNetwork: number;
   conditions?: CrdStatusCondition<StatusSiteType>[];
+  rawData: SiteCrdResponse;
 }
 
 export interface AccessGrant extends BaseView {
@@ -42,22 +49,24 @@ export interface AccessGrant extends BaseView {
   redemptionsAllowed?: number;
   redeemed?: number;
   expirationWindow?: string;
-  data: AccessGrantCrdResponse;
+  rawData: AccessGrantCrdResponse;
 }
 
 export interface Link extends BaseView {
   id: string;
   cost: number | string;
   connectedTo: string;
+  rawData: LinkCrdResponse | AccessTokenCrdResponse;
 }
 
 export interface Listener extends BaseView {
   id: string;
   routingKey: string;
-  serviceName: string;
+  serviceName?: string;
   port: number;
   connected: number;
   resourceVersion: string;
+  rawData: ListenerCrdResponse;
 }
 
 export interface Connector extends BaseView {
@@ -68,4 +77,5 @@ export interface Connector extends BaseView {
   routingKey: string;
   connected: number;
   resourceVersion: string;
+  rawData: ConnectorCrdResponse;
 }

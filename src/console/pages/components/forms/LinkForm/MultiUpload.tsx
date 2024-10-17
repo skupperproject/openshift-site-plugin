@@ -119,32 +119,29 @@ export const MultipleFileUploadBasic: FC<{
         <HelperTextItem variant={'error'}>{fileResult.loadError.toString()}</HelperTextItem>
       </HelperText>
     );
-
   };
 
   const successfullyReadFileCount = readFileData.filter((fileData) => fileData.loadResult === 'success').length;
 
   return (
     <MultipleFileUpload onFileDrop={handleFileDrop} isHorizontal={false}>
-      {true && (
-        <MultipleFileUploadStatus
-          statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
-          statusToggleIcon={statusIcon}
-          aria-label="Current uploads"
-        >
-          <MultipleFileUploadMain titleIcon={<UploadIcon />} titleText="Drag and drop files here" />
-          {currentFiles.map((file) => (
-            <MultipleFileUploadStatusItem
-              file={file}
-              key={file.name}
-              onClearClick={() => removeFiles([file.name])}
-              onReadSuccess={handleReadSuccess}
-              onReadFail={handleReadFail}
-              progressHelperText={createHelperText(file)}
-            />
-          ))}
-        </MultipleFileUploadStatus>
-      )}
+      <MultipleFileUploadStatus
+        statusToggleText={`${successfullyReadFileCount} of ${currentFiles.length} files uploaded`}
+        statusToggleIcon={statusIcon}
+        aria-label="Current uploads"
+      >
+        <MultipleFileUploadMain titleIcon={<UploadIcon />} titleText="Drag and drop files here" />
+        {currentFiles.map((file) => (
+          <MultipleFileUploadStatusItem
+            file={file}
+            key={file.name}
+            onClearClick={() => removeFiles([file.name])}
+            onReadSuccess={handleReadSuccess}
+            onReadFail={handleReadFail}
+            progressHelperText={createHelperText(file)}
+          />
+        ))}
+      </MultipleFileUploadStatus>
     </MultipleFileUpload>
   );
 };

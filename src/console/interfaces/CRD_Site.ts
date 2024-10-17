@@ -4,7 +4,7 @@ interface SiteCrdBase extends ApiVersion {
   kind: 'Site';
 }
 
-export interface NetworkLink {
+interface NetworkLink {
   name: string;
   operational: true;
   remoteSiteId: string;
@@ -25,7 +25,7 @@ export interface NetworkSite {
   }[];
 }
 
-export interface SiteSpec {
+interface SiteSpec {
   name?: string;
   linkAccess?: string;
   serviceAccount: string;
