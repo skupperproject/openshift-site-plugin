@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback } from 'react';
 
 import { Button, Title, Stack, StackItem, Spinner } from '@patternfly/react-core';
 import { DownloadIcon } from '@patternfly/react-icons';
@@ -17,13 +17,11 @@ export const DownloadGrant: FC<{
 }> = function ({ name = '' }) {
   const { t } = useTranslation(I18nNamespace);
 
-  const [isDownloading, setIsDownloading] = useState<boolean | undefined>();
   const { data: grants } = useWatchedSkupperResource({ kind: 'AccessGrant', isList: false, name });
   const grant = grants?.[0]?.rawData;
 
   const handleDownload = useCallback(() => {
-    if (grant && !isDownloading) {
-      setIsDownloading(true);
+    if (grant) {
       const blob = new Blob([stringify(grant)], { type: 'application/json' });
 
       const link = document.createElement('a');
@@ -33,18 +31,10 @@ export const DownloadGrant: FC<{
 
       document.body.appendChild(link).click();
       document.body.removeChild(link);
-      setTimeout(() => setIsDownloading(false), 3000);
     }
-  }, [grant, isDownloading]);
+  }, [grant]);
 
   const isDisabled = !grant?.status || grant.status.status !== CR_STATUS_OK || isDownloading;
-
-  // Download the grant automatically when ready after few ms
-  useEffect(() => {
-    if (!isDisabled && isDownloading === undefined) {
-      setTimeout(() => handleDownload(), 250);
-    }
-  }, [handleDownload, isDisabled, isDownloading]);
 
   return (
     <Stack hasGutter>
