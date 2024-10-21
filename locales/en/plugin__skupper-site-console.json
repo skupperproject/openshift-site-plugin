@@ -79,6 +79,7 @@
   "Step 1 - Download the grant file": "Step 1 - Download the grant file",
   "Click the button to download the grant file.": "Click the button to download the grant file.",
   "Generating the grant, please wait...": "Generating the grant, please wait...",
+  "Downloading the grant...": "Downloading the grant...",
   "Download the token": "Download the grant",
   "Step 2 - Navigate to a remote Openshift cluster": "Step 2 - Navigate to a remote Openshift cluster",
   "Access the plugin TAB of a remote OpenShift cluster to establish a link with this site.": "Access the plugin TAB of a remote OpenShift cluster to establish a link with this site.",

@@ -1,3 +1,4 @@
+import { API_VERSION, GROUP } from '@config/config';
 import { getSkupperNamespace } from '@config/db';
 
 const K8S_PREFIX_PATH = `/api/kubernetes/`;
@@ -6,7 +7,7 @@ const DEPLOYMENT_PATH = `${K8S_PREFIX_PATH}apis/apps/v1/namespaces/`;
 const deploymentsPath = () => `${DEPLOYMENT_PATH}${getSkupperNamespace()}/deployments`;
 export const deploymentPath = (name: string) => `${deploymentsPath()}/${name}`;
 
-const BASE_CR_PATH = `${K8S_PREFIX_PATH}apis/skupper.io/v1alpha1/namespaces/`;
+const BASE_CR_PATH = `${K8S_PREFIX_PATH}apis/${GROUP}/${API_VERSION}/namespaces/`;
 export const sitesPath = () => `${BASE_CR_PATH}${getSkupperNamespace()}/sites`;
 export const sitePath = (name: string) => `${sitesPath()}/${name}`;
 

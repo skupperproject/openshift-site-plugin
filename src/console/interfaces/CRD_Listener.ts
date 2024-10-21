@@ -13,7 +13,7 @@ interface ListenerCrdBase extends ApiVersion {
 export interface ListenerSpec {
   routingKey: string;
   port: number;
-  host: string;
+  host?: string;
   tlsCredentials?: string;
 }
 

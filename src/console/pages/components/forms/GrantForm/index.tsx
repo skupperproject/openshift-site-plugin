@@ -1,4 +1,4 @@
-import { useState, FC, useCallback, useMemo, useRef, useEffect } from 'react';
+import { useState, FC, useCallback, useMemo, useRef, useEffect, memo } from 'react';
 
 import {
   Button,
@@ -10,12 +10,11 @@ import {
   PageSection,
   PageSectionVariants
 } from '@patternfly/react-core';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
-import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
-import { QueryKeys } from '@config/reactQuery';
+import { I18nNamespace } from '@config/config';
 import { createAccessGrantRequest } from '@core/utils/createCRD';
 import { AccessGrantCrdParams, AccessGrantParams } from '@interfaces/CRD_AccessGrant';
 import { HTTPError } from '@interfaces/REST.interfaces';
@@ -34,7 +33,7 @@ enum ValidForUnit {
 
 const ButtonName: string[] = ['Create', 'Done'];
 
-const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function ({ onCancel }) {
+const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = memo(({ onCancel }) => {
   const { t } = useTranslation(I18nNamespace);
 
   const [name, setName] = useState('');
@@ -46,16 +45,6 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
   const validForUnitRef = useRef<ValidForUnit>(ValidForUnit.Minutes);
   const claimsRef = useRef<number | undefined>(DEFAULT_CLAIMS);
   const codeRef = useRef<string>('');
-
-  const { data: grant } = useQuery({
-    queryKey: [QueryKeys.FindGrantToken, name],
-    queryFn: () => RESTApi.findGrant(name),
-    cacheTime: 0,
-    enabled: step === 2,
-    refetchInterval(data) {
-      return data?.status ? 0 : REFETCH_QUERY_INTERVAL;
-    }
-  });
 
   const mutationCreate = useMutation({
     mutationFn: (data: AccessGrantParams) => RESTApi.createGrant(data),
@@ -124,10 +113,10 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
         />
       </WizardStep>,
       <WizardStep name={t('Create token')} id="2-step" key="2-step">
-        <DownloadGrant grant={grant} />
+        <DownloadGrant name={name} />
       </WizardStep>
     ],
-    [grant, name, t]
+    [name, t]
   );
 
   return (
@@ -153,17 +142,10 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
           )}
 
           <WizardFooterWrapper>
-            <Button onClick={handleNextStep} isDisabled={step === 2 && !grant?.status}>
-              {t(ButtonName[step - 1])}
-            </Button>
+            <Button onClick={handleNextStep}>{t(ButtonName[step - 1])}</Button>
             {step === 1 && (
               <Button variant="link" onClick={onCancel}>
                 {t('Cancel')}
-              </Button>
-            )}
-            {step === 2 && (!grant?.status || !!validationError) && (
-              <Button variant="link" onClick={onCancel}>
-                {t('Dismiss')}
               </Button>
             )}
           </WizardFooterWrapper>
@@ -173,6 +155,6 @@ const GrantForm: FC<{ onSubmit?: () => void; onCancel?: () => void }> = function
       {...steps}
     </Wizard>
   );
-};
+});
 
 export default GrantForm;

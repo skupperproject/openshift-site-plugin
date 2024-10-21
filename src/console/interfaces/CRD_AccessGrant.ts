@@ -11,7 +11,7 @@ interface AccessGrantCrdBase extends ApiVersion {
   kind: 'AccessGrant';
 }
 
-export interface AccessGrantSpec {
+interface AccessGrantSpec {
   redemptionsAllowed: number;
   expirationWindow: string;
   code: string;

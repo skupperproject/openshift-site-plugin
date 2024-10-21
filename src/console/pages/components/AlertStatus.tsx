@@ -4,15 +4,17 @@ import { Alert } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
 
 import { I18nNamespace, MAX_TRANSITION_TIME } from '@config/config';
-import { useSiteData } from 'console/context/AppContext';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 const AlertStatus = function () {
   const { t } = useTranslation(I18nNamespace);
 
-  const { site } = useSiteData();
+  const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });
+  const site = sites?.[0];
+
   const hasExceededTransitionLimit = useMemo(
-    () => checkTransitionTimeDifference(site?.conditions || []),
-    [site?.conditions]
+    () => checkTransitionTimeDifference(site?.creationTimestamp),
+    [site?.creationTimestamp]
   );
 
   return (
@@ -40,18 +42,9 @@ const AlertStatus = function () {
 
 export default AlertStatus;
 
-function checkTransitionTimeDifference(
-  conditions: Array<{ lastTransitionTime: string; type: string }>
-): boolean | string {
-  const readyCondition = conditions.find((cond) => cond.type === 'Ready');
-  const resolvedCondition = conditions.find((cond) => cond.type === 'Resolved');
-
-  if (!readyCondition || !resolvedCondition) {
-    return false;
-  }
-
+function checkTransitionTimeDifference(creationTime: string | undefined): boolean | string {
   const now = new Date().getTime();
-  const resolvedTime = new Date(resolvedCondition.lastTransitionTime).getTime();
+  const resolvedTime = new Date(creationTime || 0).getTime();
 
   return now / 1000 - resolvedTime / 1000 >= MAX_TRANSITION_TIME;
 }

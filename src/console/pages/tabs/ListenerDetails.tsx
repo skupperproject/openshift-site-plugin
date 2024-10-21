@@ -21,14 +21,13 @@ import {
   Tabs,
   Title
 } from '@patternfly/react-core';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
-import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
-import { QueryKeys } from '@config/reactQuery';
 import FormatOCPDateCell from '@core/components/FormatOCPDate';
+import { ListenerCrdResponse } from '@interfaces/CRD_Listener';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import ListenerForm from '../components/forms/ListenerForm';
 
@@ -42,12 +41,9 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const [isOpen, setIsOpen] = useState<boolean | undefined>();
+  const [listener, setListener] = useState<ListenerCrdResponse | null>();
 
-  const { data: listener, refetch } = useQuery({
-    queryKey: [QueryKeys.FindListener, name],
-    queryFn: () => RESTApi.findListener(name),
-    enabled: false
-  });
+  const { data } = useWatchedSkupperResource({ kind: 'Listener', isList: false, name });
 
   const handleTabClick = (_: MouseEvent | KeyboardEvent, tabIndex: string | number) => {
     setActiveTabKey(tabIndex);
@@ -59,13 +55,14 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
 
   const handleModalSubmit = () => {
     handleModalClose();
-    refetch();
     onUpdate?.();
   };
 
   useEffect(() => {
-    refetch();
-  }, [refetch, name]);
+    if (data) {
+      setListener(data?.[0].rawData);
+    }
+  }, [data]);
 
   return (
     <>
@@ -90,7 +87,7 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
               <DescriptionList>
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
-                  <DescriptionListDescription>{name}</DescriptionListDescription>
+                  <DescriptionListDescription>{listener?.metadata.name}</DescriptionListDescription>
                 </DescriptionListGroup>
 
                 <DescriptionListGroup>
@@ -107,7 +104,6 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
                   <DescriptionListTerm>{t('Port')}</DescriptionListTerm>
                   <DescriptionListDescription>{listener?.spec.port}</DescriptionListDescription>
                 </DescriptionListGroup>
-
 
                 {listener?.spec.tlsCredentials && (
                   <DescriptionListGroup>
@@ -153,7 +149,7 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
             title={t('Update listener')}
             onSubmit={handleModalSubmit}
             onCancel={handleModalClose}
-            listenerName={listener?.metadata.name}
+            listenerName={listener.metadata.name}
             attributes={{
               ...listener.spec,
               ...listener.metadata

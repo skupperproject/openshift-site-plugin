@@ -16,22 +16,21 @@ import {
   CardHeader,
   Card
 } from '@patternfly/react-core';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
 import { RESTApi } from '@API/REST.api';
-import { convertAccessTokensToLinks, hasType } from '@API/REST.utils';
-import { I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
-import { QueryKeys } from '@config/reactQuery';
+import { I18nNamespace } from '@config/config';
 import FormatOCPDateCell from '@core/components/FormatOCPDate';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
 import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
-import { AccessTokenCrdResponse } from '@interfaces/CRD_AccessToken';
+import {} from '@interfaces/CRD_AccessToken';
 import { ISO8601Timestamp } from '@interfaces/CRD_Base';
 import { AccessGrant, Link } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import GrantForm from '../components/forms/GrantForm';
 import LinkForm from '../components/forms/LinkForm';
@@ -43,48 +42,22 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   const [isTokenModalOpen, setIsTokenModalOpen] = useState<boolean | undefined>();
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showALinkAlert') || 'show');
 
-  const { data: accessGrants, refetch: refetchAccessGrants } = useQuery({
-    queryKey: [QueryKeys.GetAccessGrants],
-    queryFn: () => RESTApi.getAccessGrantsView(),
-    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
-  });
+  const { data: accessGrants } = useWatchedSkupperResource({ kind: 'AccessGrant' });
+  const { data: accessTokens } = useWatchedSkupperResource({ kind: 'AccessToken' });
+  const { data: links } = useWatchedSkupperResource({ kind: 'Link' });
 
-  const { data: accessTokens, refetch: refetchAccessTokens } = useQuery({
-    queryKey: [QueryKeys.GetAccessTokens],
-    queryFn: () => RESTApi.getAccessTokens(),
-    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
-  });
-
-  const { data: links, refetch: refetchLinks } = useQuery({
-    queryKey: [QueryKeys.GetLinks],
-    queryFn: () => RESTApi.getLinksView(),
-    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
-  });
-
-  const { data: remoteLinks, refetch: refetchRemoteLinks } = useQuery({
-    queryKey: [`remote-${QueryKeys.GetLinks}`, siteId],
-    queryFn: () => RESTApi.getRemoteLinks(siteId),
-    refetchInterval: isLinkModalOpen || isTokenModalOpen ? 0 : REFETCH_QUERY_INTERVAL
-  });
+  const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });
+  const remoteLinks =
+    sites?.[0].remoteLinks?.map((name) => ({
+      connectedTo: name
+    })) || [];
 
   const mutationDeleteAccessGrant = useMutation({
-    mutationFn: (name: string) => RESTApi.deleteGrant(name),
-    onSuccess: () => {
-      setTimeout(() => {
-        refetchAccessGrants();
-      }, 500);
-    }
+    mutationFn: (name: string) => RESTApi.deleteGrant(name)
   });
 
   const mutationDeleteLink = useMutation({
-    mutationFn: (name: string) => RESTApi.deleteLink(name),
-    onSuccess: () => {
-      setTimeout(() => {
-        refetchAccessTokens();
-        refetchLinks();
-        refetchRemoteLinks();
-      }, 500);
-    }
+    mutationFn: (name: string) => RESTApi.deleteLink(name)
   });
 
   const mutationDeleteAccessToken = useMutation({
@@ -92,15 +65,15 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   });
 
   function handleDeleteLink(name: string) {
-    let accessTokenName = accessTokens?.items.find((item) => item.metadata.name === name);
+    let accessTokenName = accessTokens?.find((item) => item.name === name);
 
     if (!accessTokenName) {
       // HA case
-      accessTokenName = accessTokens?.items.find((item) => name.includes(item.metadata.name));
+      accessTokenName = accessTokens?.find((item) => name.includes(item.name));
     }
 
     if (accessTokenName) {
-      mutationDeleteAccessToken.mutate(accessTokenName?.metadata.name);
+      mutationDeleteAccessToken.mutate(accessTokenName?.name);
     }
 
     mutationDeleteLink.mutate(name);
@@ -127,32 +100,18 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     [mutationDeleteAccessGrant]
   );
 
-  const handleRefreshLinks = () => {
-    setTimeout(() => {
-      refetchAccessTokens();
-      refetchLinks();
-      refetchRemoteLinks();
-    }, 1000);
-
-    handleModalClose();
-  };
-
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setIsLinkModalOpen(undefined);
-  };
+  }, []);
 
-  const handleTokenModalClose = () => {
-    setTimeout(() => {
-      refetchAccessGrants();
-    }, 1000);
-
+  const handleTokenModalClose = useCallback(() => {
     setIsTokenModalOpen(false);
-  };
+  }, []);
 
-  const handleCloseAlert = () => {
+  const handleCloseAlert = useCallback(() => {
     setShowAlert('hide');
     sessionStorage.setItem('showALinkAlert', 'hide');
-  };
+  }, []);
 
   const accessGrantColumns: SKColumn<AccessGrant>[] = [
     {
@@ -239,7 +198,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     actions: ({ data }: SKComponentProps<AccessGrant>) => (
       <>
         <Button
-          onClick={() => handleDownload(data.data)}
+          onClick={() => handleDownload(data.rawData)}
           variant="link"
           isDisabled={
             !data.status ||
@@ -280,7 +239,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
                   <Button onClick={() => setIsLinkModalOpen(true)}>{t('Create link')}</Button>
                 </ToolbarItem>
                 <ToolbarItem>
-                  <Button variant="secondary" onClick={() => setIsTokenModalOpen(true)}>
+                  <Button variant="secondary" onClick={setIsTokenModalOpen.bind(null, true)}>
                     {t('Create token')}
                   </Button>
                 </ToolbarItem>
@@ -289,7 +248,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
 
             <SkTable
               columns={LinkColumns}
-              rows={[...convertUnredeemedAccessTokensToLinks(accessTokens?.items || []), ...(links || [])]}
+              rows={[...(accessTokens?.filter(({ status }) => status !== 'Redeemed') || []), ...(links || [])]}
               customCells={customLinkCells}
               alwaysShowPagination={false}
               isPlain
@@ -306,16 +265,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
             </CardHeader>
 
             <CardBody>
-              <SkTable
-                columns={remoteLinkColumns}
-                rows={
-                  remoteLinks?.map((name) => ({
-                    connectedTo: name
-                  })) || []
-                }
-                alwaysShowPagination={false}
-                isPlain
-              />
+              <SkTable columns={remoteLinkColumns} rows={remoteLinks} alwaysShowPagination={false} isPlain />
             </CardBody>
           </Card>
         </StackItem>
@@ -344,7 +294,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
         aria-label="Form create link"
         showClose={false}
       >
-        <LinkForm onSubmit={handleRefreshLinks} onCancel={handleRefreshLinks} siteId={siteId} />
+        <LinkForm onSubmit={handleModalClose} onCancel={handleModalClose} siteId={siteId} />
       </Modal>
 
       <Modal
@@ -359,13 +309,5 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     </Stack>
   );
 };
-
-function convertUnredeemedAccessTokensToLinks(accessTokens: AccessTokenCrdResponse[]): Link[] {
-  const unRedeemedAccessTokens = accessTokens.filter(
-    (accessToken) => !hasType(accessToken.status?.conditions, 'Redeemed')
-  );
-
-  return convertAccessTokensToLinks(unRedeemedAccessTokens);
-}
 
 export default Links;

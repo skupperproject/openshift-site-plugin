@@ -5,20 +5,20 @@ const DEFAULT_COST = '1';
 const initialState = {
   name: '',
   cost: DEFAULT_COST,
-  fileName: '',
-  fileContent: ''
+  fileNames: [],
+  files: []
 };
 
 interface FormState {
   name: string;
   cost: string;
-  fileName: string;
-  fileContent: string;
+  fileNames: string[];
+  files: string[];
 }
 
 type FormAction =
-  | { type: 'SET_FILE_NAME'; payload: string }
-  | { type: 'SET_FILE_CONTENT'; payload: string }
+  | { type: 'SET_FILE_NAMES'; payload: string[] }
+  | { type: 'SET_FILES'; payload: string[] }
   | { type: 'SET_NAME'; payload: string }
   | { type: 'SET_COST'; payload: string };
 
@@ -29,10 +29,10 @@ function formReducer(state: FormState, action: FormAction): FormState {
       return { ...state, name: action.payload };
     case 'SET_COST':
       return { ...state, cost: action.payload };
-    case 'SET_FILE_NAME':
-      return { ...state, fileName: action.payload };
-    case 'SET_FILE_CONTENT':
-      return { ...state, fileContent: action.payload };
+    case 'SET_FILE_NAMES':
+      return { ...state, fileNames: action.payload };
+    case 'SET_FILES':
+      return { ...state, files: action.payload };
     default:
       return state;
   }

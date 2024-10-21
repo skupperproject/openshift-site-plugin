@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, memo } from 'react';
 
 import { Wizard, WizardHeader, WizardStep } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,8 @@ import { FormPage } from './FormPage';
 import { HowToPage } from './HowToPage';
 import { SummaryPage } from './SummaryPage';
 
-const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string }> = function ({ onSubmit, onCancel }) {
+// memo is used to prevent the component from being re-created when the Links Page updates data from the watcher
+const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string }> = memo(({ onSubmit, onCancel }) => {
   const { t } = useTranslation(I18nNamespace);
 
   const CreateLinkWizard = function () {
@@ -44,6 +45,6 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
   };
 
   return <CreateLinkWizard />;
-};
+});
 
 export default LinkForm;

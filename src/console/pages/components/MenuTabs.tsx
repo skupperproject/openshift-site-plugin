@@ -4,7 +4,7 @@ import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
 
 import { I18nNamespace } from '@config/config';
-import { useSiteData } from 'console/context/AppContext';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 const MenuTabsMapKey = {
   getStarted: 0,
@@ -23,7 +23,8 @@ interface TabNavigationProps {
 export const TabNavigation: FC<TabNavigationProps> = function ({ activeTabKey, setActiveTabKey }) {
   const { t } = useTranslation(I18nNamespace);
 
-  const { site } = useSiteData();
+  const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });
+  const site = sites?.[0];
 
   const isConfigured = site?.isConfigured;
 

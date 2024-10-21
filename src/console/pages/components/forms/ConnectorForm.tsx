@@ -1,4 +1,4 @@
-import { useState, FC } from 'react';
+import { useState, FC, KeyboardEvent } from 'react';
 
 import {
   Form,
@@ -108,6 +108,13 @@ const ConnectorForm: FC<{
     setTlsCredentials(value);
   };
 
+  const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' && !!(name && port)) {
+      event.preventDefault(); // Prevents the default Enter key behavior
+      handleSubmit();
+    }
+  };
+
   const canSubmit = !!(name && port); //&& !validated;
 
   return (
@@ -116,7 +123,7 @@ const ConnectorForm: FC<{
         <Title headingLevel="h1">{t(title)}</Title>
       </CardTitle>
       <CardBody>
-        <Form isHorizontal>
+        <Form isHorizontal onKeyDown={handleKeyPress}>
           <FormGroup fieldId="name-input" isRequired label={t('Name')} title="">
             <TextInput
               aria-label="form name input"

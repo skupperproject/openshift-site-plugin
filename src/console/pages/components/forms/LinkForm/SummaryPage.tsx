@@ -2,12 +2,10 @@ import { useState, useEffect } from 'react';
 
 import { Icon, Bullseye, Spinner, TextContent, Text, TextVariants, Flex, FlexItem } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { RESTApi } from '@API/REST.api';
-import { CR_STATUS_OK, I18nNamespace, REFETCH_QUERY_INTERVAL } from '@config/config';
-import { QueryKeys } from '@config/reactQuery';
+import { CR_STATUS_OK, I18nNamespace } from '@config/config';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import { useLinkForm } from './hooks/useLinkForm';
 
@@ -16,24 +14,23 @@ const WizardContentHeight = '400px';
 export const SummaryPage = function () {
   const { t } = useTranslation(I18nNamespace);
   const {
-    state: { name, fileName },
+    state: { name, fileNames },
     setIsLoading: setExternalLoading,
     validated: error,
     setValidated
   } = useLinkForm();
 
   const [isLoading, setIsLoading] = useState(true);
-  const { data: accessToken } = useQuery({
-    queryKey: [QueryKeys.FindAccessToken, name || fileName],
-    queryFn: () => RESTApi.findAccessToken(name || fileName),
-    refetchInterval: REFETCH_QUERY_INTERVAL
-  });
 
-  const { data: link } = useQuery({
-    queryKey: [QueryKeys.FindLink, name || fileName],
-    queryFn: () => RESTApi.findLink(name || fileName),
-    refetchInterval: REFETCH_QUERY_INTERVAL
+  const { data: accessTokens } = useWatchedSkupperResource({
+    kind: 'AccessToken',
+    isList: false,
+    name: name || fileNames[0]
   });
+  const accessToken = accessTokens?.[0]?.rawData;
+
+  const { data: links } = useWatchedSkupperResource({ kind: 'Link', isList: false, name: name || fileNames[0] });
+  const link = links?.[0]?.rawData;
 
   const hasStatus = accessToken?.status?.status || link?.status?.status;
   const isConfigured = link?.status?.conditions.find(({ type, status }) => type === 'Configured' && status === 'True');

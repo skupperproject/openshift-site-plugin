@@ -10,7 +10,7 @@ interface AccessTokenCrdBase extends ApiVersion {
   kind: 'AccessToken';
 }
 
-export interface AccessTokenSpec {
+interface AccessTokenSpec {
   url: string;
   code: string;
   ca: string;

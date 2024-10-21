@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { I18nNamespace } from '@config/config';
 import { BaseView } from '@interfaces/REST.interfaces';
 
-export interface StatusCellProps {
+interface StatusCellProps {
   data: BaseView;
 }
 

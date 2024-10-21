@@ -21,14 +21,13 @@ import {
   Tabs,
   Title
 } from '@patternfly/react-core';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
-import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
-import { QueryKeys } from '@config/reactQuery';
 import FormatOCPDateCell from '@core/components/FormatOCPDate';
+import { ConnectorCrdResponse } from '@interfaces/CRD_Connector';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import ConnectorForm from '../components/forms/ConnectorForm';
 
@@ -42,12 +41,9 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const [isOpen, setIsOpen] = useState<boolean | undefined>();
+  const [connector, setConnector] = useState<ConnectorCrdResponse | null>();
 
-  const { data: connector, refetch } = useQuery({
-    queryKey: [QueryKeys.FindConnector, name],
-    queryFn: () => RESTApi.findConnector(name),
-    enabled: false
-  });
+  const { data } = useWatchedSkupperResource({ kind: 'Connector', isList: false, name });
 
   const handleTabClick = (_: MouseEvent | KeyboardEvent, tabIndex: string | number) => {
     setActiveTabKey(tabIndex);
@@ -59,13 +55,14 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
 
   const handleModalSubmit = () => {
     handleModalClose();
-    refetch();
     onUpdate?.();
   };
 
   useEffect(() => {
-    refetch();
-  }, [refetch, name]);
+    if (data) {
+      setConnector(data?.[0].rawData);
+    }
+  }, [data]);
 
   return (
     <>
@@ -76,7 +73,7 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
               <Flex grow={{ default: 'grow' }}>
                 <FlexItem>
                   <CardTitle>
-                    <Title headingLevel="h1">Settings</Title>
+                    <Title headingLevel="h1">{t('Settings')}</Title>
                   </CardTitle>
                 </FlexItem>
                 <FlexItem align={{ default: 'alignRight' }}>
@@ -90,7 +87,7 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
               <DescriptionList>
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
-                  <DescriptionListDescription>{name}</DescriptionListDescription>
+                  <DescriptionListDescription>{connector?.metadata.name}</DescriptionListDescription>
                 </DescriptionListGroup>
 
                 <DescriptionListGroup>
@@ -126,7 +123,7 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
 
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Include not ready')}</DescriptionListTerm>
-                  <DescriptionListDescription>{`${connector?.spec.includeNotReady}`}</DescriptionListDescription>
+                  <DescriptionListDescription>{`${!!connector?.spec.includeNotReady}`}</DescriptionListDescription>
                 </DescriptionListGroup>
               </DescriptionList>
             </CardBody>
@@ -166,7 +163,7 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
             title={t('Update connector')}
             onSubmit={handleModalSubmit}
             onCancel={handleModalClose}
-            connectorName={connector?.metadata.name}
+            connectorName={connector.metadata.name}
             attributes={{
               ...connector.spec,
               ...connector.metadata
