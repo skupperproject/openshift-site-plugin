@@ -34,7 +34,7 @@ export const DownloadGrant: FC<{
     }
   }, [grant]);
 
-  const isDisabled = !grant?.status || grant.status.status !== CR_STATUS_OK || isDownloading;
+  const isDisabled = !grant?.status || grant.status.status !== CR_STATUS_OK;
 
   return (
     <Stack hasGutter>
@@ -56,11 +56,7 @@ export const DownloadGrant: FC<{
               isDisabled={isDisabled}
             >
               <small>
-                {isDisabled
-                  ? isDownloading
-                    ? t('Downloading the grant...')
-                    : t('Generating the grant, please wait...')
-                  : t('Download the grant')}
+                {isDisabled ? t('Generating the grant, please wait...') : t('Download the grant')}
                 {isDisabled && <Spinner size="md" />}
               </small>
             </Button>
