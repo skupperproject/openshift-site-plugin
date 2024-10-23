@@ -1,0 +1,87 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "network-console-prometheus",
+    "labels": {
+      "app.kubernetes.io/name": "network-console-prometheus",
+      "app.kubernetes.io/part-of": "skupper-network-console",
+      "app.kubernetes.io/component": "metrics"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app.kubernetes.io/name": "network-console-prometheus"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app.kubernetes.io/name": "network-console-prometheus",
+          "app.kubernetes.io/part-of": "skupper-network-console",
+          "app.kubernetes.io/component": "metrics"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "prometheus-server",
+            "image": "quay.io/prometheus/prometheus:v2.42.0",
+            "args": [
+              "--config.file=/etc/prometheus/prometheus.yml",
+              "--storage.tsdb.path=/prometheus/",
+              "--web.config.file=/etc/prometheus/web-config.yml"
+            ],
+            "volumeMounts": [
+              {
+                "mountPath": "/etc/prometheus",
+                "name": "prometheus-config"
+              },
+              {
+                "mountPath": "/prometheus",
+                "name": "prometheus-storage-volume"
+              },
+              {
+                "mountPath": "/etc/tls/openshift",
+                "name": "openshift-service-ca"
+              }
+            ],
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "runAsNonRoot": true,
+              "capabilities": {
+                "drop": ["ALL"]
+              },
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            }
+          }
+        ],
+        "serviceAccountName": "network-console-prometheus",
+        "volumes": [
+          {
+            "configMap": {
+              "name": "prometheus-server-config",
+              "defaultMode": 420
+            },
+            "name": "prometheus-config"
+          },
+          {
+            "emptyDir": {},
+            "name": "prometheus-storage-volume"
+          },
+          {
+            "configMap": {
+              "name": "openshift-service-ca",
+              "defaultMode": 420
+            },
+            "name": "openshift-service-ca"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 
 import { I18nNamespace } from '@config/config';
 import ExternalLink from '@core/components/ExternalLink';
+import DeploymentNetworkConsoleButton from '@pages/components/DeploymentNetworkConsoleButton';
 
 import ConnectorForm from '../components/forms/ConnectorForm';
 import GrantForm from '../components/forms/GrantForm';
@@ -154,6 +155,11 @@ const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
       </DataList>
 
       <PageSection>
+        <DeploymentNetworkConsoleButton />
+      </PageSection>
+
+      <PageSection>
+        <br />
         <TextContent>
           <Text component="h1">{t('More information on using the CLI')}</Text>
         </TextContent>

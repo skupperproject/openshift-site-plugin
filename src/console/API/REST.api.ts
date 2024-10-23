@@ -20,7 +20,15 @@ import {
   listenerPath,
   listenersPath,
   connectorsPath,
-  connectorPath
+  connectorPath,
+  certificatePath,
+  rolePath,
+  roleBindPath,
+  deploymentsPath,
+  servicePath,
+  serviceAccountPath,
+  configMapPath,
+  routePath
 } from './REST.paths';
 import {
   convertAccessGrantCRsToAccessGrants,
@@ -30,6 +38,17 @@ import {
   convertSiteCRToSite,
   getOtherSiteNetworksWithLinks
 } from './REST.utils';
+import certificateData from '../deployment/Certificate.json';
+import configMapPromData from '../deployment/ConfigMap-Prom.json';
+import configMapData from '../deployment/ConfigMap.json';
+import deploymentPromData from '../deployment/Deployment-Prom.json';
+import deploymentData from '../deployment/Deployment.json';
+import roleData from '../deployment/Role.json';
+import roleBindingData from '../deployment/RoleBinding.json';
+import RouteData from '../deployment/Route.json';
+import servicePromData from '../deployment/Service-Prom.json';
+import serviceData from '../deployment/Service.json';
+import serviceAccountData from '../deployment/ServiceAccount.json';
 import { Connector, Listener, Link, SiteView, AccessGrant } from '../interfaces/REST.interfaces';
 
 export const RESTApi = {
@@ -88,18 +107,23 @@ export const RESTApi = {
       method: 'DELETE'
     });
 
+    RESTApi.deleteDeployment();
+
     if (removeAllResources) {
       await Promise.all([
-        axiosFetch<SiteCrdResponse>(accessGrantsPath(), {
+        axiosFetch(accessGrantsPath(), {
           method: 'DELETE'
         }),
-        axiosFetch<SiteCrdResponse>(accessTokensPath(), {
+        axiosFetch(accessTokensPath(), {
           method: 'DELETE'
         }),
-        axiosFetch<SiteCrdResponse>(listenersPath(), {
+        axiosFetch(linksPath(), {
           method: 'DELETE'
         }),
-        axiosFetch<SiteCrdResponse>(connectorsPath(), {
+        axiosFetch(listenersPath(), {
+          method: 'DELETE'
+        }),
+        axiosFetch(connectorsPath(), {
           method: 'DELETE'
         })
       ]);
@@ -262,5 +286,67 @@ export const RESTApi = {
     await axiosFetch<void>(connectorPath(name), {
       method: 'DELETE'
     });
+  },
+  createDeployment: async (): Promise<void> => {
+    const requests = [
+      { path: rolePath(), data: roleData },
+      { path: roleBindPath(), data: roleBindingData },
+      { path: certificatePath(), data: certificateData },
+      { path: deploymentsPath(), data: deploymentData },
+      { path: deploymentsPath(), data: deploymentPromData },
+      { path: servicePath(), data: serviceData },
+      { path: servicePath(), data: servicePromData },
+      { path: serviceAccountPath(), data: serviceAccountData },
+      { path: configMapPath(), data: configMapData },
+      { path: configMapPath(), data: configMapPromData },
+      { path: routePath(), data: RouteData }
+    ];
+
+    const promises = requests.map(({ path, data }) =>
+      axiosFetch(path, {
+        method: 'POST',
+        data
+      }).catch((error) => {
+        if (error.response && error.response.status === 409) {
+          console.warn(`Ignored 409 Conflict error for ${path}`);
+
+          return null;
+        }
+        throw error;
+      })
+    );
+
+    await Promise.all(promises);
+  },
+
+  deleteDeployment: async (): Promise<void> => {
+    const requests = [
+      { path: `${routePath()}/${RouteData.metadata.name}` },
+      { path: `${rolePath()}/${roleData.metadata.name}` },
+      { path: `${roleBindPath()}/${roleBindingData.metadata.name}` },
+      { path: `${certificatePath()}/${certificateData.metadata.name}` },
+      { path: `${deploymentsPath()}/${deploymentData.metadata.name}` },
+      { path: `${deploymentsPath()}/${deploymentPromData.metadata.name}` },
+      { path: `${servicePath()}/${serviceData.metadata.name}` },
+      { path: `${servicePath()}/${servicePromData.metadata.name}` },
+      { path: `${serviceAccountPath()}/${serviceAccountData.metadata.name}` },
+      { path: `${configMapPath()}/${configMapData.metadata.name}` },
+      { path: `${configMapPath()}/${configMapPromData.metadata.name}` }
+    ];
+
+    const promises = requests.map(({ path }) =>
+      axiosFetch(path, {
+        method: 'DELETE'
+      }).catch((error) => {
+        if (error.response && error.response.status === 409) {
+          console.warn(`Ignored 409 Conflict error for ${path}`);
+
+          return null;
+        }
+        throw error;
+      })
+    );
+
+    await Promise.all(promises);
   }
 };

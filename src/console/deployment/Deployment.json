@@ -1,0 +1,88 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "labels": {
+      "app.kubernetes.io/part-of": "skupper-network-console",
+      "app.kubernetes.io/name": "network-console-collector"
+    },
+    "name": "network-console-collector"
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app.kubernetes.io/part-of": "skupper-network-console",
+        "app.kubernetes.io/name": "network-console-collector"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app.kubernetes.io/part-of": "skupper-network-console",
+          "app.kubernetes.io/name": "network-console-collector",
+          "app.kubernetes.io/component": "server"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "image": "quay.io/skupper/network-console-collector:v2-latest",
+            "imagePullPolicy": "Always",
+            "name": "network-console",
+            "args": [
+              "-listen=:8443",
+              "-cors-allow-all",
+              "-tls-cert=/etc/console/tls.crt",
+              "-tls-key=/etc/console/tls.key",
+              "-router-endpoint=amqps://skupper-router-local",
+              "-router-tls-ca=/etc/messaging/ca.crt",
+              "-router-tls-cert=/etc/messaging/tls.crt",
+              "-router-tls-key=/etc/messaging/tls.key"
+            ],
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": ["ALL"]
+              },
+              "runAsNonRoot": true
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/etc/console/",
+                "name": "network-console-certs"
+              },
+              {
+                "mountPath": "/etc/messaging/",
+                "name": "skupper-management-client"
+              }
+            ],
+            "ports": [
+              {
+                "containerPort": 8443,
+                "name": "https",
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "network-console-certs",
+            "secret": {
+              "defaultMode": 420,
+              "secretName": "network-console-certs"
+            }
+          },
+          {
+            "name": "skupper-management-client",
+            "secret": {
+              "defaultMode": 420,
+              "secretName": "skupper-management-client"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

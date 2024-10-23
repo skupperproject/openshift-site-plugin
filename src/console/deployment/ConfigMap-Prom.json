@@ -1,0 +1,14 @@
+{
+  "apiVersion": "v1",
+  "data": {
+    "prometheus.yml": "global:\n  scrape_interval: 15s\n  evaluation_interval: 15s\nalerting:\n  alertmanagers:\n    - static_configs:\n        - targets:\nrule_files:\nscrape_configs:\n  - job_name: network-console-service\n    kubernetes_sd_configs:\n    - role: service\n      kubeconfig_file: \"\"\n      follow_redirects: true\n      enable_http2: true\n      namespaces:\n        own_namespace: true\n    scheme: https\n    tls_config:\n      ca_file: /etc/tls/openshift/service-ca.crt\n    follow_redirects: true\n    enable_http2: true\n    relabel_configs:\n    - source_labels: [__meta_kubernetes_service_label_app_kubernetes_io_name]\n      regex: network-console-collector\n      action: keep\n    - source_labels: [__meta_kubernetes_service_port_name]\n      regex: https\n      action: keep\n    - action: labelmap\n      regex: __meta_kubernetes_service_label_(.+)\n      replacement: $1\n    - source_labels: [__meta_kubernetes_namespace]\n      target_label: namespace\n    - source_labels: [__meta_kubernetes_service_name]\n      target_label: service\n",
+    "web-config.yml": "# TLS configuration.\n#\n#tls_server_config:\n#  cert_file: /etc/tls/certs/tls.crt\n#  key_file: /etc/tls/certs/tls.key\n"
+  },
+  "kind": "ConfigMap",
+  "metadata": {
+    "name": "prometheus-server-config",
+    "labels": {
+      "app.kubernetes.io/part-of": "skupper-network-console"
+    }
+  }
+}

@@ -263,7 +263,6 @@ function calculateStatus<T>(conditions: CrdStatusCondition<T>[] = []) {
     (condition) => condition.type !== 'Ready' && condition.type !== 'Resolved'
   );
 
-
   let statusConditions = filteredConditions
     .filter((condition) => condition.status === 'True')
     .sort((a, b) => priorityStatusMap[b.type as StatusType] - priorityStatusMap[a.type as StatusType]);
