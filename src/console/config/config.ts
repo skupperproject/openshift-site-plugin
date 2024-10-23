@@ -10,7 +10,7 @@ export const EMPTY_LINK_ACCESS = 'none';
 export const DEFAULT_SERVICE_ACCOUNT = 'skupper:skupper-controller';
 export const DEFAULT_ISSUER = 'skupper-site-ca';
 export const EMPTY_VALUE_SYMBOL = '-';
-export const MAX_TRANSITION_TIME = 30; // Maximum time after which to display an error message from the creation of the Site
+export const MAX_TRANSITION_TIME = 20; // Maximum time after which to display an error message from the creation of the Site
 
 // Map of status types to priority values, used to determine the last or most relevant status.
 // Higher priority values indicate greater importance, with `Running` and `Matched` having the highest priority (3).

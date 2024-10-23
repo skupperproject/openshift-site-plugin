@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 
+import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
 import { Button, Flex } from '@patternfly/react-core';
+import { CubesIcon } from '@patternfly/react-icons';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
-import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
-import ExternalLink from '@core/components/ExternalLink';
 import { getSkupperNamespace } from '@config/db';
-import { CubesIcon } from '@patternfly/react-icons';
+import ExternalLink from '@core/components/ExternalLink';
 
 const groupVersionKind = {
   group: 'route.openshift.io',

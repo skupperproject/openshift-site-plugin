@@ -13,6 +13,7 @@ const BASE_PATHS = {
 // Helper to build namespace paths
 const buildPath = (basePath: string, resource: string, name?: string) => {
   const namespacePath = `${basePath}/${getSkupperNamespace()}/${resource}`;
+
   return name ? `${namespacePath}/${name}` : namespacePath;
 };
 

@@ -21,12 +21,12 @@ import { useTranslation } from 'react-i18next';
 
 import { I18nNamespace } from '@config/config';
 import ExternalLink from '@core/components/ExternalLink';
+import DeploymentNetworkConsoleButton from '@pages/components/DeploymentNetworkConsoleButton';
 
 import ConnectorForm from '../components/forms/ConnectorForm';
 import GrantForm from '../components/forms/GrantForm';
 import LinkForm from '../components/forms/LinkForm';
 import ListenerForm from '../components/forms/ListenerForm';
-import DeploymentNetworkConsoleButton from '@pages/components/DeploymentNetworkConsoleButton';
 
 enum Actions {
   Token = 'token',

@@ -6,9 +6,7 @@
   },
   "spec": {
     "ca": "skupper-local-ca",
-    "hosts": [
-      "skupper-router-local"
-    ],
+    "hosts": ["skupper-router-local"],
     "client": true,
     "subject": "skupper-router-local"
   }

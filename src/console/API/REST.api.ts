@@ -38,19 +38,18 @@ import {
   convertSiteCRToSite,
   getOtherSiteNetworksWithLinks
 } from './REST.utils';
-import { Connector, Listener, Link, SiteView, AccessGrant } from '../interfaces/REST.interfaces';
-
+import certificateData from '../deployment/Certificate.json';
+import configMapPromData from '../deployment/ConfigMap-Prom.json';
+import configMapData from '../deployment/ConfigMap.json';
+import deploymentPromData from '../deployment/Deployment-Prom.json';
+import deploymentData from '../deployment/Deployment.json';
 import roleData from '../deployment/Role.json';
 import roleBindingData from '../deployment/RoleBinding.json';
-import certificateData from '../deployment/Certificate.json';
-import serviceData from '../deployment/Service.json';
-import servicePromData from '../deployment/Service-Prom.json';
-import serviceAccountData from '../deployment/ServiceAccount.json';
-import deploymentData from '../deployment/Deployment.json';
-import deploymentPromData from '../deployment/Deployment-Prom.json';
-import configMapData from '../deployment/ConfigMap.json';
-import configMapPromData from '../deployment/ConfigMap-Prom.json';
 import RouteData from '../deployment/Route.json';
+import servicePromData from '../deployment/Service-Prom.json';
+import serviceData from '../deployment/Service.json';
+import serviceAccountData from '../deployment/ServiceAccount.json';
+import { Connector, Listener, Link, SiteView, AccessGrant } from '../interfaces/REST.interfaces';
 
 export const RESTApi = {
   isOldVersion: async (): Promise<boolean> => {
@@ -306,13 +305,14 @@ export const RESTApi = {
     const promises = requests.map(({ path, data }) =>
       axiosFetch(path, {
         method: 'POST',
-        data: data
+        data
       }).catch((error) => {
         if (error.response && error.response.status === 409) {
           console.warn(`Ignored 409 Conflict error for ${path}`);
-          return null; // Return null for ignored requests
+
+          return null;
         }
-        throw error; // Rethrow other errors
+        throw error;
       })
     );
 
@@ -340,13 +340,13 @@ export const RESTApi = {
       }).catch((error) => {
         if (error.response && error.response.status === 409) {
           console.warn(`Ignored 409 Conflict error for ${path}`);
-          return null; // Return null for ignored requests
+
+          return null;
         }
-        throw error; // Rethrow other errors
+        throw error;
       })
     );
 
     await Promise.all(promises);
   }
 };
-
