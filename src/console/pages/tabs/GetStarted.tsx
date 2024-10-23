@@ -26,6 +26,7 @@ import ConnectorForm from '../components/forms/ConnectorForm';
 import GrantForm from '../components/forms/GrantForm';
 import LinkForm from '../components/forms/LinkForm';
 import ListenerForm from '../components/forms/ListenerForm';
+import DeploymentNetworkConsoleButton from '@pages/components/DeploymentNetworkConsoleButton';
 
 enum Actions {
   Token = 'token',
@@ -154,6 +155,11 @@ const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
       </DataList>
 
       <PageSection>
+        <DeploymentNetworkConsoleButton />
+      </PageSection>
+
+      <PageSection>
+        <br />
         <TextContent>
           <Text component="h1">{t('More information on using the CLI')}</Text>
         </TextContent>

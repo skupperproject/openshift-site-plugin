@@ -1,0 +1,25 @@
+{
+  "apiVersion": "route.openshift.io/v1",
+  "kind": "Route",
+  "metadata": {
+    "labels": {
+      "app.kubernetes.io/part-of": "skupper-network-console",
+      "app.kubernetes.io/name": "network-console"
+    },
+    "name": "network-console"
+  },
+  "spec": {
+    "tls": {
+      "termination": "reencrypt",
+      "insecureEdgeTerminationPolicy": "Redirect"
+    },
+    "port": {
+      "targetPort": "https"
+    },
+    "to": {
+      "kind": "Service",
+      "name": "network-console-collector",
+      "weight": 100
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "apiVersion": "skupper.io/v1alpha1",
+  "kind": "Certificate",
+  "metadata": {
+    "name": "skupper-management-client"
+  },
+  "spec": {
+    "ca": "skupper-local-ca",
+    "hosts": [
+      "skupper-router-local"
+    ],
+    "client": true,
+    "subject": "skupper-router-local"
+  }
+}
