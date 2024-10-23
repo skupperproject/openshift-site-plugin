@@ -2,6 +2,10 @@
 
 This plugin for Openshift installs a tab in **Projects** -> **< project name >** to create a Skupper network. The purpose of this plugin is purely educational to get familiar with Skupper commands.
 
+## Status
+
+WIP
+
 ## Pre-requisites
 
 - Openshift >= 4.15

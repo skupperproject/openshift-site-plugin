@@ -318,7 +318,7 @@ export const RESTApi = {
 
     await Promise.all(promises);
   },
-
+  // TODO : wait for a BE solution. Just for dev scope
   deleteDeployment: async (): Promise<void> => {
     const requests = [
       { path: `${routePath()}/${RouteData.metadata.name}` },
