@@ -290,17 +290,6 @@ const FormPage: FC<FormPageProps> = function ({
 const WaitSiteCreation = function () {
   const { t } = useTranslation(I18nNamespace);
 
-  const queryClient = useQueryClient();
-  const handleReady = useCallback(() => queryClient.refetchQueries([QueryKeys.FindSite]), [queryClient]);
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleReady);
-
-    return () => {
-      window.removeEventListener('keydown', handleReady);
-    };
-  }, [handleReady]);
-
   return (
     <Card isPlain>
       <CardBody>
@@ -308,9 +297,6 @@ const WaitSiteCreation = function () {
           <LoadingPage message={t('Please wait while the Site is being installed. This may take a few seconds...')} />
         </PageSection>
       </CardBody>
-      <Button variant="link" onClick={handleReady} style={{ display: 'flex' }}>
-        {t('Dismiss')}
-      </Button>
     </Card>
   );
 };
