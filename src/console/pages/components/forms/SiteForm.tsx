@@ -1,4 +1,4 @@
-import { useState, FC, useEffect, useCallback, KeyboardEvent } from 'react';
+import { useState, FC, useCallback, KeyboardEvent } from 'react';
 
 import {
   Form,
@@ -20,13 +20,12 @@ import {
   CardBody,
   ExpandableSection
 } from '@patternfly/react-core';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import { RESTApi } from '@API/REST.api';
 import { DEFAULT_ISSUER, DEFAULT_SERVICE_ACCOUNT, I18nNamespace } from '@config/config';
 import { getSkupperNamespace } from '@config/db';
-import { QueryKeys } from '@config/reactQuery';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import LoadingPage from '@core/components/Loading';
 import { createSiteData } from '@core/utils/createCRD';

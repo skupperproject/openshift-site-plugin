@@ -260,7 +260,7 @@ function hasErrors<T>(conditions: CrdStatusCondition<T>[] = []) {
 function calculateStatus<T>(conditions: CrdStatusCondition<T>[] = []) {
   // Filter out conditions where the type is 'Resolved' since we don't want to consider them
   const filteredConditions = conditions.filter(
-    (condition) => condition.type !== 'Ready' && condition.type !== 'Resolved'
+    (condition) => condition.type !== 'Running' && condition.type !== 'Resolved'
   );
 
   let statusConditions = filteredConditions
