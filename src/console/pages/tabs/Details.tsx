@@ -18,7 +18,7 @@ import {
   Label,
   Icon
 } from '@patternfly/react-core';
-import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon, PenIcon, SyncAltIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon, PenIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -126,7 +126,9 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
                       </Icon>
                     )}
                     {!site?.hasError && !!site?.isConfigured && !!site?.isReady && (
-                      <Icon isInline>{<SyncAltIcon />}</Icon>
+                      <Icon status="success">
+                        <CheckCircleIcon />
+                      </Icon>
                     )}
                     {'  '} {site?.status} {'  '}
                     {!site?.hasError && site?.hasSecondaryErrors && (

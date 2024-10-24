@@ -16,11 +16,11 @@ export const MAX_TRANSITION_TIME = 20; // Maximum time after which to display an
 // Higher priority values indicate greater importance, with `Running` and `Matched` having the highest priority (3).
 export const priorityStatusMap: Record<StatusType, number> = {
   Resolved: 0, // Disabled: This status type is ignored (has the lowest priority).
-  Ready: 2, // Indicates that the system is prepared but not yet fully configured or operational. Mutually exclusive with 'Configured'.
+  Ready: 4, // Indicates that the system is prepared but not yet fully configured or operational. Mutually exclusive with 'Configured'.
   Configured: 1, // Represents that the system has been configured but may not be ready yet.
   Running: 3, // Indicates that the Site is running.
   Processed: 3, // Used by AccessGrant.
   Operational: 3, // Used by Links.
-  Matched: 3, // Used by Listeners and Connectors when they are bound.
+  Matched: 5, // Used by Listeners and Connectors when they are bound.
   Redeemed: 0 // Reserved for future use, currently not utilized in the logic.
 };
