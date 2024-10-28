@@ -228,7 +228,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
                 isInline
                 actionClose={<AlertActionCloseButton onClose={handleCloseAlert} />}
                 title={t(
-                  'Links enable communication between sites. Once sites are linked, they form a network. Click create token button to generate a downloadable token file for linking a remote site.'
+                  'Links enable communication between sites. Once sites are linked, they form a network. Click issue token button to generate a downloadable token file for linking a remote site.'
                 )}
               />
             )}
@@ -301,7 +301,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
         hasNoBodyWrapper
         isOpen={!!isTokenModalOpen}
         variant={ModalVariant.large}
-        aria-label="Form create token"
+        aria-label="Form issue token"
         showClose={false}
       >
         <GrantForm onSubmit={handleTokenModalClose} onCancel={handleTokenModalClose} />

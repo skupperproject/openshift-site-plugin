@@ -1,6 +1,6 @@
 import { StatusType } from '@interfaces/CRD_Base';
 
-export const API_VERSION = 'v1alpha1';
+export const API_VERSION = 'v2alpha1';
 export const GROUP = 'skupper.io';
 
 export const MSG_TIMEOUT_ERROR = 'The request to fetch the data has timed out.'; // Error message to display when request times out
