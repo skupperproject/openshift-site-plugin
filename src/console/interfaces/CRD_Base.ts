@@ -39,7 +39,7 @@ export interface CrdMetaDataResponse {
   creationTimestamp: ISO8601Timestamp;
 }
 export interface ApiVersion {
-  apiVersion: 'skupper.io/v1alpha1';
+  apiVersion: 'skupper.io/v2alpha1';
 }
 
 export interface ListCrdResponse<T> extends ApiVersion {

@@ -34,7 +34,7 @@ export const DownloadGrant: FC<{
     }
   }, [grant]);
 
-  const isDisabled = !grant?.status || grant.status.status !== CR_STATUS_OK;
+  const isDisabled = !grant?.status || grant.status.message !== CR_STATUS_OK;
 
   return (
     <Stack hasGutter>
