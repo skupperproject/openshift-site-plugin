@@ -31,7 +31,7 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
   const { t } = useTranslation();
   const { activeStep, goToNextStep, goToPrevStep } = useWizardContext();
   const {
-    state: { name, files },
+    state: { name, file: fileContent },
     isLoading,
     validated,
     setIsLoading,
@@ -43,8 +43,8 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
     mutationFn: (data: AccessTokenCrdParams) => RESTApi.createAccessToken(data),
     onError: (data: HTTPError) => {
       dispatch({ type: 'SET_NAME', payload: '' });
-      dispatch({ type: 'SET_FILE_NAMES', payload: [] });
-      dispatch({ type: 'SET_FILES', payload: [] });
+      dispatch({ type: 'SET_FILE_NAME', payload: '' });
+      dispatch({ type: 'SET_FILE_CONTENT', payload: '' });
 
       setValidated(data.descriptionMessage);
       setIsLoading(false);
@@ -58,40 +58,38 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
   });
 
   const handleSubmit = useCallback(() => {
-    if (!files.length) {
+    if (!fileContent) {
       setValidated(t('Fill out all required fields before continuing'));
 
       return;
     }
 
-    files.forEach((fileContent, index) => {
-      try {
-        const JsonFile = parse(fileContent.toString()) as AccessGrantCrdResponse;
-        const { metadata, status } = JsonFile;
+    try {
+      const JsonFile = parse(fileContent) as AccessGrantCrdResponse;
+      const { metadata, status } = JsonFile;
 
-        if (!status) {
-          setValidated(t('Invalid Grant format'));
-
-          return;
-        }
-
-        const data: AccessTokenCrdParams = createAccessTokenRequest({
-          metadata: {
-            name: files.length > 1 ? `${name}-${index}` : name || metadata.name
-          },
-          spec: {
-            ca: status.ca,
-            code: status.code,
-            url: status.url
-          }
-        });
-
-        mutationCreate.mutate(data);
-      } catch {
+      if (!status) {
         setValidated(t('Invalid Grant format'));
+
+        return;
       }
-    });
-  }, [files, mutationCreate, name, setValidated, t]);
+
+      const data: AccessTokenCrdParams = createAccessTokenRequest({
+        metadata: {
+          name: name || metadata.name
+        },
+        spec: {
+          ca: status.ca,
+          code: status.code,
+          url: status.url
+        }
+      });
+
+      mutationCreate.mutate(data);
+    } catch {
+      setValidated(t('Invalid Grant format'));
+    }
+  }, [fileContent, mutationCreate, name, setValidated, t]);
 
   const handlePreviousStep = useCallback(() => {
     setValidated(undefined);

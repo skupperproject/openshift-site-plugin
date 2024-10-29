@@ -14,7 +14,7 @@ const WizardContentHeight = '400px';
 export const SummaryPage = function () {
   const { t } = useTranslation(I18nNamespace);
   const {
-    state: { name, fileNames },
+    state: { name, fileName },
     setIsLoading: setExternalLoading,
     validated: error,
     setValidated
@@ -25,11 +25,11 @@ export const SummaryPage = function () {
   const { data: accessTokens } = useWatchedSkupperResource({
     kind: 'AccessToken',
     isList: false,
-    name: name || fileNames[0]
+    name: name || fileName
   });
   const accessToken = accessTokens?.[0]?.rawData;
 
-  const { data: links } = useWatchedSkupperResource({ kind: 'Link', isList: false, name: name || fileNames[0] });
+  const { data: links } = useWatchedSkupperResource({ kind: 'Link', isList: false, name: name || fileName });
   const link = links?.[0]?.rawData;
 
   const hasStatus = accessToken?.status?.status || link?.status?.status;
