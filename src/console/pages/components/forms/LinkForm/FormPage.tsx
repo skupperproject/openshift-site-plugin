@@ -1,32 +1,29 @@
 import { useCallback, FormEvent } from 'react';
 
-import { Form, FormGroup, TextInput } from '@patternfly/react-core';
+import { Form, FormGroup, TextInput, FileUpload, DropEvent } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
 
 import { I18nNamespace } from '@config/config';
 
 import { useLinkForm } from './hooks/useLinkForm';
-import { MultipleFileUploadBasic } from './MultiUpload';
 
 export const FormPage = function () {
   const { t } = useTranslation(I18nNamespace);
   const {
-    state: { name, cost },
+    state: { name, fileName, cost, file: fileContent },
     dispatch
   } = useLinkForm();
 
-  const handleFileNameChange = useCallback(
-    (value: File[]) => {
-      const names = value.map((file) => getFilenameWithoutExtension(file.name));
-
-      dispatch({ type: 'SET_FILE_NAMES', payload: names });
+  const handleFileInputChange = useCallback(
+    (_: DropEvent, file: File) => {
+      dispatch({ type: 'SET_FILE_NAME', payload: getFilenameWithoutExtension(file.name) });
     },
     [dispatch]
   );
 
   const handleFileContentChange = useCallback(
-    (fileContents: string[]) => {
-      dispatch({ type: 'SET_FILES', payload: fileContents });
+    (_: DropEvent, value: string) => {
+      dispatch({ type: 'SET_FILE_CONTENT', payload: value });
     },
     [dispatch]
   );
@@ -48,9 +45,17 @@ export const FormPage = function () {
   return (
     <Form isHorizontal>
       <FormGroup isRequired label={t('Token')} fieldId="form-access-token">
-        <MultipleFileUploadBasic
-          onFileContentChange={handleFileContentChange}
-          onFileNamesChange={handleFileNameChange}
+        <FileUpload
+          id="access-token-file"
+          type="text"
+          value={fileContent}
+          filename={fileName}
+          filenamePlaceholder="Drag and drop a file or upload one"
+          browseButtonText="Upload"
+          hideDefaultPreview={true}
+          isClearButtonDisabled={true}
+          onFileInputChange={handleFileInputChange}
+          onDataChange={handleFileContentChange}
         />
       </FormGroup>
 
