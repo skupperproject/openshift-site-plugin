@@ -38,9 +38,11 @@ export interface SiteCrdResponse extends SiteCrdBase {
   spec?: SiteSpec;
   status?: {
     conditions: CrdStatusCondition<StatusSiteType>[];
-    status: string;
+    status: StatusSiteType;
+    message: string | 'OK';
     defaultIssuer?: string;
     endpoints?: {
+      group: string;
       host: string;
       port: string;
       name: string;

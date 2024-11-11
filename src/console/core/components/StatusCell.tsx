@@ -26,7 +26,7 @@ const StatusCell = function ({ data }: StatusCellProps) {
             {data.statusAlert === 'custom' && <CheckCircleIcon />}
             {data.statusAlert === 'success' && <CheckCircleIcon />}
           </Icon>{' '}
-          <Truncate content={data.status} trailingNumChars={10} position={'middle'} />
+          <Truncate content={data?.status} trailingNumChars={10} position={'middle'} />
         </span>
       )}
     </>

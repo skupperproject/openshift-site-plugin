@@ -22,7 +22,6 @@ import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon, PenIcon } from 
 import { useTranslation } from 'react-i18next';
 
 import {
-  CR_STATUS_OK,
   DEFAULT_ISSUER,
   DEFAULT_SERVICE_ACCOUNT,
   EMPTY_LINK_ACCESS,
@@ -70,7 +69,8 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
 
     {
       name: t('Reason'),
-      prop: 'reason'
+      prop: 'reason',
+      customCellName: 'ReasonCell'
     },
     {
       name: t('Message'),
@@ -88,17 +88,28 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
   const customSiteCells = {
     FormatOCPDateCell,
     ValueOrEmptyCell: ({ value, data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
-      data.reason !== CR_STATUS_OK ? value || EMPTY_VALUE_SYMBOL : EMPTY_VALUE_SYMBOL,
-    StatusCell: ({ data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
-      data.status === 'False' ? (
-        <Icon status="danger">
-          <ExclamationCircleIcon />
-        </Icon>
-      ) : (
+      data.reason === 'Error' ? value : EMPTY_VALUE_SYMBOL,
+    ReasonCell: ({ data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
+      data.reason === 'Error' || data.reason === 'Pending' ? data.reason : EMPTY_VALUE_SYMBOL,
+    StatusCell: ({ data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) => {
+      if (data.reason === 'Error') {
+        return (
+          <Icon status="danger">
+            <ExclamationCircleIcon />
+          </Icon>
+        );
+      }
+
+      if (data.reason === 'Pending') {
+        return EMPTY_VALUE_SYMBOL;
+      }
+
+      return (
         <Icon status="success">
           <CheckCircleIcon />
         </Icon>
-      )
+      );
+    }
   };
 
   const site = sites?.[0];

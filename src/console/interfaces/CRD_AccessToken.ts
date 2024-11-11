@@ -1,10 +1,4 @@
-import {
-  CrdMetaDataResponse,
-  CrdStatusCondition,
-  StatusAccessTokenType,
-  ApiVersion,
-  CrdMetaDataRequest
-} from './CRD_Base';
+import { CrdMetaDataResponse, CrdStatusCondition, ApiVersion, CrdMetaDataRequest, StatusLinkType } from './CRD_Base';
 
 interface AccessTokenCrdBase extends ApiVersion {
   kind: 'AccessToken';
@@ -20,8 +14,9 @@ export interface AccessTokenCrdResponse extends AccessTokenCrdBase {
   metadata: CrdMetaDataResponse;
   spec: AccessTokenSpec;
   status?: {
-    status: string;
-    conditions: CrdStatusCondition<StatusAccessTokenType>[];
+    status: StatusLinkType;
+    message: string | 'OK';
+    conditions: CrdStatusCondition<StatusLinkType>[];
   };
 }
 

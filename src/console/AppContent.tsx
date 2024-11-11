@@ -13,7 +13,7 @@ const AppContent = function () {
     return <LoadingPage message="" />;
   }
 
-  return site?.isConfigured || site?.isResolved || site?.hasError ? (
+  return site?.isConfigured || site?.isReady || site?.hasError ? (
     <SitePage siteId={site?.identity} />
   ) : (
     <CreateSitePage />

@@ -121,7 +121,12 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     {
       name: t('Status'),
       prop: 'status',
-      customCellName: 'StatusCell'
+      customCellName: 'StatusCell',
+      width: 15
+    },
+    {
+      name: t('Message'),
+      prop: 'statusMessage'
     },
     {
       name: t('Redemptions Allowed'),
@@ -152,7 +157,12 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     {
       name: t('Status'),
       prop: 'status',
-      customCellName: 'StatusCell'
+      customCellName: 'StatusCell',
+      width: 15
+    },
+    {
+      name: t('Message'),
+      prop: 'statusMessage'
     },
     {
       name: t('Linked to'),
@@ -248,7 +258,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
 
             <SkTable
               columns={LinkColumns}
-              rows={[...(accessTokens?.filter(({ status }) => status !== 'Redeemed') || []), ...(links || [])]}
+              rows={[...(accessTokens?.filter(({ status }) => status !== 'Ready') || []), ...(links || [])]}
               customCells={customLinkCells}
               alwaysShowPagination={false}
               isPlain

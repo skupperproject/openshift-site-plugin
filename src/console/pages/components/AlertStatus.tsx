@@ -1,9 +1,7 @@
-import { useMemo } from 'react';
-
 import { Alert } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
 
-import { I18nNamespace, MAX_TRANSITION_TIME } from '@config/config';
+import { I18nNamespace } from '@config/config';
 import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 const AlertStatus = function () {
@@ -11,8 +9,6 @@ const AlertStatus = function () {
 
   const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });
   const site = sites?.[0];
-
-  const hasExceededTransitionLimit = useMemo(() => checkTransitionTimeDifference(site?.creationTimestamp), [site]);
 
   return (
     <>
@@ -26,7 +22,7 @@ const AlertStatus = function () {
         />
       )}
 
-      {hasExceededTransitionLimit && (site?.hasError || site?.hasSecondaryErrors) && (
+      {site?.status === 'Error' && (
         <Alert
           variant="danger"
           isInline
@@ -38,10 +34,3 @@ const AlertStatus = function () {
 };
 
 export default AlertStatus;
-
-export function checkTransitionTimeDifference(creationTime: string | undefined): boolean | string {
-  const now = new Date().getTime();
-  const siteCreatedAt = new Date(creationTime || 0).getTime();
-
-  return now / 1000 - siteCreatedAt / 1000 >= MAX_TRANSITION_TIME;
-}

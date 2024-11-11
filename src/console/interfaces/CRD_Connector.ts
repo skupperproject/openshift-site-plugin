@@ -31,6 +31,8 @@ export interface ConnectorCrdResponse extends ConnectorCrdBase {
   spec: ConnectorSpec;
   status?: {
     conditions: CrdStatusCondition<StatusConnectorType>[];
+    status: StatusConnectorType;
+    message: string | 'Ok';
     matchingListenerCount: number;
   };
 }

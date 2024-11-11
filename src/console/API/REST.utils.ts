@@ -1,40 +1,26 @@
 import { EMPTY_VALUE_SYMBOL, priorityStatusMap } from '@config/config';
 import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
 import { AccessTokenCrdResponse } from '@interfaces/CRD_AccessToken';
-import {
-  StatusSiteType,
-  CrdStatusCondition,
-  StatusAccessGrantType,
-  StatusAccessTokenType,
-  StatusConnectorType,
-  StatusLinkType,
-  StatusListenerType,
-  StatusType
-} from '@interfaces/CRD_Base';
+import { CrdStatusCondition, StatusType, ReasonStatus } from '@interfaces/CRD_Base';
 import { ConnectorCrdResponse } from '@interfaces/CRD_Connector';
 import { LinkCrdResponse } from '@interfaces/CRD_Link';
 import { ListenerCrdResponse } from '@interfaces/CRD_Listener';
 import { NetworkSite, SiteCrdResponse } from '@interfaces/CRD_Site';
 import { StatusAlert, Connector, Listener, Link, SiteView, AccessGrant } from '@interfaces/REST.interfaces';
 
-export function convertSiteCRToSite(site: SiteCrdResponse): SiteView {
-  const statusAlertSiteMap: Record<StatusSiteType | 'Error', StatusAlert> = {
-    Configured: 'custom',
-    Running: 'success',
-    Ready: undefined,
-    Resolved: undefined,
-    Error: 'danger'
-  };
+const statusAlertMap: Record<ReasonStatus, StatusAlert> = {
+  Error: 'danger',
+  Ready: 'success',
+  Configured: 'custom',
+  Pending: 'custom'
+};
 
+export function convertSiteCRToSite(site: SiteCrdResponse): SiteView {
   const { metadata, spec, status } = site;
 
-  const lastStatus = calculateStatus(status?.conditions);
-  const lastStatusHasError = lastStatus?.reason === 'Error';
-  const lastStatusLabel = lastStatusHasError ? lastStatus.reason : lastStatus?.type;
-
   const calculatedStatusAlert =
-    (lastStatusHasError && statusAlertSiteMap.Error) ||
-    (lastStatus?.type && statusAlertSiteMap[lastStatus.type]) ||
+    (status?.status === 'Error' && statusAlertMap.Error) ||
+    (status?.status && statusAlertMap[status?.status]) ||
     undefined;
 
   return {
@@ -48,37 +34,29 @@ export function convertSiteCRToSite(site: SiteCrdResponse): SiteView {
     creationTimestamp: metadata.creationTimestamp,
     linkCount: getOtherSiteNetworksWithLinks(status?.network, metadata.uid).length || 0,
     remoteLinks: getOtherSiteNetworksWithLinks(status?.network, metadata.uid).flatMap(({ name }) => name),
-    isConfigured: hasType(status?.conditions, 'Configured'),
-    isReady: hasType(status?.conditions, 'Ready'),
-    isResolved: hasType(status?.conditions, 'Resolved'),
-    status: lastStatusLabel,
-    hasError: lastStatusHasError,
-    hasSecondaryErrors: hasErrors(status?.conditions),
-    conditions: status?.conditions,
     platform: findSiteNetwork(status?.network, metadata.uid)?.platform || EMPTY_VALUE_SYMBOL,
     sitesInNetwork: status?.sitesInNetwork || 0,
+    isConfigured: hasType(status?.conditions, 'Configured'),
+    isReady: hasType(status?.conditions, 'Ready'),
+    status: status?.status,
+    statusMessage: getErrorMessage(status?.status, status?.message) || '',
     statusAlert: calculatedStatusAlert,
+    hasError: status?.status === 'Error',
+    hasSecondaryErrors: hasErrors(status?.conditions),
+    conditions: status?.conditions,
     rawData: site
   };
 }
 
 export function convertAccessGrantCRToAccessGrant(accessGrant: AccessGrantCrdResponse): AccessGrant {
-  const statusAlertAccessGrantMap: Record<StatusAccessGrantType | 'Error', StatusAlert> = {
-    Processed: 'success',
-    Ready: 'success',
-    Resolved: 'success',
-    Error: 'danger'
-  };
-
   const { metadata, spec, status } = accessGrant;
 
   const lastStatus = calculateStatus(status?.conditions);
   const hasError = lastStatus?.reason === 'Error';
-  const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
   const calculatedStatusAlert =
-    (hasError && statusAlertAccessGrantMap.Error) ||
-    (lastStatus?.type && statusAlertAccessGrantMap[lastStatus.type]) ||
+    (status?.status === 'Error' && statusAlertMap.Error) ||
+    (status?.status && statusAlertMap[status?.status]) ||
     undefined;
 
   return {
@@ -86,7 +64,8 @@ export function convertAccessGrantCRToAccessGrant(accessGrant: AccessGrantCrdRes
     name: metadata?.name,
     creationTimestamp: metadata?.creationTimestamp,
     hasError,
-    status: calculatedStatus,
+    status: status?.status,
+    statusMessage: getErrorMessage(status?.status, status?.message) || '',
     redemptionsAllowed: spec?.redemptionsAllowed || 0,
     redeemed: status?.redeemed || 0,
     expirationWindow: status?.expiration,
@@ -99,20 +78,13 @@ export function convertAccessGrantCRsToAccessGrants(accessGrants: AccessGrantCrd
 }
 
 export function convertLinkCRToLink(link: LinkCrdResponse): Link {
-  const statusAlertLinkMap: Record<StatusLinkType | 'Error', StatusAlert> = {
-    Configured: 'custom',
-    Ready: 'success',
-    Operational: 'success',
-    Error: 'danger'
-  };
-
   const { metadata, spec, status } = link;
-  const lastStatus = calculateStatus(status?.conditions);
-  const hasError = lastStatus?.reason === 'Error';
-  const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
+  const hasError = status?.status === 'Error';
 
   const calculatedStatusAlert =
-    (hasError && statusAlertLinkMap.Error) || (lastStatus?.type && statusAlertLinkMap[lastStatus.type]) || undefined;
+    (status?.status === 'Error' && statusAlertMap.Error) ||
+    (status?.status && statusAlertMap[status?.status]) ||
+    undefined;
 
   return {
     id: metadata.uid,
@@ -120,7 +92,8 @@ export function convertLinkCRToLink(link: LinkCrdResponse): Link {
     creationTimestamp: metadata.creationTimestamp,
     cost: spec.cost || EMPTY_VALUE_SYMBOL, // Assuming `spec.cost` is optional
     hasError,
-    status: calculatedStatus,
+    status: status?.status,
+    statusMessage: getErrorMessage(status?.status, status?.message) || '',
     connectedTo: status?.remoteSiteName || EMPTY_VALUE_SYMBOL,
     statusAlert: calculatedStatusAlert,
     rawData: link
@@ -132,21 +105,13 @@ export function convertLinkCRsToLinks(links: LinkCrdResponse[]): Link[] {
 }
 
 export function convertAccessTokenCRToLink(accessToken: AccessTokenCrdResponse): Link {
-  const statusAlertAccessTokenMap: Record<StatusAccessTokenType | 'Error', StatusAlert> = {
-    Redeemed: 'success',
-    Error: 'danger'
-  };
-
   const { metadata, status } = accessToken;
 
   const lastStatus = calculateStatus(status?.conditions);
   const hasError = lastStatus?.reason === 'Error';
-  const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
   const calculatedStatusAlert =
-    (hasError && statusAlertAccessTokenMap.Error) ||
-    (lastStatus?.type && statusAlertAccessTokenMap[lastStatus.type]) ||
-    undefined;
+    (hasError && statusAlertMap.Error) || (status?.status && statusAlertMap[status?.status]) || undefined;
 
   return {
     id: metadata.uid,
@@ -154,7 +119,8 @@ export function convertAccessTokenCRToLink(accessToken: AccessTokenCrdResponse):
     creationTimestamp: metadata.creationTimestamp,
     cost: EMPTY_VALUE_SYMBOL, // Assuming this is a constant value, can be defined globally
     hasError,
-    status: calculatedStatus,
+    status: status?.status,
+    statusMessage: getErrorMessage(status?.status, status?.message) || '',
     connectedTo: EMPTY_VALUE_SYMBOL, // Same assumption as above
     statusAlert: calculatedStatusAlert,
     rawData: accessToken
@@ -162,23 +128,13 @@ export function convertAccessTokenCRToLink(accessToken: AccessTokenCrdResponse):
 }
 
 export function convertListenerCRToListener(listener: ListenerCrdResponse): Listener {
-  const statusAlertListenerMap: Record<StatusListenerType | 'Error', StatusAlert> = {
-    Configured: 'custom',
-    Matched: 'success',
-    Ready: 'success',
-    Error: 'danger'
-  };
-
   const { metadata, spec, status } = listener;
 
   const lastStatus = calculateStatus(status?.conditions);
   const hasError = lastStatus?.reason === 'Error';
-  const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
   const calculatedStatusAlert =
-    (hasError && statusAlertListenerMap.Error) ||
-    (lastStatus?.type && statusAlertListenerMap[lastStatus.type]) ||
-    undefined;
+    (hasError && statusAlertMap.Error) || (lastStatus?.type && statusAlertMap[lastStatus.type]) || undefined;
 
   return {
     id: metadata.uid,
@@ -189,7 +145,8 @@ export function convertListenerCRToListener(listener: ListenerCrdResponse): List
     port: spec.port,
     connected: status?.matchingConnectorCount || 0,
     hasError,
-    status: calculatedStatus,
+    status: status?.status,
+    statusMessage: getErrorMessage(status?.status, status?.message) || '',
     statusAlert: calculatedStatusAlert,
     resourceVersion: metadata.resourceVersion,
     rawData: listener
@@ -201,23 +158,13 @@ export function convertListenerCRsToListeners(listeners: ListenerCrdResponse[]):
 }
 
 export function convertConnectorCRToConnector(connector: ConnectorCrdResponse): Connector {
-  const statusAlertConnectorMap: Record<StatusConnectorType | 'Error', StatusAlert> = {
-    Configured: 'custom',
-    Matched: 'success',
-    Ready: 'success',
-    Error: 'danger'
-  };
-
   const { metadata, spec, status } = connector;
 
   const lastStatus = calculateStatus(status?.conditions);
   const hasError = lastStatus?.reason === 'Error';
-  const calculatedStatus = hasError ? lastStatus.message : lastStatus?.type;
 
   const calculatedStatusAlert =
-    (hasError && statusAlertConnectorMap.Error) ||
-    (lastStatus?.type && statusAlertConnectorMap[lastStatus.type]) ||
-    undefined;
+    (hasError && statusAlertMap.Error) || (lastStatus?.type && statusAlertMap[lastStatus.type]) || undefined;
 
   return {
     id: metadata.uid,
@@ -229,7 +176,8 @@ export function convertConnectorCRToConnector(connector: ConnectorCrdResponse): 
     port: spec.port,
     connected: status?.matchingListenerCount || 0,
     hasError,
-    status: calculatedStatus,
+    status: status?.status,
+    statusMessage: getErrorMessage(status?.status, status?.message) || '',
     statusAlert: calculatedStatusAlert,
     resourceVersion: metadata.resourceVersion,
     rawData: connector
@@ -240,7 +188,7 @@ export function convertConnectorCRsToConnectors(connectors: ConnectorCrdResponse
   return connectors.map(convertConnectorCRToConnector);
 }
 
-function hasType<T>(conditions: CrdStatusCondition<T>[] = [], type: StatusSiteType | StatusAccessTokenType) {
+function hasType<T>(conditions: CrdStatusCondition<T>[] = [], type: ReasonStatus) {
   return !!conditions?.some((condition) => condition.type === type && condition.status === 'True');
 }
 
@@ -283,4 +231,8 @@ export function getOtherSiteNetworksWithLinks(network: NetworkSite[] = [], siteI
 
 function findSiteNetwork(network: NetworkSite[] = [], siteId: string) {
   return network?.find(({ id }) => id === siteId);
+}
+
+function getErrorMessage(status: ReasonStatus | undefined, message: string | undefined) {
+  return status === 'Error' ? message : EMPTY_VALUE_SYMBOL;
 }
