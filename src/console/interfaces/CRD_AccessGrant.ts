@@ -26,8 +26,8 @@ export interface AccessGrantCrdResponse extends AccessGrantCrdBase {
     ca: string;
     redeemed: number;
     expiration: ISO8601Timestamp;
-    status: string;
-    message: string;
+    status: StatusAccessGrantType;
+    message: string | 'OK';
     conditions: CrdStatusCondition<StatusAccessGrantType>[];
   };
 }

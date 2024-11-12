@@ -8,7 +8,7 @@ import { stringify } from 'yaml';
 import cStep1 from '@assets/cstep1.png';
 import cStep2 from '@assets/cstep2.png';
 import cStep3 from '@assets/cstep3.png';
-import { CR_STATUS_OK, I18nNamespace } from '@config/config';
+import { I18nNamespace } from '@config/config';
 import InstructionBlock from '@core/components/InstructionBlock';
 import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
@@ -34,7 +34,7 @@ export const DownloadGrant: FC<{
     }
   }, [grant]);
 
-  const isDisabled = !grant?.status || grant.status.message !== CR_STATUS_OK;
+  const isDisabled = grant?.status?.status !== 'Ready';
 
   return (
     <Stack hasGutter>

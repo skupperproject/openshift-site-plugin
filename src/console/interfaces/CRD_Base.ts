@@ -1,13 +1,16 @@
 export type ISO8601Timestamp = string & { __brand: 'ISO8601Timestamp' };
 
-type ReasonStatus = 'OK' | 'Error';
 type Status = 'True' | 'False';
-export type StatusAccessGrantType = 'Processed' | 'Ready' | 'Resolved';
-export type StatusAccessTokenType = 'Redeemed';
-export type StatusLinkType = 'Configured' | 'Ready' | 'Operational';
-export type StatusListenerType = 'Configured' | 'Matched' | 'Ready';
+type BaseStatus = 'Error' | 'Pending';
+
+export type ReasonStatus = BaseStatus | 'Configured' | 'Ready';
+
+export type StatusSiteType = ReasonStatus;
+export type StatusAccessGrantType = ReasonStatus;
+export type StatusAccessTokenType = ReasonStatus;
+export type StatusLinkType = ReasonStatus;
+export type StatusListenerType = ReasonStatus;
 export type StatusConnectorType = StatusListenerType;
-export type StatusSiteType = 'Configured' | 'Running' | 'Ready' | 'Resolved';
 
 export type StatusType =
   | StatusSiteType

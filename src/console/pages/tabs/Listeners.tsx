@@ -16,11 +16,9 @@ import {
   DrawerContent,
   DrawerContentBody,
   DrawerPanelBody,
-  Icon,
   Card,
   CardBody
 } from '@patternfly/react-core';
-import { CheckCircleIcon, TimesIcon } from '@patternfly/react-icons';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -101,7 +99,8 @@ const Listeners = function () {
     },
     {
       name: t('Connectors'),
-      prop: 'connected'
+      prop: 'connected',
+      customCellName: 'connectedCell'
     },
     {
       name: '',
@@ -117,15 +116,8 @@ const Listeners = function () {
           {data.name}
         </Button>
       ),
-
       StatusCell,
-
-      connectedCell: ({ value }: SKComponentProps<Listener>) => (
-        <Icon isInline status={value ? 'success' : 'danger'}>
-          {value ? <CheckCircleIcon /> : <TimesIcon />}
-        </Icon>
-      ),
-
+      connectedCell: ({ data }: SKComponentProps<Listener>) => data.connected || data.statusMessage,
       actions: ({ data }: SKComponentProps<Listener>) => (
         <Button onClick={handleDelete.bind(null, data.name)} variant="link">
           {t('Delete')}

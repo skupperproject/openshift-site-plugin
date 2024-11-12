@@ -4,7 +4,7 @@ import { Icon, Bullseye, Spinner, TextContent, Text, TextVariants, Flex, FlexIte
 import { CheckCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 
-import { CR_STATUS_OK, I18nNamespace } from '@config/config';
+import { I18nNamespace } from '@config/config';
 import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import { useLinkForm } from './hooks/useLinkForm';
@@ -35,8 +35,8 @@ export const SummaryPage = function () {
   const hasStatus = accessToken?.status?.status || link?.status?.status;
   const isConfigured = link?.status?.conditions.find(({ type, status }) => type === 'Configured' && status === 'True');
   const hasError =
-    accessToken?.status?.status !== CR_STATUS_OK ||
-    (accessToken?.status?.status && link?.status?.status && link?.status?.status !== CR_STATUS_OK);
+    accessToken?.status?.status === 'Error' ||
+    (accessToken?.status?.status && link?.status?.status && link?.status?.status === 'Error');
   const errorMessage = link?.status?.status || accessToken?.status?.status;
 
   useEffect(() => {
