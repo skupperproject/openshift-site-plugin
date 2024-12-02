@@ -17,44 +17,55 @@ const groupVersionKind = {
   kind: 'Route'
 };
 
+const groupVersionKindPod = {
+  group: '',
+  version: 'v1',
+  kind: 'Pod'
+};
+
+const ROUTE = 'network-console';
+const POD_SELECTOR = { 'app.kubernetes.io/name': 'network-console-collector' };
+const POD_LOADED_STATUS = 'Running';
+
 const DeploymentNetworkConsoleButton = function () {
   const { t } = useTranslation(I18nNamespace);
-  const [isDeployLoading, setIsDeployingLoading] = useState(false);
   const [url, setUrl] = useState<string | undefined>();
 
   const watchResource = {
     groupVersionKind,
     namespace: getSkupperNamespace(),
     isList: false,
-    name: 'network-console'
+    name: ROUTE
+  };
+
+  const watchResourcePod = {
+    groupVersionKind: groupVersionKindPod,
+    namespace: getSkupperNamespace(),
+    isList: false,
+    selector: {
+      matchLabels: POD_SELECTOR
+    }
   };
 
   const [data] = useK8sWatchResource(watchResource) as any;
+  const [deployment] = useK8sWatchResource(watchResourcePod) as any;
 
   const mutationCreate = useMutation({
-    mutationFn: () => RESTApi.createDeployment(),
-    onSuccess: () => {
-      setTimeout(() => {
-        setIsDeployingLoading(false);
-      }, 4000);
-    }
+    mutationFn: () => RESTApi.createDeployment()
   });
 
   const mutationDelete = useMutation({
     mutationFn: () => RESTApi.deleteDeployment(),
     onSuccess: () => {
-      setIsDeployingLoading(false);
       setUrl(undefined);
     }
   });
 
   const handleDeployConsole = async () => {
-    setIsDeployingLoading(true);
     mutationCreate.mutate();
   };
 
   const handleDeleteConsole = async () => {
-    setIsDeployingLoading(true);
     mutationDelete.mutate();
   };
 
@@ -63,18 +74,25 @@ const DeploymentNetworkConsoleButton = function () {
       const newUrl = data?.spec?.host ? `${data?.spec?.port.targetPort}://${data?.spec?.host}` : undefined;
       setUrl(newUrl);
     }
-  }, [data?.status]);
+  }, [data?.spec?.host, data?.spec?.port.targetPort, data?.status]);
+
+  const loaded = deployment?.status?.phase === POD_LOADED_STATUS && url;
 
   return (
     <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-      {!url && (
-        <Button onClick={handleDeployConsole} isLoading={isDeployLoading} icon={<CubesIcon />}>
+      {!loaded && (
+        <Button
+          isDisabled={!!url && !!deployment?.status && !(deployment?.status?.phase === POD_LOADED_STATUS)}
+          onClick={handleDeployConsole}
+          isLoading={url && deployment?.status && !(deployment?.status?.phase === POD_LOADED_STATUS)}
+          icon={<CubesIcon />}
+        >
           {t('Deploy the Network Console')}
         </Button>
       )}
 
-      {url && <ExternalLink href={url} text={t('Open the Network Console')} />}
-      {url && (
+      {loaded && <ExternalLink href={url} text={t('Open the Network Console')} />}
+      {loaded && (
         <Button onClick={handleDeleteConsole} variant="secondary" icon={<CubesIcon />}>
           {t('Delete the Network Console')}
         </Button>
