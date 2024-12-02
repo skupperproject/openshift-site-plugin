@@ -170,7 +170,7 @@ export const ImportListenersForm: FC<{ oldItems: Listener[]; onSubmit: () => voi
   );
 
   return (
-    <Card isPlain>
+    <Card isPlain style={{ overflow: 'auto' }}>
       <CardTitle>
         <Title headingLevel="h1">{t(title)}</Title>
       </CardTitle>

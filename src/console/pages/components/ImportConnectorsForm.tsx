@@ -33,7 +33,7 @@ interface ConnectorCrdAttributes extends ConnectorSpec {
   status?: 'Error' | 'Updated' | 'Created';
 }
 
-const title = 'Create or Update Listeners';
+const title = 'Create or Update Connectors';
 
 export const ImportConnectorsForm: FC<{ oldItems: Connector[]; onSubmit: () => void; onCancel: () => void }> =
   function ({ oldItems, onSubmit }) {
@@ -177,7 +177,7 @@ export const ImportConnectorsForm: FC<{ oldItems: Connector[]; onSubmit: () => v
     );
 
     return (
-      <Card isPlain>
+      <Card isPlain style={{ overflow: 'auto' }}>
         <CardTitle>
           <Title headingLevel="h1">{t(title)}</Title>
         </CardTitle>
