@@ -2,10 +2,10 @@
   "apiVersion": "apps/v1",
   "kind": "Deployment",
   "metadata": {
-    "name": "network-console-prometheus",
+    "name": "network-observer-prometheus",
     "labels": {
-      "app.kubernetes.io/name": "network-console-prometheus",
-      "app.kubernetes.io/part-of": "skupper-network-console",
+      "app.kubernetes.io/name": "network-observer-prometheus",
+      "app.kubernetes.io/part-of": "skupper-network-observer",
       "app.kubernetes.io/component": "metrics"
     }
   },
@@ -13,14 +13,14 @@
     "replicas": 1,
     "selector": {
       "matchLabels": {
-        "app.kubernetes.io/name": "network-console-prometheus"
+        "app.kubernetes.io/name": "network-observer-prometheus"
       }
     },
     "template": {
       "metadata": {
         "labels": {
-          "app.kubernetes.io/name": "network-console-prometheus",
-          "app.kubernetes.io/part-of": "skupper-network-console",
+          "app.kubernetes.io/name": "network-observer-prometheus",
+          "app.kubernetes.io/part-of": "skupper-network-observer",
           "app.kubernetes.io/component": "metrics"
         }
       },
@@ -60,7 +60,7 @@
             }
           }
         ],
-        "serviceAccountName": "network-console-prometheus",
+        "serviceAccountName": "network-observer-prometheus",
         "volumes": [
           {
             "configMap": {

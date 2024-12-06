@@ -3,10 +3,10 @@
   "kind": "Route",
   "metadata": {
     "labels": {
-      "app.kubernetes.io/part-of": "skupper-network-console",
-      "app.kubernetes.io/name": "network-console"
+      "app.kubernetes.io/part-of": "skupper-network-observer",
+      "app.kubernetes.io/name": "network-observer"
     },
-    "name": "network-console"
+    "name": "network-observer"
   },
   "spec": {
     "tls": {
@@ -18,7 +18,7 @@
     },
     "to": {
       "kind": "Service",
-      "name": "network-console-collector",
+      "name": "network-observer",
       "weight": 100
     }
   }

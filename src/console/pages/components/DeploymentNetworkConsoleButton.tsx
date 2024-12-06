@@ -41,8 +41,8 @@ interface PodResource extends K8sResourceCommon {
   };
 }
 
-const ROUTE = 'network-console';
-const POD_SELECTOR = { 'app.kubernetes.io/name': 'network-console-collector' };
+const ROUTE = 'network-observer';
+const POD_SELECTOR = { 'app.kubernetes.io/name': 'network-observer' };
 const POD_LOADED_STATUS = 'Running';
 
 const DeploymentNetworkConsoleButton = function () {
