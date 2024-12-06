@@ -51,7 +51,6 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     sites?.[0].remoteLinks?.map((name) => ({
       connectedTo: name
     })) || [];
-
   const mutationDeleteAccessGrant = useMutation({
     mutationFn: (name: string) => RESTApi.deleteGrant(name)
   });
@@ -134,12 +133,12 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
     },
     {
       name: t('Redeemed'),
-      prop: 'redeemed'
+      prop: 'redemptions'
     },
     {
       name: t('Expiration'),
-      prop: 'expirationWindow',
-      customCellName: 'date',
+      prop: 'expirationTime',
+      customCellName: 'Date',
       modifier: 'fitContent'
     },
     {
@@ -199,7 +198,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   const customAccessGrantCells = {
     StatusCell,
 
-    date: ({ value, data }: SKComponentProps<AccessGrant>) => {
+    Date: ({ value, data }: SKComponentProps<AccessGrant>) => {
       const now = new Date();
       const ValidFor = new Date(value as ISO8601Timestamp);
 
@@ -213,8 +212,8 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
           isDisabled={
             !data.status ||
             data.hasError ||
-            new Date() > new Date(data.expirationWindow as ISO8601Timestamp) ||
-            (data.redeemed || 0) >= (data.redemptionsAllowed || 0)
+            new Date() > new Date(data.expirationTime as ISO8601Timestamp) ||
+            (data.redemptions || 0) >= (data.redemptionsAllowed || 0)
           }
         >
           {t('Download')}

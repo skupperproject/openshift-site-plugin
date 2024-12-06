@@ -10,7 +10,7 @@ const AppContent = function () {
   const site = sites?.[0];
 
   if (!loaded) {
-    return <LoadingPage message="" />;
+    return <LoadingPage />;
   }
 
   return site?.isConfigured || site?.isReady || site?.hasError ? (

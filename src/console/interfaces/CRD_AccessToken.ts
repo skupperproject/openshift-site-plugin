@@ -5,7 +5,7 @@ interface AccessTokenCrdBase extends ApiVersion {
 }
 
 interface AccessTokenSpec {
-  linkCost: string;
+  linkCost: number;
   url: string;
   code: string;
   ca: string;

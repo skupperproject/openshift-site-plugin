@@ -81,6 +81,15 @@ const Connectors = function () {
       customCellName: 'linkCell'
     },
     {
+      name: t('Status'),
+      prop: 'status',
+      customCellName: 'StatusCell'
+    },
+    {
+      name: t('Message'),
+      prop: 'statusMessage'
+    },
+    {
       name: t('Routing key'),
       prop: 'routingKey'
     },
@@ -97,12 +106,7 @@ const Connectors = function () {
       prop: 'port'
     },
     {
-      name: t('Status'),
-      prop: 'status',
-      customCellName: 'StatusCell'
-    },
-    {
-      name: t('Listeners'),
+      name: t('Has listeners'),
       prop: 'connected',
       customCellName: 'connectedCell'
     },
@@ -121,7 +125,7 @@ const Connectors = function () {
         </Button>
       ),
       StatusCell,
-      connectedCell: ({ data }: SKComponentProps<Connector>) => data.connected || data.statusMessage,
+      connectedCell: ({ data }: SKComponentProps<Connector>) => `${data.connected}`,
       actions: ({ data }: SKComponentProps<Connector>) => (
         <Button onClick={handleDelete.bind(null, data.name)} variant="link">
           {t('Delete')}

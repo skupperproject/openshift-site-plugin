@@ -81,6 +81,15 @@ const Listeners = function () {
       customCellName: 'linkCell'
     },
     {
+      name: t('Status'),
+      prop: 'status',
+      customCellName: 'StatusCell'
+    },
+    {
+      name: t('Message'),
+      prop: 'statusMessage'
+    },
+    {
       name: t('Routing key'),
       prop: 'routingKey'
     },
@@ -93,12 +102,7 @@ const Listeners = function () {
       prop: 'port'
     },
     {
-      name: t('Status'),
-      prop: 'status',
-      customCellName: 'StatusCell'
-    },
-    {
-      name: t('Connectors'),
+      name: t('Has connectors'),
       prop: 'connected',
       customCellName: 'connectedCell'
     },
@@ -117,7 +121,7 @@ const Listeners = function () {
         </Button>
       ),
       StatusCell,
-      connectedCell: ({ data }: SKComponentProps<Listener>) => data.connected || data.statusMessage,
+      connectedCell: ({ data }: SKComponentProps<Listener>) => `${data.connected}`,
       actions: ({ data }: SKComponentProps<Listener>) => (
         <Button onClick={handleDelete.bind(null, data.name)} variant="link">
           {t('Delete')}

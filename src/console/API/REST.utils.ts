@@ -18,10 +18,7 @@ const statusAlertMap: Record<ReasonStatus, StatusAlert> = {
 export function convertSiteCRToSite(site: SiteCrdResponse): SiteView {
   const { metadata, spec, status } = site;
 
-  const calculatedStatusAlert =
-    (status?.status === 'Error' && statusAlertMap.Error) ||
-    (status?.status && statusAlertMap[status?.status]) ||
-    undefined;
+  const calculatedStatusAlert = (status?.status && statusAlertMap[status?.status]) || undefined;
 
   return {
     identity: metadata.uid,
@@ -50,14 +47,10 @@ export function convertSiteCRToSite(site: SiteCrdResponse): SiteView {
 
 export function convertAccessGrantCRToAccessGrant(accessGrant: AccessGrantCrdResponse): AccessGrant {
   const { metadata, spec, status } = accessGrant;
-
   const lastStatus = calculateStatus(status?.conditions);
   const hasError = lastStatus?.reason === 'Error';
 
-  const calculatedStatusAlert =
-    (status?.status === 'Error' && statusAlertMap.Error) ||
-    (status?.status && statusAlertMap[status?.status]) ||
-    undefined;
+  const calculatedStatusAlert = (status?.status && statusAlertMap[status?.status]) || undefined;
 
   return {
     id: metadata?.uid,
@@ -67,8 +60,8 @@ export function convertAccessGrantCRToAccessGrant(accessGrant: AccessGrantCrdRes
     status: status?.status,
     statusMessage: getErrorMessage(status?.status, status?.message) || '',
     redemptionsAllowed: spec?.redemptionsAllowed || 0,
-    redeemed: status?.redeemed || 0,
-    expirationWindow: status?.expiration,
+    redemptions: status?.redemptions || 0,
+    expirationTime: status?.expirationTime,
     statusAlert: calculatedStatusAlert,
     rawData: accessGrant
   };
@@ -81,10 +74,7 @@ export function convertLinkCRToLink(link: LinkCrdResponse): Link {
   const { metadata, spec, status } = link;
   const hasError = status?.status === 'Error';
 
-  const calculatedStatusAlert =
-    (status?.status === 'Error' && statusAlertMap.Error) ||
-    (status?.status && statusAlertMap[status?.status]) ||
-    undefined;
+  const calculatedStatusAlert = (status?.status && statusAlertMap[status?.status]) || undefined;
 
   return {
     id: metadata.uid,
@@ -133,8 +123,7 @@ export function convertListenerCRToListener(listener: ListenerCrdResponse): List
   const lastStatus = calculateStatus(status?.conditions);
   const hasError = lastStatus?.reason === 'Error';
 
-  const calculatedStatusAlert =
-    (hasError && statusAlertMap.Error) || (lastStatus?.type && statusAlertMap[lastStatus.type]) || undefined;
+  const calculatedStatusAlert = (status?.status && statusAlertMap[status?.status]) || undefined;
 
   return {
     id: metadata.uid,
@@ -143,7 +132,7 @@ export function convertListenerCRToListener(listener: ListenerCrdResponse): List
     routingKey: spec.routingKey,
     serviceName: spec.host,
     port: spec.port,
-    connected: status?.matchingConnectorCount || 0,
+    connected: !!status?.hasMatchingConnector,
     hasError,
     status: status?.status,
     statusMessage: getErrorMessage(status?.status, status?.message) || '',
@@ -163,8 +152,7 @@ export function convertConnectorCRToConnector(connector: ConnectorCrdResponse): 
   const lastStatus = calculateStatus(status?.conditions);
   const hasError = lastStatus?.reason === 'Error';
 
-  const calculatedStatusAlert =
-    (hasError && statusAlertMap.Error) || (lastStatus?.type && statusAlertMap[lastStatus.type]) || undefined;
+  const calculatedStatusAlert = (status?.status && statusAlertMap[status?.status]) || undefined;
 
   return {
     id: metadata.uid,
@@ -174,7 +162,7 @@ export function convertConnectorCRToConnector(connector: ConnectorCrdResponse): 
     selector: spec.selector,
     host: spec.host,
     port: spec.port,
-    connected: status?.matchingListenerCount || 0,
+    connected: !!status?.hasMatchingListener,
     hasError,
     status: status?.status,
     statusMessage: getErrorMessage(status?.status, status?.message) || '',
@@ -234,5 +222,5 @@ function findSiteNetwork(network: NetworkSite[] = [], siteId: string) {
 }
 
 function getErrorMessage(status: ReasonStatus | undefined, message: string | undefined) {
-  return status === 'Error' ? message : EMPTY_VALUE_SYMBOL;
+  return status === 'Error' || status === 'Pending' ? message : EMPTY_VALUE_SYMBOL;
 }

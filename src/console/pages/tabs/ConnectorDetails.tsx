@@ -123,7 +123,7 @@ const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }
 
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Include not ready')}</DescriptionListTerm>
-                  <DescriptionListDescription>{`${!!connector?.spec.includeNotReady}`}</DescriptionListDescription>
+                  <DescriptionListDescription>{`${!!connector?.spec.includeNotReadyPods}`}</DescriptionListDescription>
                 </DescriptionListGroup>
               </DescriptionList>
             </CardBody>
