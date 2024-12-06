@@ -1,6 +1,6 @@
-# Skupper OpenShift Console V2 Plugin Guide
+# OpenShift Site Plugin Guide
 
-This plugin for Openshift installs a tab in **Projects** -> **< project name >** to create a Skupper network. The purpose of this plugin is purely educational to get familiar with Skupper commands.
+This plugin for Openshift installs a tab in **Projects** -> **< project name >** to create and manage a Skupper Site.
 
 ## Status
 
@@ -9,7 +9,7 @@ WIP
 ## Pre-requisites
 
 - Openshift >= 4.15
-- Skupper V2 CRDs installed
+- Skupper CRDs (from V2) installed
 
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/skupperproject/skupper/v2/api/types/crds/skupper_access_grant_crd.yaml
@@ -39,7 +39,7 @@ To install the dynamic plugin, follow these steps:
 - **Enable the plugin**:
 
   ```shell
-  kubectl patch consoles.operator.openshift.io cluster --patch '{ "spec": { "plugins": ["skupper-site-console"] } }' --type=merge
+  kubectl patch consoles.operator.openshift.io cluster --patch '{ "spec": { "plugins": ["openshift-site-plugin"] } }' --type=merge
   ```
 
  Alternatively you can view the list of the enabled plugins by navigating from Administration → Cluster Settings → Configuration → Console operator.openshift.io → Console plugins or on the Overview page.

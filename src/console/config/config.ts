@@ -4,7 +4,7 @@ export const API_VERSION = 'v2alpha1';
 export const GROUP = 'skupper.io';
 
 export const MSG_TIMEOUT_ERROR = 'The request to fetch the data has timed out.'; // Error message to display when request times out
-export const I18nNamespace = 'plugin__skupper-site-console'; // Namespace for i18n translations with plugin__ prefix + name of the plugin
+export const I18nNamespace = 'plugin__openshift-site-plugin'; // Namespace for i18n translations with plugin__ prefix + name of the plugin
 export const EMPTY_LINK_ACCESS = 'none';
 export const DEFAULT_SERVICE_ACCOUNT = 'skupper:skupper-controller';
 export const DEFAULT_ISSUER = 'skupper-site-ca';

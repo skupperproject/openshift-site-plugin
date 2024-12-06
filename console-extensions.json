@@ -9,7 +9,7 @@
       },
       "page": {
         "name": "Service Interconnect",
-        "href": "site-console"
+        "href": "openshift-site-plugin"
       },
       "component": { "$codeRef": "ProjectEntryTab" }
     }

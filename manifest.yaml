@@ -1,31 +1,31 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: site-console
+  name: openshift-site-plugin
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: site-console
-  namespace: site-console
+  name: openshift-site-plugin
+  namespace: openshift-site-plugin
   labels:
-    app: site-console
-    app.kubernetes.io/component: site-console
-    app.kubernetes.io/instance: site-console
-    app.kubernetes.io/part-of: site-console
-    app.openshift.io/runtime-namespace: site-console
+    app: openshift-site-plugin
+    app.kubernetes.io/component: openshift-site-plugin
+    app.kubernetes.io/instance: openshift-site-plugin
+    app.kubernetes.io/part-of: openshift-site-plugin
+    app.openshift.io/runtime-namespace: openshift-site-plugin
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: site-console
+      app: openshift-site-plugin
   template:
     metadata:
       labels:
-        app: site-console
+        app: openshift-site-plugin
     spec:
       containers:
-        - name: site-console
+        - name: openshift-site-plugin
           image: quay.io/vbartoli/rhsi-plugin:latest
           ports:
             - containerPort: 9443
@@ -60,12 +60,12 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nginx-conf
-  namespace: site-console
+  namespace: openshift-site-plugin
   labels:
-    app: site-console
-    app.kubernetes.io/component: site-console
-    app.kubernetes.io/instance: site-console
-    app.kubernetes.io/part-of: site-console
+    app: openshift-site-plugin
+    app.kubernetes.io/component: openshift-site-plugin
+    app.kubernetes.io/instance: openshift-site-plugin
+    app.kubernetes.io/part-of: openshift-site-plugin
 data:
   nginx.conf: |
     error_log /dev/stdout;
@@ -94,13 +94,13 @@ kind: Service
 metadata:
   annotations:
     service.alpha.openshift.io/serving-cert-secret-name: console-serving-cert
-  name: site-console
-  namespace: site-console
+  name: openshift-site-plugin
+  namespace: openshift-site-plugin
   labels:
-    app: site-console
-    app.kubernetes.io/component: site-console
-    app.kubernetes.io/instance: site-console
-    app.kubernetes.io/part-of: site-console
+    app: openshift-site-plugin
+    app.kubernetes.io/component: openshift-site-plugin
+    app.kubernetes.io/instance: openshift-site-plugin
+    app.kubernetes.io/part-of: openshift-site-plugin
 spec:
   ports:
     - name: 9443-tcp
@@ -108,21 +108,21 @@ spec:
       port: 9443
       targetPort: 9443
   selector:
-    app: site-console
+    app: openshift-site-plugin
   type: ClusterIP
   sessionAffinity: None
 ---
 apiVersion: console.openshift.io/v1
 kind: ConsolePlugin
 metadata:
-  name: skupper-site-console
+  name: openshift-site-plugin
 spec:
-  displayName: 'OpenShift Service Interconnect Site Console'
+  displayName: 'OpenShift Site Plugin'
   backend:
     type: Service
     service:
-      name: site-console
-      namespace: site-console
+      name: openshift-site-plugin
+      namespace: openshift-site-plugin
       port: 9443
       basePath: /
   i18n:
