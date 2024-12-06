@@ -7,7 +7,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: openshift-site-plugin
-  namespace: sopenshift-site-plugin
+  namespace: openshift-site-plugin
   labels:
     app: openshift-site-plugin
     app.kubernetes.io/component: openshift-site-plugin
