@@ -1,8 +1,8 @@
 {
-  "name": "skupper-site-console",
-  "version": "0.0.0",
+  "name": "openshift-site-plugin",
+  "version": "1.0.0",
   "private": true,
-  "repository": "git@github.com:skupperproject/skupper-site-console.git",
+  "repository": "git@github.com:skupperproject/openshift-site-plugin.git",
   "license": "Apache-2.0",
   "scripts": {
     "clean": "rm -rf dist",
@@ -69,10 +69,9 @@
     "yarn": ">=1.22.10"
   },
   "consolePlugin": {
-    "name": "skupper-site-console",
-    "version": "0.0.2",
-    "displayName": "Service Interconnect Site Plugin",
-    "description": " Service Interconnect for OpenShift console plugins.",
+    "name": "openshift-site-plugin",
+    "version": "1.0.0",
+    "displayName": "Openshift Site Plugin",
     "exposedModules": {
       "ProjectEntryTab": "./openshift/ProjectEntryTab"
     }
