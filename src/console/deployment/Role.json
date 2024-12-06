@@ -2,9 +2,9 @@
   "apiVersion": "rbac.authorization.k8s.io/v1",
   "kind": "Role",
   "metadata": {
-    "name": "network-console-prometheus",
+    "name": "network-observer-prometheus",
     "labels": {
-      "app.kubernetes.io/part-of": "skupper-network-console"
+      "app.kubernetes.io/part-of": "skupper-network-observer"
     }
   },
   "rules": [

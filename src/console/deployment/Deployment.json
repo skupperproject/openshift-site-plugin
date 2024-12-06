@@ -3,33 +3,33 @@
   "kind": "Deployment",
   "metadata": {
     "labels": {
-      "app.kubernetes.io/part-of": "skupper-network-console",
-      "app.kubernetes.io/name": "network-console-collector"
+      "app.kubernetes.io/part-of": "skupper-network-observer",
+      "app.kubernetes.io/name": "network-observer"
     },
-    "name": "network-console-collector"
+    "name": "network-observer"
   },
   "spec": {
     "replicas": 1,
     "selector": {
       "matchLabels": {
-        "app.kubernetes.io/part-of": "skupper-network-console",
-        "app.kubernetes.io/name": "network-console-collector"
+        "app.kubernetes.io/part-of": "skupper-network-observer",
+        "app.kubernetes.io/name": "network-observer"
       }
     },
     "template": {
       "metadata": {
         "labels": {
-          "app.kubernetes.io/part-of": "skupper-network-console",
-          "app.kubernetes.io/name": "network-console-collector",
+          "app.kubernetes.io/part-of": "skupper-network-observer",
+          "app.kubernetes.io/name": "network-observer",
           "app.kubernetes.io/component": "server"
         }
       },
       "spec": {
         "containers": [
           {
-            "image": "quay.io/skupper/network-console-collector:v2-latest",
+            "image": "quay.io/skupper/network-observer:v2-latest",
             "imagePullPolicy": "Always",
-            "name": "network-console",
+            "name": "network-observer",
             "args": [
               "-listen=:8443",
               "-cors-allow-all",
@@ -50,7 +50,7 @@
             "volumeMounts": [
               {
                 "mountPath": "/etc/console/",
-                "name": "network-console-certs"
+                "name": "network-observer-certs"
               },
               {
                 "mountPath": "/etc/messaging/",
@@ -68,10 +68,10 @@
         ],
         "volumes": [
           {
-            "name": "network-console-certs",
+            "name": "network-observer-certs",
             "secret": {
               "defaultMode": 420,
-              "secretName": "network-console-certs"
+              "secretName": "network-observer-certs"
             }
           },
           {

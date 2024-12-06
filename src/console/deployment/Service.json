@@ -3,13 +3,13 @@
   "kind": "Service",
   "metadata": {
     "annotations": {
-      "service.beta.openshift.io/serving-cert-secret-name": "network-console-certs"
+      "service.beta.openshift.io/serving-cert-secret-name": "network-observer-certs"
     },
     "labels": {
-      "app.kubernetes.io/part-of": "skupper-network-console",
-      "app.kubernetes.io/name": "network-console-collector"
+      "app.kubernetes.io/part-of": "skupper-network-observer",
+      "app.kubernetes.io/name": "network-observer"
     },
-    "name": "network-console-collector"
+    "name": "network-observer"
   },
   "spec": {
     "ports": [
@@ -21,7 +21,7 @@
       }
     ],
     "selector": {
-      "app.kubernetes.io/name": "network-console-collector",
+      "app.kubernetes.io/name": "network-observer",
       "app.kubernetes.io/component": "server"
     },
     "type": "ClusterIP"

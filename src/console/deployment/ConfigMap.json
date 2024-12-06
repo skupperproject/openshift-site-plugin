@@ -4,7 +4,7 @@
   "metadata": {
     "name": "openshift-service-ca",
     "labels": {
-      "app.kubernetes.io/part-of": "askupper-network-console"
+      "app.kubernetes.io/part-of": "skupper-network-observer"
     },
     "annotations": {
       "service.beta.openshift.io/inject-cabundle": "true"
