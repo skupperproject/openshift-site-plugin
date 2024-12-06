@@ -22,7 +22,7 @@ const LinkForm: FC<{ onSubmit: () => void; onCancel: () => void; siteId: string 
           header={
             <WizardHeader
               title={t('Create link')}
-              description="Links enable communication between sites. Once sites are linked, they form a network."
+              description={t('Links enable communication between sites. Once sites are linked, they form a network.')}
               isCloseHidden={true}
             />
           }

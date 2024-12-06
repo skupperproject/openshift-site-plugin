@@ -81,7 +81,7 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
           name: name || metadata.name
         },
         spec: {
-          linkCost: cost,
+          linkCost: Number(cost),
           ca: status.ca,
           code: status.code,
           url: status.url

@@ -16,7 +16,7 @@ export interface ConnectorSpec {
   host?: string;
   selector?: string;
   tlsCredentials?: string;
-  includeNotReady: boolean;
+  includeNotReadyPods: boolean;
 }
 
 export interface ConnectorParams {
@@ -33,6 +33,6 @@ export interface ConnectorCrdResponse extends ConnectorCrdBase {
     conditions: CrdStatusCondition<StatusConnectorType>[];
     status: StatusConnectorType;
     message: string | 'Ok';
-    matchingListenerCount: number;
+    hasMatchingListener: boolean;
   };
 }

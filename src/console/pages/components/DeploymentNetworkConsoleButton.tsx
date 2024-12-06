@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
+import { K8sResourceCommon, useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
 import { Button, Flex } from '@patternfly/react-core';
 import { CubesIcon } from '@patternfly/react-icons';
 import { useMutation } from '@tanstack/react-query';
@@ -22,6 +22,24 @@ const groupVersionKindPod = {
   version: 'v1',
   kind: 'Pod'
 };
+
+interface RouteResource extends K8sResourceCommon {
+  spec?: {
+    host?: string;
+    port?: {
+      targetPort?: string;
+    };
+  };
+  status?: {
+    ingress?: unknown[];
+  };
+}
+
+interface PodResource extends K8sResourceCommon {
+  status?: {
+    phase?: string;
+  };
+}
 
 const ROUTE = 'network-console';
 const POD_SELECTOR = { 'app.kubernetes.io/name': 'network-console-collector' };
@@ -47,8 +65,8 @@ const DeploymentNetworkConsoleButton = function () {
     }
   };
 
-  const [data] = useK8sWatchResource(watchResource) as any;
-  const [deployment] = useK8sWatchResource(watchResourcePod) as any;
+  const [data] = useK8sWatchResource<RouteResource>(watchResource);
+  const [deployment] = useK8sWatchResource<PodResource>(watchResourcePod);
 
   const mutationCreate = useMutation({
     mutationFn: () => RESTApi.createDeployment()
@@ -70,11 +88,11 @@ const DeploymentNetworkConsoleButton = function () {
   };
 
   useEffect(() => {
-    if (data?.status) {
-      const newUrl = data?.spec?.host ? `${data?.spec?.port.targetPort}://${data?.spec?.host}` : undefined;
+    if (data?.spec?.host && data?.spec?.port?.targetPort) {
+      const newUrl = data?.spec?.host ? `${data?.spec?.port?.targetPort}://${data?.spec?.host}` : undefined;
       setUrl(newUrl);
     }
-  }, [data?.spec?.host, data?.spec?.port.targetPort, data?.status]);
+  }, [data?.spec?.host, data?.spec?.port?.targetPort]);
 
   const loaded = deployment?.status?.phase === POD_LOADED_STATUS && url;
 
@@ -84,7 +102,7 @@ const DeploymentNetworkConsoleButton = function () {
         <Button
           isDisabled={!!url && !!deployment?.status && !(deployment?.status?.phase === POD_LOADED_STATUS)}
           onClick={handleDeployConsole}
-          isLoading={url && deployment?.status && !(deployment?.status?.phase === POD_LOADED_STATUS)}
+          isLoading={!!url && !!deployment?.status && !(deployment?.status?.phase === POD_LOADED_STATUS)}
           icon={<CubesIcon />}
         >
           {t('Deploy the Network Console')}

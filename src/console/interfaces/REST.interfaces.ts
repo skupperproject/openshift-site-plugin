@@ -56,8 +56,8 @@ export interface SiteView extends BaseView {
 export interface AccessGrant extends BaseView {
   id: string;
   redemptionsAllowed?: number;
-  redeemed?: number;
-  expirationWindow?: string;
+  redemptions?: number;
+  expirationTime?: string;
   status?: StatusAccessGrantType;
   statusMessage: string;
   rawData: AccessGrantCrdResponse;
@@ -77,7 +77,7 @@ export interface Listener extends BaseView {
   routingKey: string;
   serviceName?: string;
   port: number;
-  connected: number;
+  connected: boolean;
   resourceVersion: string;
   status?: StatusListenerType;
   statusMessage: string;
@@ -90,7 +90,7 @@ export interface Connector extends BaseView {
   host?: string;
   port: number;
   routingKey: string;
-  connected: number;
+  connected: boolean;
   resourceVersion: string;
   status?: StatusConnectorType;
   statusMessage: string;

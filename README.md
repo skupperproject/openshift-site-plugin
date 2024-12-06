@@ -33,7 +33,7 @@ To install the dynamic plugin, follow these steps:
 - **Authenticate with your cluster:**, then run the following command in the directory containing your `manifest.json` file.
 
   ```shell
-  kubectl apply -f manifest.json
+  kubectl apply -f manifest.yaml
   ```
 
 - **Enable the plugin**:
