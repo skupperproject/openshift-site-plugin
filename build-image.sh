@@ -4,7 +4,7 @@ set -euo pipefail
 
 PREFER_PODMAN="${PREFER_PODMAN:-0}"
 PUSH="${PUSH:-0}"
-TAG="${TAG:-0.0.1}"
+TAG="${TAG:-0.0.2}"
 REGISTRY_ORG="${REGISTRY_ORG:-vbartoli}"
 
 if [[ -x "$(command -v podman)" && $PREFER_PODMAN == 1 ]]; then
