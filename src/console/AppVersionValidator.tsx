@@ -1,10 +1,9 @@
 import { ReactNode } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
-
 import { RESTApi } from '@API/REST.api';
 import { QueryKeys } from '@config/reactQuery';
 import ErrorOldSkupperVersionPage from '@pages/ErrorOldSkupperVersionPage';
+import { useQuery } from '@tanstack/react-query';
 
 const AppVersionValidator = function ({ children }: { children: ReactNode }) {
   const { data: isOldVersionSkupper } = useQuery({

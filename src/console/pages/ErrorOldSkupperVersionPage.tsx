@@ -1,3 +1,4 @@
+import { I18nNamespace } from '@config/config';
 import {
   Bullseye,
   EmptyState,
@@ -9,8 +10,6 @@ import {
 } from '@patternfly/react-core';
 import { LockIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
-
-import { I18nNamespace } from '@config/config';
 
 const ErrorOldSkupperVersionPage = function () {
   const { t } = useTranslation(I18nNamespace);

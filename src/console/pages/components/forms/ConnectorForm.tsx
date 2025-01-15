@@ -1,5 +1,13 @@
+import useValidatedInput from 'console/hooks/useValidation';
+
 import { useState, FC, KeyboardEvent } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { I18nNamespace } from '@config/config';
+import { TooltipInfoButton } from '@core/components/HelpTooltip';
+import { createConnectorRequest } from '@core/utils/createCRD';
+import { ConnectorCrdParams, ConnectorParams, ConnectorSpec } from '@interfaces/CRD_Connector';
+import { HTTPError } from '@interfaces/REST.interfaces';
 import {
   Form,
   FormGroup,
@@ -16,14 +24,6 @@ import {
 } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
-import { TooltipInfoButton } from '@core/components/HelpTooltip';
-import { createConnectorRequest } from '@core/utils/createCRD';
-import { ConnectorCrdParams, ConnectorParams, ConnectorSpec } from '@interfaces/CRD_Connector';
-import { HTTPError } from '@interfaces/REST.interfaces';
-import useValidatedInput from 'console/hooks/useValidation';
 
 interface ConnectorCrdAttributes extends ConnectorSpec {
   name?: string;

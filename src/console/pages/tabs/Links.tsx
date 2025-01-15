@@ -1,5 +1,14 @@
 import { FC, useCallback, useState } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { I18nNamespace } from '@config/config';
+import FormatOCPDateCell from '@core/components/FormatOCPDate';
+import SkTable from '@core/components/SkTable';
+import StatusCell from '@core/components/StatusCell';
+import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
+import { ISO8601Timestamp } from '@interfaces/CRD_Base';
+import { AccessGrant, Link } from '@interfaces/REST.interfaces';
+import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 import {
   Title,
   Button,
@@ -20,19 +29,10 @@ import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
-import FormatOCPDateCell from '@core/components/FormatOCPDate';
-import SkTable from '@core/components/SkTable';
-import StatusCell from '@core/components/StatusCell';
-import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
 import {} from '@interfaces/CRD_AccessToken';
-import { ISO8601Timestamp } from '@interfaces/CRD_Base';
-import { AccessGrant, Link } from '@interfaces/REST.interfaces';
-import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
-import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import LoadingPage from '../../core/components/Loading';
+import { useWatchedSkupperResource } from '../../hooks/useSkupperWatchResource';
 import GrantForm from '../components/forms/GrantForm';
 import LinkForm from '../components/forms/LinkForm';
 

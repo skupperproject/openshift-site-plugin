@@ -1,11 +1,10 @@
 import * as path from 'path';
 
 import { ConsoleRemotePlugin } from '@openshift-console/dynamic-plugin-sdk-webpack';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import TsConfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import * as webpack from 'webpack';
 import type { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
-
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const config: webpack.Configuration & {
   devServer?: WebpackDevServerConfiguration;
@@ -19,7 +18,7 @@ const config: webpack.Configuration & {
     chunkFilename: '[name]-chunk.js'
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    extensions: ['.ts', '.tsx', '.js'],
     plugins: [new TsConfigPathsPlugin({ configFile: path.join(__dirname, 'tsconfig.json') })]
   },
   module: {

@@ -1,5 +1,6 @@
 import { KeyboardEvent, MouseEvent as ReactMouseEvent, useCallback, useState, useMemo } from 'react';
 
+import { getValueFromNestedProperty } from '@core/utils/getValueFromNestedProperty';
 import { Card, CardBody, CardHeader, Flex, Text, TextContent, Title } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
 import {
@@ -14,8 +15,6 @@ import {
   ThProps,
   Tr
 } from '@patternfly/react-table';
-
-import { getValueFromNestedProperty } from '@core/utils/getValueFromNestedProperty';
 
 import SkPagination from './SkPagination';
 import { NonNullableValue, SKTableProps } from '../../../interfaces/SkTable.interfaces';

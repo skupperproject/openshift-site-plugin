@@ -1,5 +1,7 @@
 import { useState, FC, FormEvent } from 'react';
 
+import { I18nNamespace } from '@config/config';
+import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import {
   Form,
   FormGroup,
@@ -13,9 +15,6 @@ import {
   InputGroupItem
 } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
-
-import { I18nNamespace } from '@config/config';
-import { TooltipInfoButton } from '@core/components/HelpTooltip';
 
 const DEFAULT_EXPIRATION = 15;
 const DEFAULT_CLAIMS = 1;

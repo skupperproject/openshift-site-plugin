@@ -1,8 +1,8 @@
-import { Alert } from '@patternfly/react-core';
-import { useTranslation } from 'react-i18next';
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import { I18nNamespace } from '@config/config';
-import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
+import { Alert } from '@patternfly/react-core';
+import { useTranslation } from 'react-i18next';
 
 const AlertStatus = function () {
   const { t } = useTranslation(I18nNamespace);

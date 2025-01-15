@@ -5,7 +5,7 @@ RUN command -v yarn || npm i -g yarn
 
 ADD . /usr/src/app/skupper_console
 WORKDIR /usr/src/app/skupper_console
-RUN yarn install --network-timeout 7200000 && yarn build
+RUN yarn install && yarn build
 
 FROM registry.access.redhat.com/ubi9/nginx-122:1-45
 

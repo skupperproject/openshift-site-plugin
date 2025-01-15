@@ -1,9 +1,8 @@
 import { useCallback, FormEvent } from 'react';
 
+import { I18nNamespace } from '@config/config';
 import { Form, FormGroup, TextInput, FileUpload, DropEvent } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
-
-import { I18nNamespace } from '@config/config';
 
 import { useLinkForm } from './hooks/useLinkForm';
 

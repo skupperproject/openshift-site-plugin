@@ -1,5 +1,3 @@
-import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
-
 import {
   convertAccessGrantCRToAccessGrant,
   convertAccessTokenCRToLink,
@@ -17,6 +15,7 @@ import { LinkCrdResponse } from '@interfaces/CRD_Link';
 import { ListenerCrdResponse } from '@interfaces/CRD_Listener';
 import { SiteCrdResponse } from '@interfaces/CRD_Site';
 import { AccessGrant, Connector, Listener, SiteView, Link } from '@interfaces/REST.interfaces';
+import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
 
 // Define Kinds
 type Kinds = 'Site' | 'AccessGrant' | 'AccessToken' | 'Link' | 'Listener' | 'Connector';

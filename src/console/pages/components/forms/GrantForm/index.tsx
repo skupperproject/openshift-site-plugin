@@ -1,5 +1,12 @@
+import useValidatedInput from 'console/hooks/useValidation';
+
 import { useState, FC, useCallback, useMemo, useRef, useEffect, memo } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { I18nNamespace } from '@config/config';
+import { createAccessGrantRequest } from '@core/utils/createCRD';
+import { AccessGrantCrdParams, AccessGrantParams } from '@interfaces/CRD_AccessGrant';
+import { HTTPError } from '@interfaces/REST.interfaces';
 import {
   Button,
   Alert,
@@ -12,13 +19,6 @@ import {
 } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
-import { createAccessGrantRequest } from '@core/utils/createCRD';
-import { AccessGrantCrdParams, AccessGrantParams } from '@interfaces/CRD_AccessGrant';
-import { HTTPError } from '@interfaces/REST.interfaces';
-import useValidatedInput from 'console/hooks/useValidation';
 
 import { DownloadGrant } from './DownloadGrant';
 import { FormPage } from './FormPage';

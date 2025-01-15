@@ -1,5 +1,8 @@
 import { FC, ReactElement, useCallback, useMemo, useState } from 'react';
 
+import { I18nNamespace } from '@config/config';
+import ExternalLink from '@core/components/ExternalLink';
+import DeploymentNetworkConsoleButton from '@pages/components/DeploymentNetworkConsoleButton';
 import {
   Button,
   ButtonVariant,
@@ -18,10 +21,6 @@ import {
   TextContent
 } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
-
-import { I18nNamespace } from '@config/config';
-import ExternalLink from '@core/components/ExternalLink';
-import DeploymentNetworkConsoleButton from '@pages/components/DeploymentNetworkConsoleButton';
 
 import ConnectorForm from '../components/forms/ConnectorForm';
 import GrantForm from '../components/forms/GrantForm';

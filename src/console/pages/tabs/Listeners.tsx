@@ -1,5 +1,14 @@
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
+
 import { useCallback, useMemo, useState } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { I18nNamespace } from '@config/config';
+import SkTable from '@core/components/SkTable';
+import StatusCell from '@core/components/StatusCell';
+import { Listener } from '@interfaces/REST.interfaces';
+import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
+import { ImportListenersForm } from '@pages/components/ImportListenersForm';
 import {
   Button,
   Modal,
@@ -21,15 +30,6 @@ import {
 } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
-import SkTable from '@core/components/SkTable';
-import StatusCell from '@core/components/StatusCell';
-import { Listener } from '@interfaces/REST.interfaces';
-import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
-import { ImportListenersForm } from '@pages/components/ImportListenersForm';
-import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import ListenerDetails from './ListenerDetails';
 import LoadingPage from '../../core/components/Loading';

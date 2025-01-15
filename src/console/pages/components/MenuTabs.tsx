@@ -1,10 +1,10 @@
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
+
 import { FC, KeyboardEvent, MouseEvent, useEffect } from 'react';
 
+import { I18nNamespace } from '@config/config';
 import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
-
-import { I18nNamespace } from '@config/config';
-import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 const MenuTabsMapKey = {
   getStarted: 0,
