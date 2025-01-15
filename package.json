@@ -14,8 +14,7 @@
     "format": "prettier --write 'src/**/*.{ts,tsx,json,css}'",
     "lint:fix": "eslint --ext js,ts,tsx --fix src",
     "lint": "eslint src --ext .ts,.tsx --cache",
-    "build-and-push-image": "PUSH=1 ./build-image.sh",
-    "find-deadcode": "ts-prune"
+    "build-and-push-image": "PUSH=1 ./build-image.sh"
   },
   "dependencies": {
     "@patternfly/patternfly": "^5.4.2",
@@ -26,9 +25,7 @@
     "@tanstack/react-query": "4.36.1",
     "axios": "^1.7.9",
     "i18next": "^23.16.8",
-    "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-error-boundary": "^5.0.0",
     "react-i18next": "^11.18.6",
     "yaml": "^2.7.0"
   },

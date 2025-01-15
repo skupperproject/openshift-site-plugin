@@ -32,6 +32,7 @@ import { ImportListenersForm } from '@pages/components/ImportListenersForm';
 import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import ListenerDetails from './ListenerDetails';
+import LoadingPage from '../../core/components/Loading';
 import ListenerForm from '../components/forms/ListenerForm';
 
 const Listeners = function () {
@@ -42,7 +43,7 @@ const Listeners = function () {
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showListenerAlert') || 'show');
   const [nameSelected, setNameSelected] = useState<string | undefined>();
 
-  const { data: listeners } = useWatchedSkupperResource({ kind: 'Listener' });
+  const { data: listeners, loaded } = useWatchedSkupperResource({ kind: 'Listener' });
 
   const mutationDelete = useMutation({
     mutationFn: (name: string) => RESTApi.deleteListener(name),
@@ -143,6 +144,10 @@ const Listeners = function () {
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
+
+  if (!loaded) {
+    return <LoadingPage />;
+  }
 
   return (
     <Card isPlain isFullHeight>

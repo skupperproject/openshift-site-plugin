@@ -32,6 +32,7 @@ import { ImportConnectorsForm } from '@pages/components/ImportConnectorsForm';
 import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import ConnectorDetails from './ConnectorDetails';
+import LoadingPage from '../../core/components/Loading';
 import ConnectorForm from '../components/forms/ConnectorForm';
 
 const Connectors = function () {
@@ -42,7 +43,7 @@ const Connectors = function () {
   const [nameSelected, setNameSelected] = useState<string | undefined>();
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showConnectorAlert') || 'show');
 
-  const { data: connectors } = useWatchedSkupperResource({ kind: 'Connector' });
+  const { data: connectors, loaded } = useWatchedSkupperResource({ kind: 'Connector' });
 
   const mutationDelete = useMutation({
     mutationFn: (name: string) => RESTApi.deleteConnector(name),
@@ -147,6 +148,10 @@ const Connectors = function () {
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
+
+  if (!loaded) {
+    return <LoadingPage />;
+  }
 
   return (
     <Card isPlain isFullHeight>

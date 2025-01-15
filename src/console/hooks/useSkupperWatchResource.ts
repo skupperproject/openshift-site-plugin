@@ -90,6 +90,7 @@ export const useWatchedSkupperResource = <T extends Kinds>({
   if (!loaded || !data) {
     return { data: null, loaded, error };
   }
+
   if (!isList && !data.kind?.endsWith('List')) {
     return { data: [conversionMap[kind](data)], loaded, error };
   }

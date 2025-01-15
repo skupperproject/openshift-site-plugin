@@ -32,6 +32,7 @@ import { AccessGrant, Link } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
+import LoadingPage from '../../core/components/Loading';
 import GrantForm from '../components/forms/GrantForm';
 import LinkForm from '../components/forms/LinkForm';
 
@@ -42,11 +43,11 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
   const [isTokenModalOpen, setIsTokenModalOpen] = useState<boolean | undefined>();
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showALinkAlert') || 'show');
 
-  const { data: accessGrants } = useWatchedSkupperResource({ kind: 'AccessGrant' });
-  const { data: accessTokens } = useWatchedSkupperResource({ kind: 'AccessToken' });
-  const { data: links } = useWatchedSkupperResource({ kind: 'Link' });
+  const { data: accessGrants, loaded: grantLoaded } = useWatchedSkupperResource({ kind: 'AccessGrant' });
+  const { data: accessTokens, loaded: tokenLoaded } = useWatchedSkupperResource({ kind: 'AccessToken' });
+  const { data: links, loaded: linkLoaded } = useWatchedSkupperResource({ kind: 'Link' });
+  const { data: sites, loaded: siteLoaded } = useWatchedSkupperResource({ kind: 'Site' });
 
-  const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });
   const remoteLinks =
     sites?.[0].remoteLinks?.map((name) => ({
       connectedTo: name
@@ -224,6 +225,10 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
       </>
     )
   };
+
+  if (!grantLoaded || !tokenLoaded || !linkLoaded || !siteLoaded) {
+    return <LoadingPage />;
+  }
 
   return (
     <Stack hasGutter>
