@@ -1,9 +1,12 @@
-export const createNamespaceManager = (initialNamespace: string) => {
-  const namespace = initialNamespace;
+export const createNamespaceManager = () => {
+  let namespace = '';
 
   return {
+    setNamespace: (initialNamespace: string) => {
+      namespace = initialNamespace;
+    },
     getNamespace: () => namespace
   };
 };
 
-export const NamespaceManager = createNamespaceManager('');
+export const NamespaceManager = createNamespaceManager();
