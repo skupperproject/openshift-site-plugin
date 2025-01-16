@@ -1,5 +1,10 @@
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
+
 import { FC, KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 
+import { I18nNamespace } from '@config/config';
+import FormatOCPDateCell from '@core/components/FormatOCPDate';
+import { ListenerCrdResponse } from '@interfaces/CRD_Listener';
 import {
   Button,
   Card,
@@ -23,11 +28,6 @@ import {
 } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
-
-import { I18nNamespace } from '@config/config';
-import FormatOCPDateCell from '@core/components/FormatOCPDate';
-import { ListenerCrdResponse } from '@interfaces/CRD_Listener';
-import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import ListenerForm from '../components/forms/ListenerForm';
 

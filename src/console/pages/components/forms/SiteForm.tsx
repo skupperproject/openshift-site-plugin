@@ -1,5 +1,15 @@
+import useValidatedInput from 'console/hooks/useValidation';
+
 import { useState, FC, useCallback, KeyboardEvent } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { DEFAULT_ISSUER, DEFAULT_SERVICE_ACCOUNT, I18nNamespace } from '@config/config';
+import { NamespaceManager } from '@config/db';
+import { TooltipInfoButton } from '@core/components/HelpTooltip';
+import LoadingPage from '@core/components/Loading';
+import { createSiteData } from '@core/utils/createCRD';
+import { SiteCrdParams } from '@interfaces/CRD_Site';
+import { HTTPError } from '@interfaces/REST.interfaces';
 import {
   Form,
   FormGroup,
@@ -22,16 +32,6 @@ import {
 } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-
-import { RESTApi } from '@API/REST.api';
-import { DEFAULT_ISSUER, DEFAULT_SERVICE_ACCOUNT, I18nNamespace } from '@config/config';
-import { getSkupperNamespace } from '@config/db';
-import { TooltipInfoButton } from '@core/components/HelpTooltip';
-import LoadingPage from '@core/components/Loading';
-import { createSiteData } from '@core/utils/createCRD';
-import { SiteCrdParams } from '@interfaces/CRD_Site';
-import { HTTPError } from '@interfaces/REST.interfaces';
-import useValidatedInput from 'console/hooks/useValidation';
 
 const options = [
   { value: 'route', label: 'route', disabled: false },
@@ -63,7 +63,11 @@ const SiteForm: FC<SiteFormProps> = function ({
   const [step, setNextStep] = useState(0);
 
   const handleReady = () => {
-    siteName ? onCancel?.() : setNextStep(1);
+    if (siteName) {
+      onCancel?.();
+    } else {
+      setNextStep(1);
+    }
   };
 
   const steps = [
@@ -120,7 +124,7 @@ const FormPage: FC<FormPageProps> = function ({
     onSuccess: onSubmit
   });
 
-  const [name, setName] = useState(siteName || getSkupperNamespace());
+  const [name, setName] = useState(siteName || NamespaceManager.getNamespace());
   const [linkAccess, setLinkAccess] = useState(initLinkAccess || options[0].value);
   const [isLinkAccessExist, setToggleLinkAccess] = useState(!!initLinkAccess || (!siteName && true));
   const [serviceAccount, setServiceAccount] = useState(initServiceAccount || '');

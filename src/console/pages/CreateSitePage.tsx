@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { I18nNamespace } from '@config/config';
 import {
   Bullseye,
   Button,
@@ -15,8 +16,6 @@ import {
 } from '@patternfly/react-core';
 import { CubesIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
-
-import { I18nNamespace } from '@config/config';
 
 import SiteForm from './components/forms/SiteForm';
 

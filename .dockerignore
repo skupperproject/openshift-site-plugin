@@ -2,12 +2,13 @@
 .DS_Store
 dist
 node_modules
-src/local
+.eslintcache
+
 # package managers
 npm-debug.log*
 yarn-error.log*
 package-lock.json
-.eslintcache
+
 # IDEs and editors
 .idea
 .project
@@ -18,3 +19,4 @@ package-lock.json
 *.sublime-workspace
 .history
 .vscode
+

@@ -1,11 +1,13 @@
 import * as path from 'path';
 
 import { ConsoleRemotePlugin } from '@openshift-console/dynamic-plugin-sdk-webpack';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import TsConfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import * as webpack from 'webpack';
 import type { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
 
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+import extensions from './console-extensions';
+import pluginMetadata from './plugin-metadata';
 
 const config: webpack.Configuration & {
   devServer?: WebpackDevServerConfiguration;
@@ -19,7 +21,7 @@ const config: webpack.Configuration & {
     chunkFilename: '[name]-chunk.js'
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    extensions: ['.ts', '.tsx', '.js'],
     plugins: [new TsConfigPathsPlugin({ configFile: path.join(__dirname, 'tsconfig.json') })]
   },
   module: {
@@ -50,7 +52,7 @@ const config: webpack.Configuration & {
     ]
   },
   plugins: [
-    new ConsoleRemotePlugin(),
+    new ConsoleRemotePlugin({ pluginMetadata, extensions }),
     new CopyWebpackPlugin({
       patterns: [{ from: path.resolve(__dirname, 'locales'), to: 'locales' }]
     })
@@ -82,6 +84,7 @@ if (process.env.NODE_ENV !== 'production') {
     config.output.filename = '[name]-bundle-[hash].min.js';
     config.output.chunkFilename = '[name]-chunk-[chunkhash].min.js';
   }
+
   if (config.optimization) {
     config.optimization.chunkIds = 'deterministic';
     config.optimization.minimize = true;

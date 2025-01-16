@@ -1,37 +1,35 @@
 {
   "extends": "./tsconfig.paths.json",
   "compilerOptions": {
-    "baseUrl": "src",
-    "target": "ES2022",
-    "lib": ["dom", "es2022"],
-    "module": "es2022",
-    "moduleResolution": "node",
-    "jsx": "react-jsx",
-    "typeRoots": ["node_modules/@types"],
-    "sourceMap": true,
     "allowJs": true,
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "noEmit": false,
-    "skipLibCheck": true,
+    "baseUrl": "src",
     "downlevelIteration": true,
-    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "noEmit": false,
     "noImplicitReturns": true,
-    "strictFunctionTypes": true,
-    "noUnusedParameters": false,
     "noUnusedLocals": false,
-    "strictPropertyInitialization": true
+    "noUnusedParameters": false,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "target": "ESNext",
+    "typeRoots": ["node_modules/@types"]
   },
-  "include": ["src", "./webpack.config.ts"],
+  "include": ["src"],
+  "exclude": ["node_modules"],
+
   "ts-node": {
     "files": true,
-    "transpileOnly": true,
-    "compilerOptions": {
-      "module": "commonjs"
-    }
+    "transpileOnly": true
   }
 }
-

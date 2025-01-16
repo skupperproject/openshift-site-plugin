@@ -1,5 +1,19 @@
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
+
 import { FC, useCallback, useState } from 'react';
 
+import {
+  DEFAULT_ISSUER,
+  DEFAULT_SERVICE_ACCOUNT,
+  EMPTY_LINK_ACCESS,
+  EMPTY_VALUE_SYMBOL,
+  I18nNamespace
+} from '@config/config';
+import FormatOCPDateCell from '@core/components/FormatOCPDate';
+import { TooltipInfoButton } from '@core/components/HelpTooltip';
+import SkTable from '@core/components/SkTable';
+import { CrdStatusCondition, StatusSiteType } from '@interfaces/CRD_Base';
+import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 import { YellowExclamationTriangleIcon } from '@openshift-console/dynamic-plugin-sdk';
 import {
   DescriptionList,
@@ -20,20 +34,6 @@ import {
 } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon, PenIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
-
-import {
-  DEFAULT_ISSUER,
-  DEFAULT_SERVICE_ACCOUNT,
-  EMPTY_LINK_ACCESS,
-  EMPTY_VALUE_SYMBOL,
-  I18nNamespace
-} from '@config/config';
-import FormatOCPDateCell from '@core/components/FormatOCPDate';
-import { TooltipInfoButton } from '@core/components/HelpTooltip';
-import SkTable from '@core/components/SkTable';
-import { CrdStatusCondition, StatusSiteType } from '@interfaces/CRD_Base';
-import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
-import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 import DeleteSiteButton from '../components/DeleteSiteButton';
 import SiteForm from '../components/forms/SiteForm';

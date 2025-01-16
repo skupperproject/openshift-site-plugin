@@ -1,9 +1,8 @@
 import { ComponentType, FC } from 'react';
 
+import { I18nNamespace } from '@config/config';
 import { Bullseye, EmptyState, EmptyStateBody, EmptyStateIcon, EmptyStateVariant, Title } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
-
-import { I18nNamespace } from '@config/config';
 
 interface EmptyDataProps {
   message?: string;

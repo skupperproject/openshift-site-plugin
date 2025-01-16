@@ -1,8 +1,8 @@
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
+
 import { CodeEditor } from '@openshift-console/dynamic-plugin-sdk';
 import { Card, CardBody } from '@patternfly/react-core';
 import { stringify } from 'yaml';
-
-import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
 
 const YAML = function () {
   const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });

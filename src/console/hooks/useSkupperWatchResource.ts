@@ -1,5 +1,3 @@
-import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
-
 import {
   convertAccessGrantCRToAccessGrant,
   convertAccessTokenCRToLink,
@@ -9,7 +7,7 @@ import {
   convertSiteCRToSite
 } from '@API/REST.utils';
 import { API_VERSION, GROUP } from '@config/config';
-import { getSkupperNamespace } from '@config/db';
+import { NamespaceManager } from '@config/db';
 import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
 import { AccessTokenCrdResponse } from '@interfaces/CRD_AccessToken';
 import { ConnectorCrdResponse } from '@interfaces/CRD_Connector';
@@ -17,6 +15,7 @@ import { LinkCrdResponse } from '@interfaces/CRD_Link';
 import { ListenerCrdResponse } from '@interfaces/CRD_Listener';
 import { SiteCrdResponse } from '@interfaces/CRD_Site';
 import { AccessGrant, Connector, Listener, SiteView, Link } from '@interfaces/REST.interfaces';
+import { useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
 
 // Define Kinds
 type Kinds = 'Site' | 'AccessGrant' | 'AccessToken' | 'Link' | 'Listener' | 'Connector';
@@ -72,7 +71,7 @@ export const useWatchedSkupperResource = <T extends Kinds>({
 
   const watchResource = {
     groupVersionKind,
-    namespace: getSkupperNamespace(),
+    namespace: NamespaceManager.getNamespace(),
     name,
     isList
   };
@@ -90,6 +89,7 @@ export const useWatchedSkupperResource = <T extends Kinds>({
   if (!loaded || !data) {
     return { data: null, loaded, error };
   }
+
   if (!isList && !data.kind?.endsWith('List')) {
     return { data: [conversionMap[kind](data)], loaded, error };
   }

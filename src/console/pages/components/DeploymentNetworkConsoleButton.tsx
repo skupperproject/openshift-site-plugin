@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { I18nNamespace } from '@config/config';
+import { NamespaceManager } from '@config/db';
+import ExternalLink from '@core/components/ExternalLink';
 import { K8sResourceCommon, useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
 import { Button, Flex } from '@patternfly/react-core';
 import { CubesIcon } from '@patternfly/react-icons';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
-import { getSkupperNamespace } from '@config/db';
-import ExternalLink from '@core/components/ExternalLink';
 
 const groupVersionKind = {
   group: 'route.openshift.io',
@@ -51,14 +50,14 @@ const DeploymentNetworkConsoleButton = function () {
 
   const watchResource = {
     groupVersionKind,
-    namespace: getSkupperNamespace(),
+    namespace: NamespaceManager.getNamespace(),
     isList: false,
     name: ROUTE
   };
 
   const watchResourcePod = {
     groupVersionKind: groupVersionKindPod,
-    namespace: getSkupperNamespace(),
+    namespace: NamespaceManager.getNamespace(),
     isList: false,
     selector: {
       matchLabels: POD_SELECTOR

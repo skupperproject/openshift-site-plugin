@@ -1,5 +1,12 @@
 import { FC, useCallback, useMemo, useState } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { I18nNamespace } from '@config/config';
+import SkTable from '@core/components/SkTable';
+import { createConnectorRequest } from '@core/utils/createCRD';
+import { ConnectorCrdParams, ConnectorParams, ConnectorSpec } from '@interfaces/CRD_Connector';
+import { Connector } from '@interfaces/REST.interfaces';
+import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 import {
   FileUpload,
   DropEvent,
@@ -18,14 +25,6 @@ import { CheckCircleIcon, ExclamationCircleIcon, ImportIcon } from '@patternfly/
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { parse } from 'yaml';
-
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
-import SkTable from '@core/components/SkTable';
-import { createConnectorRequest } from '@core/utils/createCRD';
-import { ConnectorCrdParams, ConnectorParams, ConnectorSpec } from '@interfaces/CRD_Connector';
-import { Connector } from '@interfaces/REST.interfaces';
-import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
 
 interface ConnectorCrdAttributes extends ConnectorSpec {
   name: string;

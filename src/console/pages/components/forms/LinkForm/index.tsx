@@ -1,9 +1,8 @@
 import { FC, memo } from 'react';
 
+import { I18nNamespace } from '@config/config';
 import { Wizard, WizardHeader, WizardStep } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
-
-import { I18nNamespace } from '@config/config';
 
 import { FormProvider } from './context/LinkFormProvider';
 import { Footer } from './Footer';

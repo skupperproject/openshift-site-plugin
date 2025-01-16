@@ -1,4 +1,9 @@
-let skupperNamespace = 'skupper-site-test';
+export const createNamespaceManager = (initialNamespace: string) => {
+  const namespace = initialNamespace;
 
-export const setSkupperNamespace = (namespace: string) => (skupperNamespace = namespace);
-export const getSkupperNamespace = () => skupperNamespace;
+  return {
+    getNamespace: () => namespace
+  };
+};
+
+export const NamespaceManager = createNamespaceManager('');

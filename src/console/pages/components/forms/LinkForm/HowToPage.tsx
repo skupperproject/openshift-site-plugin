@@ -1,12 +1,11 @@
-import { StackItem, Stack } from '@patternfly/react-core';
-import { useTranslation } from 'react-i18next';
-
 import step1 from '@assets/step1.png';
 import step2 from '@assets/step2.png';
 import step3 from '@assets/step3.png';
 import step4 from '@assets/step4.png';
 import { I18nNamespace } from '@config/config';
 import InstructionBlock from '@core/components/InstructionBlock';
+import { StackItem, Stack } from '@patternfly/react-core';
+import { useTranslation } from 'react-i18next';
 
 export const HowToPage = function () {
   const { t } = useTranslation(I18nNamespace);

@@ -1,10 +1,9 @@
 import { FC, ReactNode, Suspense, useState } from 'react';
 
-import { PageSection, PageSectionVariants, PageNavigation, Bullseye, Spinner } from '@patternfly/react-core';
-
 import Connectors from '@pages/tabs/Connectors';
 import Listeners from '@pages/tabs/Listeners';
 import YAML from '@pages/tabs/YAML';
+import { PageSection, PageSectionVariants, PageNavigation, Bullseye, Spinner } from '@patternfly/react-core';
 
 import AlertStatus from './components/AlertStatus';
 import { TabNavigation } from './components/MenuTabs';

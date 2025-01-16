@@ -1,5 +1,14 @@
+import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
+
 import { useCallback, useMemo, useState } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { I18nNamespace } from '@config/config';
+import SkTable from '@core/components/SkTable';
+import StatusCell from '@core/components/StatusCell';
+import { Connector } from '@interfaces/REST.interfaces';
+import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
+import { ImportConnectorsForm } from '@pages/components/ImportConnectorsForm';
 import {
   Button,
   Modal,
@@ -22,16 +31,8 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
-import SkTable from '@core/components/SkTable';
-import StatusCell from '@core/components/StatusCell';
-import { Connector } from '@interfaces/REST.interfaces';
-import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
-import { ImportConnectorsForm } from '@pages/components/ImportConnectorsForm';
-import { useWatchedSkupperResource } from 'console/hooks/useSkupperWatchResource';
-
 import ConnectorDetails from './ConnectorDetails';
+import LoadingPage from '../../core/components/Loading';
 import ConnectorForm from '../components/forms/ConnectorForm';
 
 const Connectors = function () {
@@ -42,7 +43,7 @@ const Connectors = function () {
   const [nameSelected, setNameSelected] = useState<string | undefined>();
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showConnectorAlert') || 'show');
 
-  const { data: connectors } = useWatchedSkupperResource({ kind: 'Connector' });
+  const { data: connectors, loaded } = useWatchedSkupperResource({ kind: 'Connector' });
 
   const mutationDelete = useMutation({
     mutationFn: (name: string) => RESTApi.deleteConnector(name),
@@ -147,6 +148,10 @@ const Connectors = function () {
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
+
+  if (!loaded) {
+    return <LoadingPage />;
+  }
 
   return (
     <Card isPlain isFullHeight>

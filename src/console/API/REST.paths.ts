@@ -1,5 +1,5 @@
 import { API_VERSION, GROUP } from '@config/config';
-import { getSkupperNamespace } from '@config/db';
+import { NamespaceManager } from '@config/db';
 
 const K8S_PREFIX_PATH = `/api/kubernetes/`;
 const BASE_PATHS = {
@@ -12,7 +12,7 @@ const BASE_PATHS = {
 
 // Helper to build namespace paths
 const buildPath = (basePath: string, resource: string, name?: string) => {
-  const namespacePath = `${basePath}/${getSkupperNamespace()}/${resource}`;
+  const namespacePath = `${basePath}/${NamespaceManager.getNamespace()}/${resource}`;
 
   return name ? `${namespacePath}/${name}` : namespacePath;
 };

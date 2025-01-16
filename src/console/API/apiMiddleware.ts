@@ -1,6 +1,5 @@
-import axios, { AxiosError } from 'axios';
-
 import { MSG_TIMEOUT_ERROR } from '@config/config';
+import axios, { AxiosError } from 'axios';
 
 import { FetchWithOptions, HTTPError } from '../interfaces/REST.interfaces';
 

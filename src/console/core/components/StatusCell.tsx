@@ -1,9 +1,8 @@
+import { I18nNamespace } from '@config/config';
+import { BaseView } from '@interfaces/REST.interfaces';
 import { Icon } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
-
-import { I18nNamespace } from '@config/config';
-import { BaseView } from '@interfaces/REST.interfaces';
 
 interface StatusCellProps {
   data: BaseView;

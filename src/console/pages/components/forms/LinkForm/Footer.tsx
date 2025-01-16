@@ -1,5 +1,10 @@
 import { FC, useCallback, useEffect } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { createAccessTokenRequest } from '@core/utils/createCRD';
+import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
+import { AccessTokenCrdParams } from '@interfaces/CRD_AccessToken';
+import { HTTPError } from '@interfaces/REST.interfaces';
 import {
   Button,
   WizardFooterWrapper,
@@ -11,12 +16,6 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { parse } from 'yaml';
-
-import { RESTApi } from '@API/REST.api';
-import { createAccessTokenRequest } from '@core/utils/createCRD';
-import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
-import { AccessTokenCrdParams } from '@interfaces/CRD_AccessToken';
-import { HTTPError } from '@interfaces/REST.interfaces';
 
 import { useLinkForm } from './hooks/useLinkForm';
 import { I18nNamespace } from '../../../../config/config';

@@ -1,12 +1,11 @@
 import { FC, useState } from 'react';
 
+import { RESTApi } from '@API/REST.api';
+import { I18nNamespace } from '@config/config';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { Button, ButtonVariant, Checkbox } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-
-import { RESTApi } from '@API/REST.api';
-import { I18nNamespace } from '@config/config';
 
 const DeleteSiteButton: FC<{ id: string }> = function ({ id }) {
   const { t } = useTranslation(I18nNamespace);
