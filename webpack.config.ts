@@ -6,6 +6,9 @@ import TsConfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import * as webpack from 'webpack';
 import type { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
 
+import extensions from './console-extensions';
+import pluginMetadata from './plugin-metadata';
+
 const config: webpack.Configuration & {
   devServer?: WebpackDevServerConfiguration;
 } = {
@@ -49,7 +52,7 @@ const config: webpack.Configuration & {
     ]
   },
   plugins: [
-    new ConsoleRemotePlugin(),
+    new ConsoleRemotePlugin({ pluginMetadata, extensions }),
     new CopyWebpackPlugin({
       patterns: [{ from: path.resolve(__dirname, 'locales'), to: 'locales' }]
     })
@@ -81,6 +84,7 @@ if (process.env.NODE_ENV !== 'production') {
     config.output.filename = '[name]-bundle-[hash].min.js';
     config.output.chunkFilename = '[name]-chunk-[chunkhash].min.js';
   }
+
   if (config.optimization) {
     config.optimization.chunkIds = 'deterministic';
     config.optimization.minimize = true;

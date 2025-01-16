@@ -21,10 +21,10 @@ RUN rm -rf ./*
 
 ARG VERSION_PLUGIN
 ARG COMMIT_HASH
-RUN printf "\necho 'OpenShift Service Interconnect Plugin: Version=[${VERSION_PLUGIN}], Commit=[${COMMIT_HASH}]' >> /proc/1/fd/1" >> ${NGINX_CONTAINER_SCRIPTS_PATH}/common.sh
+RUN printf "\necho 'OpenShift Site Plugin: Version=[${VERSION_PLUGIN}], Commit=[${COMMIT_HASH}]' >> /proc/1/fd/1" >> ${NGINX_CONTAINER_SCRIPTS_PATH}/common.sh
 
 USER 1001
-LABEL com.redhat.component="openshift-service-interconnect-console" \
+LABEL com.redhat.component="openshift-site-plugin" \
   name="openshift-site-plugin" \
   summary="OpenShift site plugin" \
   version=$VERSION_PLUGIN \

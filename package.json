@@ -60,14 +60,5 @@
   "engines": {
     "node": ">=18.17.1",
     "yarn": ">=1.22.10"
-  },
-  "consolePlugin": {
-    "name": "openshift-site-plugin",
-    "version": "1.0.0",
-    "displayName": "Openshift Site Plugin",
-    "description": "OpenShift Console plugin for managing sites.",
-    "exposedModules": {
-      "ProjectEntryTab": "./openshift/ProjectEntryTab"
-    }
   }
 }
