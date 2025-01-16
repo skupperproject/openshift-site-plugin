@@ -4,7 +4,7 @@ import { useState, FC, useCallback, KeyboardEvent } from 'react';
 
 import { RESTApi } from '@API/REST.api';
 import { DEFAULT_ISSUER, DEFAULT_SERVICE_ACCOUNT, I18nNamespace } from '@config/config';
-import { getSkupperNamespace } from '@config/db';
+import { NamespaceManager } from '@config/db';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import LoadingPage from '@core/components/Loading';
 import { createSiteData } from '@core/utils/createCRD';
@@ -124,7 +124,7 @@ const FormPage: FC<FormPageProps> = function ({
     onSuccess: onSubmit
   });
 
-  const [name, setName] = useState(siteName || getSkupperNamespace());
+  const [name, setName] = useState(siteName || NamespaceManager.getNamespace());
   const [linkAccess, setLinkAccess] = useState(initLinkAccess || options[0].value);
   const [isLinkAccessExist, setToggleLinkAccess] = useState(!!initLinkAccess || (!siteName && true));
   const [serviceAccount, setServiceAccount] = useState(initServiceAccount || '');

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
-import { getSkupperNamespace } from '@config/db';
+import { NamespaceManager } from '@config/db';
 import ExternalLink from '@core/components/ExternalLink';
 import { K8sResourceCommon, useK8sWatchResource } from '@openshift-console/dynamic-plugin-sdk';
 import { Button, Flex } from '@patternfly/react-core';
@@ -50,14 +50,14 @@ const DeploymentNetworkConsoleButton = function () {
 
   const watchResource = {
     groupVersionKind,
-    namespace: getSkupperNamespace(),
+    namespace: NamespaceManager.getNamespace(),
     isList: false,
     name: ROUTE
   };
 
   const watchResourcePod = {
     groupVersionKind: groupVersionKindPod,
-    namespace: getSkupperNamespace(),
+    namespace: NamespaceManager.getNamespace(),
     isList: false,
     selector: {
       matchLabels: POD_SELECTOR
