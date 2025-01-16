@@ -7,6 +7,7 @@ import {
   convertSiteCRToSite
 } from '@API/REST.utils';
 import { API_VERSION, GROUP } from '@config/config';
+import { NamespaceManager } from '@config/db';
 import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
 import { AccessTokenCrdResponse } from '@interfaces/CRD_AccessToken';
 import { ConnectorCrdResponse } from '@interfaces/CRD_Connector';
@@ -70,6 +71,7 @@ export const useWatchedSkupperResource = <T extends Kinds>({
 
   const watchResource = {
     groupVersionKind,
+    namespace: NamespaceManager.getNamespace(),
     name,
     isList
   };

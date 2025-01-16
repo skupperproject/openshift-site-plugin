@@ -19,7 +19,5 @@ export const queryClientConfig: QueryClientConfig = {
 };
 
 export enum QueryKeys {
-  FindSite = 'find-site-query',
-  FindSiteView = 'find-site-view-query',
   IsOldAppVersion = 'find-is-old-app-version-query'
 }

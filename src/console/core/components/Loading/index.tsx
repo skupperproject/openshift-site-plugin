@@ -1,12 +1,13 @@
 import { CSSProperties, FC } from 'react';
 
 import {
-  PageSection,
   Spinner,
   EmptyState,
   EmptyStateBody,
   EmptyStateHeader,
-  EmptyStateIcon
+  EmptyStateIcon,
+  Card,
+  Bullseye
 } from '@patternfly/react-core';
 
 const floatLoader: CSSProperties = {
@@ -26,12 +27,14 @@ interface LoadingPageProps {
 
 const LoadingPage: FC<LoadingPageProps> = function ({ isFLoating = false, message = '' }) {
   return (
-    <PageSection isFilled style={isFLoating ? floatLoader : undefined}>
-      <EmptyState>
-        <EmptyStateHeader icon={<EmptyStateIcon icon={Spinner} />} />
-        <EmptyStateBody>{message}</EmptyStateBody>
-      </EmptyState>
-    </PageSection>
+    <Card isPlain isFullHeight style={isFLoating ? floatLoader : undefined}>
+      <Bullseye>
+        <EmptyState>
+          <EmptyStateHeader icon={<EmptyStateIcon icon={Spinner} />} />
+          <EmptyStateBody>{message}</EmptyStateBody>
+        </EmptyState>
+      </Bullseye>
+    </Card>
   );
 };
 
