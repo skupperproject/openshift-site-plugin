@@ -32,8 +32,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import ListenerDetails from './ListenerDetails';
-import LoadingPage from '../../core/components/Loading';
-import ListenerForm from '../components/forms/ListenerForm';
+import LoadingPage from '../../../core/components/Loading';
+import ListenerForm from '../../components/forms/ListenerForm';
 
 const Listeners = function () {
   const { t } = useTranslation(I18nNamespace);

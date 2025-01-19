@@ -177,7 +177,7 @@
   "It seems there was an error while creating the link": "It seems there was an error while creating the link",
   "The site is Configured: you can create resources, but until the router is ready the effect is not usable": "The site is Configured: you can create resources, but until the router is ready the effect is not usable",
   "There is one or more errors. Please check the conditions on the Details page for more information": "There is one or more errors. Please check the conditions on the Details page for more information",
-
-  "Import resources": "Import resources",
+  "Import": "Import",
+  "IImport Listeners and Connectors": "Import Listeners and Connectors",
   "Import YAML": "Import YAML"
 }

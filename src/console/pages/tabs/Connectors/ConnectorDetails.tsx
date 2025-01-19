@@ -4,7 +4,7 @@ import { FC, KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 
 import { I18nNamespace } from '@config/config';
 import FormatOCPDateCell from '@core/components/FormatOCPDate';
-import { ListenerCrdResponse } from '@interfaces/CRD_Listener';
+import { ConnectorCrdResponse } from '@interfaces/CRD_Connector';
 import {
   Button,
   Card,
@@ -29,21 +29,21 @@ import {
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
-import ListenerForm from '../components/forms/ListenerForm';
+import ConnectorForm from '../../components/forms/ConnectorForm';
 
-interface ListenerDetailsProps {
+interface ConnectorDetailsProps {
   name: string;
   onUpdate?: () => void;
 }
 
-const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) {
+const ConnectorDetails: FC<ConnectorDetailsProps> = function ({ name, onUpdate }) {
   const { t } = useTranslation(I18nNamespace);
 
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const [isOpen, setIsOpen] = useState<boolean | undefined>();
-  const [listener, setListener] = useState<ListenerCrdResponse | null>();
+  const [connector, setConnector] = useState<ConnectorCrdResponse | null>();
 
-  const { data } = useWatchedSkupperResource({ kind: 'Listener', isList: false, name });
+  const { data } = useWatchedSkupperResource({ kind: 'Connector', isList: false, name });
 
   const handleTabClick = (_: MouseEvent | KeyboardEvent, tabIndex: string | number) => {
     setActiveTabKey(tabIndex);
@@ -60,14 +60,14 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
 
   useEffect(() => {
     if (data) {
-      setListener(data?.[0].rawData);
+      setConnector(data?.[0].rawData);
     }
   }, [data]);
 
   return (
     <>
       <Tabs activeKey={activeTabKey} onSelect={handleTabClick}>
-        <Tab eventKey={0} title={<TabTitleText>{t('Details')}</TabTitleText>}>
+        <Tab eventKey={0} title={<TabTitleText>Details</TabTitleText>}>
           <Card isPlain>
             <CardHeader>
               <Flex grow={{ default: 'grow' }}>
@@ -87,30 +87,44 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
               <DescriptionList>
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Name')}</DescriptionListTerm>
-                  <DescriptionListDescription>{listener?.metadata.name}</DescriptionListDescription>
+                  <DescriptionListDescription>{connector?.metadata.name}</DescriptionListDescription>
                 </DescriptionListGroup>
 
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Routing key')}</DescriptionListTerm>
-                  <DescriptionListDescription>{listener?.spec.routingKey}</DescriptionListDescription>
+                  <DescriptionListDescription>{connector?.spec.routingKey}</DescriptionListDescription>
                 </DescriptionListGroup>
 
-                <DescriptionListGroup>
-                  <DescriptionListTerm>{t('Service name')}</DescriptionListTerm>
-                  <DescriptionListDescription>{listener?.spec.host}</DescriptionListDescription>
-                </DescriptionListGroup>
+                {connector?.spec.selector && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Selector')}</DescriptionListTerm>
+                    <DescriptionListDescription>{connector?.spec.selector}</DescriptionListDescription>
+                  </DescriptionListGroup>
+                )}
+
+                {connector?.spec.host && (
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>{t('Host')}</DescriptionListTerm>
+                    <DescriptionListDescription>{connector?.spec.host}</DescriptionListDescription>
+                  </DescriptionListGroup>
+                )}
 
                 <DescriptionListGroup>
                   <DescriptionListTerm>{t('Port')}</DescriptionListTerm>
-                  <DescriptionListDescription>{listener?.spec.port}</DescriptionListDescription>
+                  <DescriptionListDescription>{connector?.spec.port}</DescriptionListDescription>
                 </DescriptionListGroup>
 
-                {listener?.spec.tlsCredentials && (
+                {connector?.spec.tlsCredentials && (
                   <DescriptionListGroup>
                     <DescriptionListTerm>{t('TLS secret')}</DescriptionListTerm>
-                    <DescriptionListDescription>{listener?.spec.tlsCredentials}</DescriptionListDescription>
+                    <DescriptionListDescription>{connector?.spec.tlsCredentials}</DescriptionListDescription>
                   </DescriptionListGroup>
                 )}
+
+                <DescriptionListGroup>
+                  <DescriptionListTerm>{t('Include not ready')}</DescriptionListTerm>
+                  <DescriptionListDescription>{`${!!connector?.spec.includeNotReadyPods}`}</DescriptionListDescription>
+                </DescriptionListGroup>
               </DescriptionList>
             </CardBody>
           </Card>
@@ -123,11 +137,11 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
             </CardHeader>
             <CardBody>
               <DescriptionList>
-                {listener?.metadata.creationTimestamp && (
+                {connector?.metadata.creationTimestamp && (
                   <DescriptionListGroup>
                     <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
                     <DescriptionListDescription>
-                      <FormatOCPDateCell value={new Date(listener.metadata.creationTimestamp)} />
+                      <FormatOCPDateCell value={new Date(connector.metadata.creationTimestamp)} />
                     </DescriptionListDescription>
                   </DescriptionListGroup>
                 )}
@@ -138,21 +152,21 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
         <Tab eventKey={1} title={<TabTitleText>{t('YAML')}</TabTitleText>}>
           <Card>
             <CodeBlock>
-              <CodeBlockCode id="code-content">{stringify(listener)}</CodeBlockCode>
+              <CodeBlockCode id="code-content">{stringify(connector)}</CodeBlockCode>
             </CodeBlock>
           </Card>
         </Tab>
       </Tabs>
       <Modal isOpen={!!isOpen} variant={ModalVariant.medium} aria-label="Form edit listener" showClose={false}>
-        {listener && (
-          <ListenerForm
-            title={t('Update listener')}
+        {connector && (
+          <ConnectorForm
+            title={t('Update connector')}
             onSubmit={handleModalSubmit}
             onCancel={handleModalClose}
-            listenerName={listener.metadata.name}
+            connectorName={connector.metadata.name}
             attributes={{
-              ...listener.spec,
-              ...listener.metadata
+              ...connector.spec,
+              ...connector.metadata
             }}
           />
         )}
@@ -161,4 +175,4 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
   );
 };
 
-export default ListenerDetails;
+export default ConnectorDetails;

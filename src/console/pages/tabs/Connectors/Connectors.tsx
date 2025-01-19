@@ -32,8 +32,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import ConnectorDetails from './ConnectorDetails';
-import LoadingPage from '../../core/components/Loading';
-import ConnectorForm from '../components/forms/ConnectorForm';
+import LoadingPage from '../../../core/components/Loading';
+import ConnectorForm from '../../components/forms/ConnectorForm';
 
 const Connectors = function () {
   const { t } = useTranslation(I18nNamespace);
@@ -204,7 +204,7 @@ const Connectors = function () {
           hasNoBodyWrapper
           isOpen={!!isImportOpen}
           variant={ModalVariant.large}
-          aria-label="Form import listeners"
+          aria-label="Form import connectors"
           showClose={false}
         >
           <ImportConnectorsForm oldItems={connectors || []} onSubmit={handleModalClose} onCancel={handleModalClose} />

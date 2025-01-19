@@ -1,15 +1,15 @@
 import { FC, ReactNode, Suspense, useState } from 'react';
 
-import Connectors from '@pages/tabs/Connectors';
-import Listeners from '@pages/tabs/Listeners';
+import Connectors from '@pages/tabs/Connectors/Connectors';
+import Listeners from '@pages/tabs/Listeners/Listeners';
 import YAML from '@pages/tabs/YAML';
 import { PageSection, PageSectionVariants, PageNavigation, Bullseye, Spinner } from '@patternfly/react-core';
 
 import AlertStatus from './components/AlertStatus';
 import { TabNavigation } from './components/MenuTabs';
-import Details from './tabs/Details';
+import Details from './tabs/Details/Details';
 import GetStarted from './tabs/GetStarted';
-import Links from './tabs/Links';
+import Links from './tabs/Links/Links';
 
 const SitePage: FC<{ siteId: string }> = function ({ siteId }) {
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);

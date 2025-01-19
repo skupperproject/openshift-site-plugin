@@ -17,6 +17,11 @@ export interface ListenerSpec {
   tlsCredentials?: string;
 }
 
+export interface ListenerParams {
+  metadata: CrdMetaDataRequest;
+  spec: ListenerSpec;
+}
+
 export interface ListenerCrdResponse extends ListenerCrdBase {
   metadata: CrdMetaDataResponse;
   spec: ListenerSpec;
@@ -26,11 +31,6 @@ export interface ListenerCrdResponse extends ListenerCrdBase {
     message: string;
     hasMatchingConnector: boolean;
   };
-}
-
-export interface ListenerParams {
-  metadata: CrdMetaDataRequest;
-  spec: ListenerSpec;
 }
 
 export interface ListenerCrdParams extends ListenerCrdBase, ListenerParams {}
