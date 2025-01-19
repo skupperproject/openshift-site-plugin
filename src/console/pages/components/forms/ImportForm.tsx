@@ -11,8 +11,6 @@ import {
   FileUpload,
   DropEvent,
   Card,
-  CardTitle,
-  Title,
   CardBody,
   Button,
   CardFooter,
@@ -23,7 +21,9 @@ import {
   Tabs,
   Tab,
   TabTitleText,
-  Flex
+  Alert,
+  CardTitle,
+  Title
 } from '@patternfly/react-core';
 import { CheckCircleIcon, ExclamationCircleIcon, ImportIcon } from '@patternfly/react-icons';
 import { useMutation } from '@tanstack/react-query';
@@ -54,6 +54,8 @@ export const ImportForm: FC<{
   const [listeners, setListeners] = useState<ListenerImportItem[]>([]);
   const [connectors, setConnectors] = useState<ConnectorImportItem[]>([]);
   const [activeTab, setActiveTab] = useState<'listeners' | 'connectors'>('listeners');
+  const [step, setStep] = useState(0);
+  const [hasErrors, setHasErrors] = useState<boolean | undefined>(undefined);
 
   const { data: oldConnectors } = useWatchedSkupperResource({ kind: 'Connector' });
   const { data: oldListeners } = useWatchedSkupperResource({ kind: 'Listener' });
@@ -124,8 +126,13 @@ export const ImportForm: FC<{
 
     const newListeners = await Promise.all(newListenersPromised);
     const newConnectors = await Promise.all(newConnectorsPromised);
+
+    const withStatusError = [...newListeners, ...newConnectors].some((items) => items.status === 'Error');
+
     setListeners(newListeners);
     setConnectors(newConnectors);
+    setStep(withStatusError ? 0 : 1);
+    setHasErrors(withStatusError);
   }, [listeners, connectors, mutationCreateListener, mutationCreateConnector, oldListeners, oldConnectors]);
 
   const handleFileContentChange = useCallback((_: DropEvent, content: string) => {
@@ -155,6 +162,8 @@ export const ImportForm: FC<{
 
     setListeners(newListeners);
     setConnectors(newConnectors);
+    setStep(0);
+    setHasErrors(undefined);
   }, []);
 
   const handleFileInputChange = useCallback((_: DropEvent, file: File) => {
@@ -248,11 +257,14 @@ export const ImportForm: FC<{
     []
   );
 
+  const tabSelected = !listeners.length && connectors.length ? 'connectors' : activeTab;
+
   return (
     <Card isPlain style={{ overflow: 'auto' }}>
       <CardTitle>
         <Title headingLevel="h1">{t(title)}</Title>
       </CardTitle>
+
       <CardBody>
         <Stack hasGutter>
           <StackItem>
@@ -269,17 +281,25 @@ export const ImportForm: FC<{
               onDataChange={handleFileContentChange}
             />
           </StackItem>
+
           <StackItem>
-            <Flex>
-              <Title headingLevel="h4">{`Uploaded ${listeners.length} listeners and ${connectors.length} connectors`}</Title>{' '}
-              <Button onClick={handleImport} icon={<ImportIcon />} isDisabled={!fileContent}>
-                {t('Import')}
-              </Button>
-            </Flex>
+            {hasErrors === false && (
+              <Alert variant="success" isInline title={t('All elements have been imported successfully.')} />
+            )}
+
+            {hasErrors === true && (
+              <Alert
+                variant="danger"
+                isInline
+                title={t(
+                  'An error occurred during the upload. Please review the status column for details on each element.'
+                )}
+              />
+            )}
           </StackItem>
 
           <StackItem>
-            <Tabs activeKey={activeTab} onSelect={(_, key) => setActiveTab(key as typeof activeTab)}>
+            <Tabs activeKey={tabSelected} onSelect={(_, key) => setActiveTab(key as typeof tabSelected)}>
               <Tab
                 eventKey="listeners"
                 title={
@@ -298,30 +318,41 @@ export const ImportForm: FC<{
               />
             </Tabs>
           </StackItem>
-          <StackItem>
-            <Title headingLevel="h2">Listeners</Title>
-            <SkTable
-              columns={ListenerColumns}
-              customCells={customCells as Record<string, FunctionComponent<SKComponentProps<ListenerImportItem>>>}
-              rows={listeners}
-              alwaysShowPagination={false}
-              isPlain
-            />
-          </StackItem>
+          {tabSelected === 'listeners' && (
+            <StackItem>
+              <SkTable
+                columns={ListenerColumns}
+                customCells={customCells as Record<string, FunctionComponent<SKComponentProps<ListenerImportItem>>>}
+                rows={listeners}
+                alwaysShowPagination={false}
+                isPlain
+              />
+            </StackItem>
+          )}
 
-          <StackItem>
-            <Title headingLevel="h2">Connectors</Title>
-            <SkTable
-              columns={ConnectorColumns}
-              customCells={customCells as Record<string, FunctionComponent<SKComponentProps<ConnectorImportItem>>>}
-              rows={connectors}
-              alwaysShowPagination={false}
-              isPlain
-            />
-          </StackItem>
+          {tabSelected === 'connectors' && (
+            <StackItem>
+              <SkTable
+                columns={ConnectorColumns}
+                customCells={customCells as Record<string, FunctionComponent<SKComponentProps<ConnectorImportItem>>>}
+                rows={connectors}
+                alwaysShowPagination={false}
+                isPlain
+              />
+            </StackItem>
+          )}
         </Stack>
       </CardBody>
+
       <CardFooter>
+        {step === 0 && (
+          <Button onClick={handleImport} icon={<ImportIcon />} isDisabled={!fileContent}>
+            {t('Import')}
+          </Button>
+        )}
+
+        {step === 1 && <Button onClick={onSubmit}>{t('Done')}</Button>}
+
         <Button variant="link" onClick={onSubmit}>
           {t('Dismiss')}
         </Button>

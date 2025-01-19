@@ -8,7 +8,6 @@ import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
 import { Listener } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
-import { ImportListenersForm } from '@pages/components/ImportListenersForm';
 import {
   Button,
   Modal,
@@ -39,7 +38,6 @@ const Listeners = function () {
   const { t } = useTranslation(I18nNamespace);
 
   const [isOpen, setIsOpen] = useState<boolean>();
-  const [isImportOpen, setIsImportOpen] = useState<boolean>();
   const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showListenerAlert') || 'show');
   const [nameSelected, setNameSelected] = useState<string | undefined>();
 
@@ -59,7 +57,6 @@ const Listeners = function () {
 
   const handleModalClose = useCallback(() => {
     setIsOpen(undefined);
-    setIsImportOpen(undefined);
   }, []);
 
   const handleOpenDetails = useCallback((name: string) => {
@@ -169,7 +166,6 @@ const Listeners = function () {
 
           <StackItem isFilled>
             <Button onClick={() => setIsOpen(true)}>{t('Create a listener')}</Button>{' '}
-            <Button onClick={() => setIsImportOpen(true)}>{t('Import YAML')}</Button>
             <Drawer isExpanded={!!nameSelected} isInline>
               <DrawerContent panelContent={panelContent}>
                 <DrawerContentBody>
@@ -194,16 +190,6 @@ const Listeners = function () {
           showClose={false}
         >
           <ListenerForm onSubmit={handleModalClose} onCancel={handleModalClose} title={t('Create a listener')} />
-        </Modal>
-
-        <Modal
-          hasNoBodyWrapper
-          isOpen={!!isImportOpen}
-          variant={ModalVariant.large}
-          aria-label="Form import listeners"
-          showClose={false}
-        >
-          <ImportListenersForm oldItems={listeners || []} onSubmit={handleModalClose} onCancel={handleModalClose} />
         </Modal>
       </CardBody>
     </Card>
