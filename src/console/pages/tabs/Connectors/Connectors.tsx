@@ -6,9 +6,8 @@ import { RESTApi } from '@API/REST.api';
 import { I18nNamespace } from '@config/config';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
-import { Listener } from '@interfaces/REST.interfaces';
+import { Connector } from '@interfaces/REST.interfaces';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
-import { ImportListenersForm } from '@pages/components/ImportListenersForm';
 import {
   Button,
   Modal,
@@ -18,35 +17,34 @@ import {
   StackItem,
   AlertActionCloseButton,
   DrawerPanelContent,
-  DrawerHead,
   DrawerActions,
   DrawerCloseButton,
+  DrawerPanelBody,
+  DrawerHead,
   Drawer,
   DrawerContent,
   DrawerContentBody,
-  DrawerPanelBody,
   Card,
   CardBody
 } from '@patternfly/react-core';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import ListenerDetails from './ListenerDetails';
-import LoadingPage from '../../core/components/Loading';
-import ListenerForm from '../components/forms/ListenerForm';
+import ConnectorDetails from './ConnectorDetails';
+import LoadingPage from '../../../core/components/Loading';
+import ConnectorForm from '../../components/forms/ConnectorForm';
 
-const Listeners = function () {
+const Connectors = function () {
   const { t } = useTranslation(I18nNamespace);
 
-  const [isOpen, setIsOpen] = useState<boolean>();
-  const [isImportOpen, setIsImportOpen] = useState<boolean>();
-  const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showListenerAlert') || 'show');
+  const [areDetailsOpen, setAreDetailsOpen] = useState<boolean>(false);
   const [nameSelected, setNameSelected] = useState<string | undefined>();
+  const [showAlert, setShowAlert] = useState<string>(sessionStorage.getItem('showConnectorAlert') || 'show');
 
-  const { data: listeners, loaded } = useWatchedSkupperResource({ kind: 'Listener' });
+  const { data: connectors, loaded } = useWatchedSkupperResource({ kind: 'Connector' });
 
   const mutationDelete = useMutation({
-    mutationFn: (name: string) => RESTApi.deleteListener(name),
+    mutationFn: (name: string) => RESTApi.deleteConnector(name),
     onSuccess: () => handleCloseDetails()
   });
 
@@ -58,8 +56,7 @@ const Listeners = function () {
   );
 
   const handleModalClose = useCallback(() => {
-    setIsOpen(undefined);
-    setIsImportOpen(undefined);
+    setAreDetailsOpen(false);
   }, []);
 
   const handleOpenDetails = useCallback((name: string) => {
@@ -72,10 +69,10 @@ const Listeners = function () {
 
   const handleCloseAlert = useCallback(() => {
     setShowAlert('hide');
-    sessionStorage.setItem('showListenerAlert', 'hide');
+    sessionStorage.setItem('showConnectorAlert', 'hide');
   }, []);
 
-  const Columns: SKColumn<Listener>[] = [
+  const Columns: SKColumn<Connector>[] = [
     {
       name: t('Name'),
       prop: 'name',
@@ -95,15 +92,19 @@ const Listeners = function () {
       prop: 'routingKey'
     },
     {
-      name: t('Service name'),
-      prop: 'serviceName'
+      name: t('Selector'),
+      prop: 'selector'
+    },
+    {
+      name: t('Host'),
+      prop: 'host'
     },
     {
       name: t('Port'),
       prop: 'port'
     },
     {
-      name: t('Has connectors'),
+      name: t('Has listeners'),
       prop: 'connected',
       customCellName: 'connectedCell'
     },
@@ -116,14 +117,14 @@ const Listeners = function () {
 
   const customCells = useMemo(
     () => ({
-      linkCell: ({ data }: SKComponentProps<Listener>) => (
+      linkCell: ({ data }: SKComponentProps<Connector>) => (
         <Button variant="link" onClick={handleOpenDetails.bind(null, data.name)}>
           {data.name}
         </Button>
       ),
       StatusCell,
-      connectedCell: ({ data }: SKComponentProps<Listener>) => `${data.connected}`,
-      actions: ({ data }: SKComponentProps<Listener>) => (
+      connectedCell: ({ data }: SKComponentProps<Connector>) => `${data.connected}`,
+      actions: ({ data }: SKComponentProps<Connector>) => (
         <Button onClick={handleDelete.bind(null, data.name)} variant="link">
           {t('Delete')}
         </Button>
@@ -140,7 +141,7 @@ const Listeners = function () {
         </DrawerActions>
       </DrawerHead>
       <DrawerPanelBody>
-        {nameSelected && <ListenerDetails name={nameSelected} onUpdate={handleModalClose} />}
+        {nameSelected && <ConnectorDetails name={nameSelected} onUpdate={handleModalClose} />}
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
@@ -158,24 +159,23 @@ const Listeners = function () {
               <Alert
                 hidden={true}
                 variant="info"
-                isInline
                 actionClose={<AlertActionCloseButton onClose={handleCloseAlert} />}
+                isInline
                 title={t(
-                  'A listener is a local connection endpoint that is associated with remote servers. Listeners expose a host and port for accepting connections. Listeners use a routing key to forward connection data to remote connectors.'
+                  'A connector binds local servers (pods, containers, or processes) to connection listeners in remote sites. Connectors are linked to listeners by a matching routing key.'
                 )}
               />
             )}
           </StackItem>
 
           <StackItem isFilled>
-            <Button onClick={() => setIsOpen(true)}>{t('Create a listener')}</Button>{' '}
-            <Button onClick={() => setIsImportOpen(true)}>{t('Import YAML')}</Button>
+            <Button onClick={() => setAreDetailsOpen(true)}>{t('Create a connector')}</Button>{' '}
             <Drawer isExpanded={!!nameSelected} isInline>
               <DrawerContent panelContent={panelContent}>
                 <DrawerContentBody>
                   <SkTable
                     columns={Columns}
-                    rows={listeners || []}
+                    rows={connectors || []}
                     alwaysShowPagination={false}
                     customCells={customCells}
                     isPlain
@@ -188,26 +188,16 @@ const Listeners = function () {
 
         <Modal
           hasNoBodyWrapper
-          isOpen={!!isOpen}
+          isOpen={areDetailsOpen}
           variant={ModalVariant.medium}
-          aria-label="Form create listener"
+          aria-label="Form create connector"
           showClose={false}
         >
-          <ListenerForm onSubmit={handleModalClose} onCancel={handleModalClose} title={t('Create a listener')} />
-        </Modal>
-
-        <Modal
-          hasNoBodyWrapper
-          isOpen={!!isImportOpen}
-          variant={ModalVariant.large}
-          aria-label="Form import listeners"
-          showClose={false}
-        >
-          <ImportListenersForm oldItems={listeners || []} onSubmit={handleModalClose} onCancel={handleModalClose} />
+          <ConnectorForm onSubmit={handleModalClose} onCancel={handleModalClose} title={t('Create a Connector')} />
         </Modal>
       </CardBody>
     </Card>
   );
 };
 
-export default Listeners;
+export default Connectors;

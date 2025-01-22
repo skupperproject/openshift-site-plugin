@@ -177,7 +177,11 @@
   "It seems there was an error while creating the link": "It seems there was an error while creating the link",
   "The site is Configured: you can create resources, but until the router is ready the effect is not usable": "The site is Configured: you can create resources, but until the router is ready the effect is not usable",
   "There is one or more errors. Please check the conditions on the Details page for more information": "There is one or more errors. Please check the conditions on the Details page for more information",
-
-  "Import resources": "Import resources",
-  "Import YAML": "Import YAML"
+  "Import": "Import",
+  "IImport Listeners and Connectors": "Import Listeners and Connectors",
+  "Import YAML": "Import YAML",
+  "An error occurred during the upload. Please review the status column for details on each element.": "An error occurred during the upload. Please review the status column for details on each element.",
+  "All elements have been imported successfully.": "All elements have been imported successfully.",
+  "Import Listeners and Connectors": "Import Listeners and Connectors",
+  "An error occurred while parsing the file. Please verify the structure of your YAML.": "An error occurred while parsing the file. Please verify the structure of your YAML."
 }

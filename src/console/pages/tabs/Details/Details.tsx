@@ -14,7 +14,6 @@ import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import SkTable from '@core/components/SkTable';
 import { CrdStatusCondition, StatusSiteType } from '@interfaces/CRD_Base';
 import { SKColumn, SKComponentProps } from '@interfaces/SkTable.interfaces';
-import { YellowExclamationTriangleIcon } from '@openshift-console/dynamic-plugin-sdk';
 import {
   DescriptionList,
   DescriptionListTerm,
@@ -27,22 +26,21 @@ import {
   Button,
   Modal,
   ModalVariant,
-  Flex,
-  FlexItem,
-  Label,
   Icon
 } from '@patternfly/react-core';
-import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon, PenIcon } from '@patternfly/react-icons';
+import { CheckCircleIcon, ExclamationCircleIcon, PenIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 
-import DeleteSiteButton from '../components/DeleteSiteButton';
-import SiteForm from '../components/forms/SiteForm';
+import Header from './Header';
+import SiteForm from '../../components/forms/SiteForm';
+import Status from '../Links/Status';
 
 const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
   const { t } = useTranslation(I18nNamespace);
   const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [visibleModalPros, setVisibleModalProps] = useState<Record<string, boolean>>({});
 
   const handleOpenModal = (props: Record<string, boolean>) => {
@@ -118,43 +116,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
     <>
       <Card isPlain>
         <CardHeader>
-          <Flex style={{ width: '100%' }} justifyContent={{ default: 'justifyContentSpaceBetween' }}>
-            <FlexItem>
-              <Flex>
-                <FlexItem>
-                  <Title headingLevel="h1">{t('Site settings')}</Title>
-                </FlexItem>
-                {!site?.status && (
-                  <Label>
-                    <Icon isInline>{<InProgressIcon />}</Icon> {t('In progress')}
-                  </Label>
-                )}
-                {!!site?.status && (
-                  <Label>
-                    {!!site?.hasError && (
-                      <Icon isInline status="danger">
-                        <ExclamationCircleIcon />
-                      </Icon>
-                    )}
-                    {!site?.hasError && !!site?.isConfigured && !!site?.isReady && (
-                      <Icon status="success">
-                        <CheckCircleIcon />
-                      </Icon>
-                    )}
-                    {'  '} {site?.status} {'  '}
-                    {!site?.hasError && site?.hasSecondaryErrors && (
-                      <Icon status="warning">{<YellowExclamationTriangleIcon />}</Icon>
-                    )}
-                  </Label>
-                )}
-              </Flex>
-            </FlexItem>
-            {site?.name && (
-              <FlexItem>
-                <DeleteSiteButton id={site.name} />
-              </FlexItem>
-            )}
-          </Flex>
+          <Header site={site} t={t} />
         </CardHeader>
 
         <CardBody>
@@ -226,29 +188,8 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
       </Card>
 
       <Card isPlain>
-        <CardHeader>
-          <Title headingLevel="h1">{t('Status')}</Title>
-        </CardHeader>
-
-        <CardBody>
-          <DescriptionList>
-            <DescriptionListGroup>
-              <DescriptionListTerm>{t('Sites in the network')}</DescriptionListTerm>
-              {t('sitesInNetwork', { count: site?.sitesInNetwork })}
-            </DescriptionListGroup>
-
-            <DescriptionListGroup>
-              <DescriptionListTerm>{t('Linked sites')}</DescriptionListTerm>
-              <DescriptionListDescription>
-                <Button variant="link" isInline onClick={() => onGoTo(3)} isDisabled={!site?.linkCount}>
-                  {t('remoteSiteWithCount', { count: site?.linkCount })}
-                </Button>
-              </DescriptionListDescription>
-            </DescriptionListGroup>
-          </DescriptionList>
-        </CardBody>
+        <Status site={site} t={t} onGoTo={onGoTo} />
       </Card>
-
       <Card isPlain>
         <CardHeader>
           <Title headingLevel="h1">{t('Details')}</Title>
