@@ -55,7 +55,7 @@ export const ImportForm: FC<{
   const [connectors, setConnectors] = useState<ConnectorImportItem[]>([]);
   const [activeTab, setActiveTab] = useState<'listeners' | 'connectors'>('listeners');
   const [step, setStep] = useState(0);
-  const [hasErrors, setHasErrors] = useState<boolean | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const { data: oldConnectors } = useWatchedSkupperResource({ kind: 'Connector' });
   const { data: oldListeners } = useWatchedSkupperResource({ kind: 'Listener' });
@@ -132,39 +132,50 @@ export const ImportForm: FC<{
     setListeners(newListeners);
     setConnectors(newConnectors);
     setStep(withStatusError ? 0 : 1);
-    setHasErrors(withStatusError);
-  }, [listeners, connectors, mutationCreateListener, mutationCreateConnector, oldListeners, oldConnectors]);
+    setError(
+      withStatusError
+        ? t('An error occurred during the upload. Please review the status column for details on each element.')
+        : ''
+    );
+  }, [listeners, connectors, t, oldListeners, mutationCreateListener, oldConnectors, mutationCreateConnector]);
 
-  const handleFileContentChange = useCallback((_: DropEvent, content: string) => {
-    setFileContent(content);
-    const newListeners: ListenerImportItem[] = [];
-    const newConnectors: ConnectorImportItem[] = [];
+  const handleFileContentChange = useCallback(
+    (_: DropEvent, content: string) => {
+      setFileContent(content);
+      const newListeners: ListenerImportItem[] = [];
+      const newConnectors: ConnectorImportItem[] = [];
 
-    const documents = content
-      .split('---')
-      .filter((doc) => doc.trim() !== '')
-      .map((doc) => parse(doc));
+      try {
+        const documents = content
+          .split('---')
+          .filter((doc) => doc.trim() !== '')
+          .map((doc) => parse(doc));
 
-    documents.forEach((doc: DocumentParams) => {
-      const { kind, metadata, spec } = doc;
-      if (kind === 'Listener') {
-        newListeners.push({
-          name: metadata.name,
-          ...(spec as ListenerSpec)
+        documents.forEach((doc: DocumentParams) => {
+          const { kind, metadata, spec } = doc;
+          if (kind === 'Listener') {
+            newListeners.push({
+              name: metadata.name,
+              ...(spec as ListenerSpec)
+            });
+          } else if (kind === 'Connector') {
+            newConnectors.push({
+              name: metadata.name,
+              ...(spec as ConnectorSpec)
+            });
+          }
         });
-      } else if (kind === 'Connector') {
-        newConnectors.push({
-          name: metadata.name,
-          ...(spec as ConnectorSpec)
-        });
+
+        setListeners(newListeners);
+        setConnectors(newConnectors);
+        setStep(0);
+        setError('');
+      } catch {
+        setError(t('An error occurred while parsing the file. Please verify the structure of your YAML.'));
       }
-    });
-
-    setListeners(newListeners);
-    setConnectors(newConnectors);
-    setStep(0);
-    setHasErrors(undefined);
-  }, []);
+    },
+    [t]
+  );
 
   const handleFileInputChange = useCallback((_: DropEvent, file: File) => {
     setFileName(file.name);
@@ -283,11 +294,11 @@ export const ImportForm: FC<{
           </StackItem>
 
           <StackItem>
-            {hasErrors === false && (
+            {error === '' && (
               <Alert variant="success" isInline title={t('All elements have been imported successfully.')} />
             )}
 
-            {hasErrors === true && (
+            {error && (
               <Alert
                 variant="danger"
                 isInline

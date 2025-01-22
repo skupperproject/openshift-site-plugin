@@ -182,5 +182,6 @@
   "Import YAML": "Import YAML",
   "An error occurred during the upload. Please review the status column for details on each element.": "An error occurred during the upload. Please review the status column for details on each element.",
   "All elements have been imported successfully.": "All elements have been imported successfully.",
-  "Import Listeners and Connectors": "Import Listeners and Connectors"
+  "Import Listeners and Connectors": "Import Listeners and Connectors",
+  "An error occurred while parsing the file. Please verify the structure of your YAML.": "An error occurred while parsing the file. Please verify the structure of your YAML."
 }
