@@ -37,7 +37,7 @@ const DeleteSiteButton: FC<{ id: string }> = function ({ id }) {
           aria-label="delete all checkbox"
           id="delete-all-checkbox"
           label={t('Remove all resources associated with this site')}
-          onClick={() => setRemoveAllResources(!removeAllResources)}
+          onChange={() => setRemoveAllResources(!removeAllResources)}
           isChecked={removeAllResources}
         />
       </WarningModal>
