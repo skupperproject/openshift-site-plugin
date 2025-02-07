@@ -1,15 +1,32 @@
 import { ISO8601Timestamp } from '@interfaces/CRD_Base';
 
-export function formatOCPDate(date: ISO8601Timestamp): string {
+interface FormatOptions {
+  locale?: string;
+  timeZone?: string;
+}
+
+export function formatOCPDate(date: ISO8601Timestamp, options: FormatOptions = {}): string {
   if (!date) {
     return ' ';
   }
 
+  const { locale = navigator.language, timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone } = options;
+
   const baseTime = new Date(date);
 
-  // Format date as 'DD MMM YYYY' and time as 'HH:mm'
-  const formattedDate = `${baseTime.getDate()} ${baseTime.toLocaleString('it-IT', { month: 'short' })} ${baseTime.getFullYear()}`;
-  const formattedTime = `${baseTime.getHours()}:${baseTime.getMinutes().toString().padStart(2, '0')}`;
+  const formattedDate = baseTime.toLocaleDateString(locale, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone
+  });
+
+  const formattedTime = baseTime.toLocaleTimeString(locale, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: false,
+    timeZone
+  });
 
   return `${formattedDate}, ${formattedTime}`;
 }
