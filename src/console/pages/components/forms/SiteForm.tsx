@@ -1,5 +1,3 @@
-import useValidatedInput from 'console/hooks/useValidation';
-
 import { useState, FC, useCallback, KeyboardEvent } from 'react';
 
 import { RESTApi } from '@API/REST.api';
@@ -8,6 +6,7 @@ import { NamespaceManager } from '@config/db';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import LoadingPage from '@core/components/Loading';
 import { createSiteData } from '@core/utils/createCRD';
+import useValidatedInput from '@hooks/useValidation';
 import { SiteCrdParams } from '@interfaces/CRD_Site';
 import { HTTPError } from '@interfaces/REST.interfaces';
 import {
@@ -185,10 +184,11 @@ const FormPage: FC<FormPageProps> = function ({
   const canSubmit = !!name; //&& !validated;
 
   return (
-    <Form isHorizontal onKeyDown={handleKeyPress}>
+    <Form isHorizontal onKeyDown={handleKeyPress} data-testid="site-form">
       {(show.name || show.ha) && (
-        <FormGroup fieldId="name-input" isRequired label={t('Name')}>
+        <FormGroup fieldId="name-input" isRequired label={t('Name')} data-testid="name-group">
           <TextInput
+            data-testid="name-input"
             aria-label="form name input"
             value={name}
             onChange={(_, value) => handleChangeName(value)}
@@ -202,19 +202,22 @@ const FormPage: FC<FormPageProps> = function ({
           label={t('Link access')}
           labelIcon={<TooltipInfoButton content={t('tooltipSiteLinkAccess')} />}
           fieldId="form-linkAccess"
+          data-testid="link-access-group"
         >
           <Panel variant="bordered">
             <PanelMain>
               <PanelMainBody>
                 <Checkbox
+                  data-testid="link-access-checkbox"
                   id="enable-link-access"
                   label={t('Enable link access')}
-                  onClick={() => setToggleLinkAccess(!isLinkAccessExist)}
+                  onChange={() => setToggleLinkAccess(!isLinkAccessExist)}
                   isChecked={isLinkAccessExist}
                   className="pf-v5-u-mb-md"
                 />
 
                 <FormSelect
+                  data-testid="link-access-select"
                   aria-label="form link access select"
                   value={linkAccess}
                   onChange={(_, value) => handleChangeLinkAccess(value)}
@@ -222,6 +225,7 @@ const FormPage: FC<FormPageProps> = function ({
                 >
                   {options.map((option, index) => (
                     <FormSelectOption
+                      data-testid={`link-access-option-${option.value}`}
                       isDisabled={option.disabled}
                       key={index}
                       value={option.value}
@@ -251,6 +255,7 @@ const FormPage: FC<FormPageProps> = function ({
 
       {show.serviceAccount && show.ha && (
         <ExpandableSection
+          data-testid="expandable-section"
           toggleText={isExpanded ? 'Show less' : 'Show more'}
           onToggle={handleToggle}
           isExpanded={isExpanded}
@@ -271,30 +276,35 @@ const FormPage: FC<FormPageProps> = function ({
 
       {validated && (
         <FormAlert>
-          <Alert variant="danger" title={t('An error occurred')} aria-live="polite" isInline>
+          <Alert
+            data-testid="validation-alert"
+            variant="danger"
+            title={t('An error occurred')}
+            aria-live="polite"
+            isInline
+          >
             {validated}
           </Alert>
         </FormAlert>
       )}
 
       <ActionGroup style={{ display: 'flex' }}>
-        <Button variant="primary" onClick={handleSubmit} isDisabled={!canSubmit}>
+        <Button data-testid="submit-button" variant="primary" onClick={handleSubmit} isDisabled={!canSubmit}>
           {t('Submit')}
         </Button>
 
-        <Button variant="link" onClick={onCancel}>
+        <Button data-testid="cancel-button" variant="link" onClick={onCancel}>
           {t('Cancel')}
         </Button>
       </ActionGroup>
     </Form>
   );
 };
-
 const WaitSiteCreation = function () {
   const { t } = useTranslation(I18nNamespace);
 
   return (
-    <Card isPlain>
+    <Card isPlain data-testid="loading-card">
       <CardBody>
         <PageSection variant={PageSectionVariants.light} padding={{ default: 'noPadding' }}>
           <LoadingPage message={t('Please wait while the Site is being installed. This may take a few seconds...')} />
@@ -336,8 +346,10 @@ const SecondaryOptions: FC<SecondaryOptionsProps> = function ({
           fieldId="service-account-input"
           label={t('Service account')}
           labelIcon={<TooltipInfoButton content={t('tooltipServiceAccount')} />}
+          data-testid="service-account-group"
         >
           <TextInput
+            data-testid="service-account-input"
             aria-label="form service account input"
             value={serviceAccount}
             placeholder={DEFAULT_SERVICE_ACCOUNT}
@@ -352,8 +364,10 @@ const SecondaryOptions: FC<SecondaryOptionsProps> = function ({
           label={t('Default issuer')}
           labelIcon={<TooltipInfoButton content={t('tooltipDefaultIssuer')} />}
           className="pf-v5-u-mt-md"
+          data-testid="default-issuer-group"
         >
           <TextInput
+            data-testid="default-issuer-input"
             aria-label="form Default issuer input"
             value={defaultIssuer}
             placeholder={DEFAULT_ISSUER}
@@ -363,12 +377,13 @@ const SecondaryOptions: FC<SecondaryOptionsProps> = function ({
       )}
 
       {showHa && (
-        <FormGroup fieldId="ha-checkbox" className="pf-v5-u-mt-md">
+        <FormGroup fieldId="ha-checkbox" className="pf-v5-u-mt-md" data-testid="ha-group">
           <Checkbox
+            data-testid="ha-checkbox"
             aria-label="form ha checkbox"
             id="ha-checkbox"
             label={t('tooltipHighAvailability')}
-            onClick={() => onChangeHa(!ha)}
+            onChange={() => onChangeHa(!ha)}
             isChecked={ha}
           />
         </FormGroup>

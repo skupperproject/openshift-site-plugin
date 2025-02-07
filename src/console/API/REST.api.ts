@@ -175,6 +175,7 @@ export const RESTApi = {
       method: 'DELETE'
     });
   },
+
   createDeployment: async (): Promise<void> => {
     const requests = [
       { path: rolePath(), data: roleData },
@@ -196,8 +197,6 @@ export const RESTApi = {
         data
       }).catch((error) => {
         if (error.response && error.response.status === 409) {
-          console.warn(`Ignored 409 Conflict error for ${path}`);
-
           return null;
         }
         throw error;
@@ -206,7 +205,7 @@ export const RESTApi = {
 
     await Promise.all(promises);
   },
-  // TODO : wait for a BE solution. Just for dev scope
+
   deleteDeployment: async (): Promise<void> => {
     const requests = [
       { path: `${routePath()}/${RouteData.metadata.name}` },
@@ -227,8 +226,6 @@ export const RESTApi = {
         method: 'DELETE'
       }).catch((error) => {
         if (error.response && error.response.status === 409) {
-          console.warn(`Ignored 409 Conflict error for ${path}`);
-
           return null;
         }
         throw error;
