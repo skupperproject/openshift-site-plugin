@@ -14,19 +14,15 @@ export function formatOCPDate(date: ISO8601Timestamp, options: FormatOptions = {
 
   const baseTime = new Date(date);
 
-  const formattedDate = baseTime.toLocaleDateString(locale, {
-    day: 'numeric',
-    month: 'short',
+  const dateTimeFormat = new Intl.DateTimeFormat(locale, {
     year: 'numeric',
-    timeZone
-  });
-
-  const formattedTime = baseTime.toLocaleTimeString(locale, {
+    month: 'short',
+    day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
     hour12: false,
     timeZone
   });
 
-  return `${formattedDate}, ${formattedTime}`;
+  return dateTimeFormat.format(baseTime);
 }
