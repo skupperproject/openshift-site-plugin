@@ -122,7 +122,7 @@ const ConnectorForm: FC<{
         <Title headingLevel="h1">{t(title)}</Title>
       </CardTitle>
       <CardBody>
-        <Form isHorizontal onKeyDown={handleKeyPress}>
+        <Form isHorizontal onKeyDown={handleKeyPress} data-testid="connector-form">
           <FormGroup fieldId="name-input" isRequired label={t('Name')} title="">
             <TextInput
               aria-label="form name input"
