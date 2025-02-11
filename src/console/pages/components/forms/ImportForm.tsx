@@ -281,6 +281,7 @@ export const ImportForm: FC<{
           <StackItem>
             <FileUpload
               id="import-file"
+              data-testid="import-file"
               type="text"
               value={fileContent}
               filename={fileName}

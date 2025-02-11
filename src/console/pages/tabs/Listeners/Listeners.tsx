@@ -129,13 +129,13 @@ const Listeners = function () {
   );
 
   const panelContent = (
-    <DrawerPanelContent isResizable minSize="30%">
+    <DrawerPanelContent isResizable minSize="30%" data-testid="drawer-panel">
       <DrawerHead>
         <DrawerActions>
           <DrawerCloseButton onClick={handleCloseDetails} />
         </DrawerActions>
       </DrawerHead>
-      <DrawerPanelBody>
+      <DrawerPanelBody data-testid="listener-details-panel">
         {nameSelected && <ListenerDetails name={nameSelected} onUpdate={handleModalClose} />}
       </DrawerPanelBody>
     </DrawerPanelContent>
@@ -155,7 +155,7 @@ const Listeners = function () {
                 hidden={true}
                 variant="info"
                 isInline
-                actionClose={<AlertActionCloseButton onClose={handleCloseAlert} />}
+                actionClose={<AlertActionCloseButton data-testid="listener-alert-close" onClose={handleCloseAlert} />}
                 title={t(
                   'A listener is a local connection endpoint that is associated with remote servers. Listeners expose a host and port for accepting connections. Listeners use a routing key to forward connection data to remote connectors.'
                 )}
