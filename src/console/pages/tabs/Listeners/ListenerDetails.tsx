@@ -1,7 +1,7 @@
 import { FC, KeyboardEvent, MouseEvent, useEffect, useState } from 'react';
 
 import { I18nNamespace } from '@config/config';
-import FormatOCPDateCell from '@core/components/FormatOCPDate';
+import FormatDateCell from '@core/components/FormatDate';
 import { useWatchedSkupperResource } from '@hooks/useSkupperWatchResource';
 import { ListenerCrdResponse } from '@interfaces/CRD_Listener';
 import {
@@ -126,7 +126,7 @@ const ListenerDetails: FC<ListenerDetailsProps> = function ({ name, onUpdate }) 
                   <DescriptionListGroup>
                     <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
                     <DescriptionListDescription>
-                      <FormatOCPDateCell value={new Date(listener.metadata.creationTimestamp)} />
+                      <FormatDateCell value={new Date(listener.metadata.creationTimestamp)} />
                     </DescriptionListDescription>
                   </DescriptionListGroup>
                 )}

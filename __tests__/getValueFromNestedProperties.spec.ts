@@ -17,6 +17,7 @@ describe('getValueFromNestedProperty', () => {
     level1: TestLevel1;
     emptyObject: Record<string, never>;
     nullLevel: null;
+    undefinedLevel: undefined;
   }
 
   const testObject: TestObject = {
@@ -28,7 +29,8 @@ describe('getValueFromNestedProperty', () => {
       arrayValue: ['item1', 'item2']
     },
     emptyObject: {},
-    nullLevel: null
+    nullLevel: null,
+    undefinedLevel: undefined
   };
 
   it('returns value from single level property', () => {
@@ -36,7 +38,7 @@ describe('getValueFromNestedProperty', () => {
     expect(result).toEqual(testObject.level1);
   });
 
-  it('returns value from nested property', () => {
+  it('returns nested property value', () => {
     const value = getValueFromNestedProperty(testObject, ['level1'] as const);
     if (value && typeof value === 'object') {
       const level2Value = getValueFromNestedProperty(value as TestLevel1, ['level2'] as const);
@@ -52,12 +54,17 @@ describe('getValueFromNestedProperty', () => {
     expect(result).toBeUndefined();
   });
 
-  it('returns undefined when encountering null in path', () => {
+  it('returns null when encountering null in path', () => {
     const result = getValueFromNestedProperty<TestObject, keyof TestObject>(testObject, ['nullLevel']);
     expect(result).toBeNull();
   });
 
-  it('returns array value correctly', () => {
+  it('returns undefined when encountering undefined in path', () => {
+    const result = getValueFromNestedProperty<TestObject, keyof TestObject>(testObject, ['undefinedLevel']);
+    expect(result).toBeUndefined();
+  });
+
+  it('returns array value', () => {
     const value = getValueFromNestedProperty(testObject, ['level1'] as const);
     if (value && typeof value === 'object') {
       const arrayValue = getValueFromNestedProperty(value as TestLevel1, ['arrayValue'] as const);
@@ -65,31 +72,45 @@ describe('getValueFromNestedProperty', () => {
     }
   });
 
-  it('handles empty object in path', () => {
+  it('handles empty object', () => {
     const result = getValueFromNestedProperty<TestObject, keyof TestObject>(testObject, ['emptyObject']);
     expect(result).toEqual({});
   });
 
-  it('returns null value correctly', () => {
-    const value = getValueFromNestedProperty(testObject, ['level1'] as const);
-    if (value && typeof value === 'object') {
-      const level2Value = getValueFromNestedProperty(value as TestLevel1, ['level2'] as const);
-      if (level2Value && typeof level2Value === 'object') {
-        const nullValue = getValueFromNestedProperty(level2Value as TestLevel2, ['nullValue'] as const);
-        expect(nullValue).toBeNull();
-      }
+  it('returns undefined when nested property becomes null', () => {
+    interface DeepNullTest {
+      first: {
+        second: null;
+        third: {
+          value: string;
+        };
+      };
     }
+
+    const testObj: DeepNullTest = {
+      first: {
+        second: null,
+        third: {
+          value: 'test'
+        }
+      }
+    };
+
+    const result = getValueFromNestedProperty(testObj, [
+      'first',
+      'second' as keyof DeepNullTest,
+      'value' as keyof DeepNullTest
+    ] as const);
+    expect(result).toBeUndefined();
   });
 
-  it('maintains type safety with valid paths', () => {
+  it('maintains type safety with nested paths', () => {
     interface TypedLevel2 {
       c: number;
     }
-
     interface TypedLevel1 {
       b: TypedLevel2;
     }
-
     interface TypedObject {
       a: TypedLevel1;
     }

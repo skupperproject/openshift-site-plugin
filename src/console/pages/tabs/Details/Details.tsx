@@ -7,7 +7,7 @@ import {
   EMPTY_VALUE_SYMBOL,
   I18nNamespace
 } from '@config/config';
-import FormatOCPDateCell from '@core/components/FormatOCPDate';
+import FormatDateCell from '@core/components/FormatDate';
 import { TooltipInfoButton } from '@core/components/HelpTooltip';
 import SkTable from '@core/components/SkTable';
 import { useWatchedSkupperResource } from '@hooks/useSkupperWatchResource';
@@ -83,7 +83,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
   ];
 
   const customSiteCells = {
-    FormatOCPDateCell,
+    FormatOCPDateCell: FormatDateCell,
     ValueOrEmptyCell: ({ value, data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
       data.reason === 'Error' ? value : EMPTY_VALUE_SYMBOL,
     ReasonCell: ({ data }: SKComponentProps<CrdStatusCondition<StatusSiteType>>) =>
@@ -136,6 +136,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
               <DescriptionListDescription>
                 {site?.linkAccess || EMPTY_LINK_ACCESS}{' '}
                 <Button
+                  data-testid="edit-link-access-button"
                   variant="plain"
                   onClick={() => handleOpenModal({ linkAccess: true })}
                   icon={<PenIcon />}
@@ -149,6 +150,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
               <DescriptionListDescription>
                 {`${site?.serviceAccount}` || DEFAULT_SERVICE_ACCOUNT}{' '}
                 <Button
+                  data-testid="edit-service-account-button"
                   variant="plain"
                   onClick={() => handleOpenModal({ serviceAccount: true })}
                   icon={<PenIcon />}
@@ -162,6 +164,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
               <DescriptionListDescription>
                 {`${site?.defaultIssuer}` || DEFAULT_ISSUER}{' '}
                 <Button
+                  data-testid="edit-default-issuer-button"
                   variant="plain"
                   onClick={() => handleOpenModal({ defaultIssuer: true })}
                   icon={<PenIcon />}
@@ -175,6 +178,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
               <DescriptionListDescription>
                 {`${site?.ha}`}{' '}
                 <Button
+                  data-testid="edit-ha-button"
                   variant="plain"
                   onClick={() => handleOpenModal({ ha: true })}
                   icon={<PenIcon />}
@@ -204,11 +208,7 @@ const Details: FC<{ onGoTo: (page: number) => void }> = function ({ onGoTo }) {
             <DescriptionListGroup>
               <DescriptionListTerm>{t('Created at')}</DescriptionListTerm>
               <DescriptionListDescription>
-                {site?.isConfigured ? (
-                  <FormatOCPDateCell value={new Date(site.creationTimestamp)} />
-                ) : (
-                  EMPTY_VALUE_SYMBOL
-                )}
+                {site?.isConfigured ? <FormatDateCell value={new Date(site.creationTimestamp)} /> : EMPTY_VALUE_SYMBOL}
               </DescriptionListDescription>
             </DescriptionListGroup>
           </DescriptionList>

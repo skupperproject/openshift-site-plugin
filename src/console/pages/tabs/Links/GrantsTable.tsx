@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import FormatOCPDateCell from '@core/components/FormatOCPDate';
+import FormatDateCell from '@core/components/FormatDate';
 import SkTable from '@core/components/SkTable';
 import StatusCell from '@core/components/StatusCell';
 import { ISO8601Timestamp } from '@interfaces/CRD_Base';
@@ -34,7 +34,7 @@ const AccessGrantTable: FC<AccessGrantTableProps> = function ({ grants, onDelete
       const now = new Date();
       const ValidFor = new Date(value as ISO8601Timestamp);
 
-      return now > ValidFor ? t('Expired') : grantData.status ? <FormatOCPDateCell value={ValidFor} /> : '';
+      return now > ValidFor ? t('Expired') : grantData.status ? <FormatDateCell value={ValidFor} /> : '';
     },
     actions: ({ data: grantData }: SKComponentProps<AccessGrant>) => (
       <>

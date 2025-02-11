@@ -9,7 +9,7 @@ interface FormatOCPDateProps {
   value?: ReactNode | Date;
 }
 
-const FormatOCPDateCell = function ({ value }: FormatOCPDateProps) {
+const FormatDateCell = function ({ value }: FormatOCPDateProps) {
   if (!value) {
     return null;
   }
@@ -24,4 +24,4 @@ const FormatOCPDateCell = function ({ value }: FormatOCPDateProps) {
   );
 };
 
-export default FormatOCPDateCell;
+export default FormatDateCell;
