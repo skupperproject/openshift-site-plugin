@@ -5,12 +5,12 @@ import { stringify } from 'yaml';
 
 const YAML = function () {
   const { data: sites } = useWatchedSkupperResource({ kind: 'Site' });
-  const site = sites?.[0].rawData;
+  const site = sites?.[0]?.rawData;
 
   return (
     <Card isFullHeight data-testid="yaml">
       <CardBody>
-        <CodeEditor value={stringify(site)} options={{ readOnly: true }} minHeight={'95%'} />
+        <CodeEditor value={site ? stringify(site) : ''} options={{ readOnly: true }} minHeight={'95%'} />
       </CardBody>
     </Card>
   );

@@ -100,9 +100,17 @@ describe('useLinks', () => {
   });
 
   it('handles download grant', () => {
+    const mockLink = document.createElement('a');
+    const mockClick = vi.fn();
+    Object.defineProperty(mockLink, 'click', { value: mockClick });
+
     const mockCreateElement = vi.spyOn(document, 'createElement');
     const mockAppendChild = vi.spyOn(document.body, 'appendChild');
     const mockRemoveChild = vi.spyOn(document.body, 'removeChild');
+
+    mockCreateElement.mockReturnValue(mockLink);
+    mockAppendChild.mockImplementation(() => mockLink);
+    mockRemoveChild.mockImplementation(() => mockLink);
 
     const { rerender, result } = renderHookTest(() => useLinks());
     rerender();
@@ -112,6 +120,7 @@ describe('useLinks', () => {
     expect(mockCreateElement).toHaveBeenCalledWith('a');
     expect(mockAppendChild).toHaveBeenCalled();
     expect(mockRemoveChild).toHaveBeenCalled();
+    expect(mockClick).toHaveBeenCalled();
   });
 
   it('handles delete link with partial name match', async () => {

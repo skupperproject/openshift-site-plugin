@@ -46,12 +46,12 @@ const Header: FC<{ site: SiteView | undefined; t: TFunction }> = function ({ sit
           {!!site?.status && (
             <Label>
               {!!site?.hasError && (
-                <Icon isInline status="danger">
+                <Icon isInline status="danger" data-testid="header-error">
                   <ExclamationCircleIcon />
                 </Icon>
               )}
               {!site?.hasError && !!site?.isConfigured && !!site?.isReady && (
-                <Icon status="success">
+                <Icon status="success" data-testid="header-success">
                   <CheckCircleIcon />
                 </Icon>
               )}
@@ -76,7 +76,13 @@ const Header: FC<{ site: SiteView | undefined; t: TFunction }> = function ({ sit
         </FlexItem>
       )}
 
-      <Modal hasNoBodyWrapper isOpen={isImportModalOpen} variant={ModalVariant.large} showClose={false}>
+      <Modal
+        hasNoBodyWrapper
+        isOpen={isImportModalOpen}
+        variant={ModalVariant.large}
+        showClose={false}
+        aria-label="import-modal"
+      >
         <ImportForm onSubmit={handleImportClose} />
       </Modal>
     </Flex>
