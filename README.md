@@ -2,9 +2,13 @@
 
 This plugin for Openshift installs a tab in **Projects** -> **< project name >** to create and manage a Skupper Site.
 
-## Status
+![alt text](https://github.com/user-attachments/assets/116af7b5-4019-401e-bb61-1fbc68b6c6d1)
 
-WIP
+![alt text](https://github.com/user-attachments/assets/e5f2dd6a-23ae-4926-bef6-5d55a7abb6b6)
+
+![alt text](https://github.com/user-attachments/assets/3af884af-7953-465d-ae17-7eff74cbe655)
+
+![alt text](https://github.com/user-attachments/assets/7a3b589f-6915-4d6c-bd58-623187efc465)
 
 ## Pre-requisites
 

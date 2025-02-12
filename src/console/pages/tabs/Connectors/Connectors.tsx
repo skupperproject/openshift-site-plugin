@@ -156,9 +156,10 @@ const Connectors = function () {
           <StackItem>
             {showAlert === 'show' && (
               <Alert
+                data-testid="connector-alert"
                 hidden={true}
                 variant="info"
-                actionClose={<AlertActionCloseButton onClose={handleCloseAlert} />}
+                actionClose={<AlertActionCloseButton onClose={handleCloseAlert} data-testid="connector-alert-close" />}
                 isInline
                 title={t(
                   'A connector binds local servers (pods, containers, or processes) to connection listeners in remote sites. Connectors are linked to listeners by a matching routing key.'

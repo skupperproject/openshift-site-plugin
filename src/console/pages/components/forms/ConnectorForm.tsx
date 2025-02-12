@@ -78,32 +78,26 @@ const ConnectorForm: FC<{
   };
 
   const handleChangeName = (value: string) => {
-    //validateInput(value, [validateRFC1123Subdomain]);
     setName(value);
   };
 
   const handleChangeSelector = (value: string) => {
-    //validateInput(value, [startsWithApp, validateRFC1123Subdomain], false);
     setSelector(value);
   };
 
   const handleChangeHost = (value: string) => {
-    //validateInput(value, [validateRFC1123SubdomainWithIP], false);
     setHost(value);
   };
 
   const handleChangeRoutingKey = (value: string) => {
-    //validateInput(value, [validateRFC1123Subdomain]);
     setRoutingKey(value);
   };
 
   const handleChangePort = (value: string) => {
-    //validateInput(value, [validatePort]);
     setPort(value);
   };
 
   const handleChangeTlsCredentials = (value: string) => {
-    //validateInput(value, [validateRFC1123Subdomain]);
     setTlsCredentials(value);
   };
 
@@ -114,7 +108,7 @@ const ConnectorForm: FC<{
     }
   };
 
-  const canSubmit = !!(name && port); //&& !validated;
+  const canSubmit = !!(name && port);
 
   return (
     <Card isPlain>

@@ -138,7 +138,6 @@ const FormPage: FC<FormPageProps> = function ({
   }, [isExpanded]);
 
   const handleChangeName = (value: string) => {
-    // validateInput(value, [validateRFC1123Subdomain]);
     setName(value);
   };
 
@@ -147,12 +146,10 @@ const FormPage: FC<FormPageProps> = function ({
   };
 
   const handleChangeServiceAccount = useCallback((value: string) => {
-    // validateInput(value, [validateRFC1123Subdomain]);
     setServiceAccount(value);
   }, []);
 
   const handleDefaultIssuer = useCallback((value: string) => {
-    // validateInput(value, [validateRFC1123Subdomain]);
     setDefaultIssuer(value);
   }, []);
 

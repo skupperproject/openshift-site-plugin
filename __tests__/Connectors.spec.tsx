@@ -88,6 +88,22 @@ describe('Connectors', () => {
     });
   });
 
+  describe('State handling', () => {
+    it('shows loading state when data is not loaded', () => {
+      mockUseWatchedSkupperResource.mockReturnValue({ data: [], loaded: false });
+      render(<Connectors />);
+
+      expect(screen.getByTestId('sk-loading')).toBeInTheDocument();
+    });
+
+    it('handles alert close action', () => {
+      render(<Connectors />);
+
+      fireEvent.click(screen.getByTestId('connector-alert-close'));
+      expect(sessionStorage.getItem('showConnectorAlert')).toBe('hide');
+    });
+  });
+
   describe('API interactions', () => {
     it('deletes connector through API', async () => {
       vi.mocked(RESTApi.deleteConnector).mockResolvedValue();

@@ -13,7 +13,7 @@ const AlertStatus = function () {
     <>
       {site?.isConfigured && !site?.isReady && (
         <Alert
-          data-testid="testid"
+          data-testid="alert-status-warning"
           variant="warning"
           isInline
           title={t(
@@ -24,6 +24,7 @@ const AlertStatus = function () {
 
       {site?.status === 'Error' && (
         <Alert
+          data-testid="alert-status-danger"
           variant="danger"
           isInline
           title={t('There is one or more errors. Please check the conditions on the Details page for more information')}

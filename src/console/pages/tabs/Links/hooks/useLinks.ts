@@ -30,9 +30,11 @@ export const useLinks = () => {
 
   const handleDeleteLink = (name: string) => {
     let accessTokenName = accessTokens?.find((item) => item.name === name);
+
     if (!accessTokenName) {
       accessTokenName = accessTokens?.find((item) => name.includes(item.name));
     }
+
     if (accessTokenName) {
       deleteAccessTokenMutation.mutate(accessTokenName?.name);
     }
