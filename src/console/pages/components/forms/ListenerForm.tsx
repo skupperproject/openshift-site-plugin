@@ -71,27 +71,22 @@ const ListenerForm: FC<{
   };
 
   const handleChangeRoutingKey = (value: string) => {
-    //validateInput(value, [validateRFC1123Subdomain]);
     setRoutingKey(value);
   };
 
   const handleChangeServiceName = (value: string) => {
-    //validateInput(value, [validateRFC1123Subdomain]);
     setHost(value);
   };
 
   const handleChangePort = (value: string) => {
-    //validateInput(value, [validatePort]);
     setPort(value);
   };
 
   const handleChangeName = (value: string) => {
-    //validateInput(value, [validateRFC1123Subdomain]);
     setName(value);
   };
 
   const handleChangeTlsCredentials = (value: string) => {
-    //validateInput(value, [validateRFC1123Subdomain]);
     setTlsCredentials(value);
   };
 
@@ -102,7 +97,7 @@ const ListenerForm: FC<{
     }
   };
 
-  const canSubmit = !!(name && port); //&& !validated;
+  const canSubmit = !!(name && port);
 
   return (
     <Card isPlain>

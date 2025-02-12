@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 import { vi } from 'vitest';
 
@@ -12,6 +12,9 @@ vi.mock('react-i18next', () => ({
 vi.mock('@tanstack/react-query', () => ({
   QueryClient: class {},
   QueryClientProvider: ({ children }: { children: ReactNode }) => children,
+  QueryErrorResetBoundary: function Boundary({ children }: { children: ReactNode }) {
+    return React.createElement('div', { 'data-testid': 'query-boundary' }, children);
+  },
   useMutation: <TData, TError, TVariables>({
     mutationFn,
     onSuccess,
