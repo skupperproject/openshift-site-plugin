@@ -42,7 +42,7 @@ const ConnectorForm: FC<{
   const [routingKey, setRoutingKey] = useState(attributes?.routingKey || '');
   const [selector, setSelector] = useState(attributes?.selector || '');
   const [host, setHost] = useState(attributes?.host || '');
-  const [port, setPort] = useState<number | string | undefined>(attributes?.port);
+  const [port, setPort] = useState<number | string>(attributes?.port || '');
   const [tlsCredentials, setTlsCredentials] = useState(attributes?.tlsCredentials || '');
   const [includeNotReadyPods, setIncludeNotReadyPod] = useState(attributes?.includeNotReadyPods || false);
 
@@ -131,7 +131,7 @@ const ConnectorForm: FC<{
               aria-label="form include not ready checkbox"
               id="include-not-ready checkbox"
               label={t('Include server pods that are not in the ready state')}
-              onClick={() => setIncludeNotReadyPod(!includeNotReadyPods)}
+              onChange={() => setIncludeNotReadyPod(!includeNotReadyPods)}
               isChecked={includeNotReadyPods}
             />
           </FormGroup>

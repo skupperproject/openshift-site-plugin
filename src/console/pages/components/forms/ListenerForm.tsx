@@ -40,7 +40,7 @@ const ListenerForm: FC<{
   const [name, setName] = useState(attributes?.name || '');
   const [routingKey, setRoutingKey] = useState(attributes?.routingKey || '');
   const [host, setHost] = useState(attributes?.host || '');
-  const [port, setPort] = useState<string | number | undefined>(attributes?.port);
+  const [port, setPort] = useState<string | number>(attributes?.port || '');
   const [tlsCredentials, setTlsCredentials] = useState(attributes?.tlsCredentials || '');
 
   const { validated, validateInput } = useValidatedInput();

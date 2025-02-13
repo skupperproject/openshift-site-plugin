@@ -57,7 +57,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
           hidden={true}
           variant="info"
           isInline
-          actionClose={<AlertActionCloseButton onClose={handleCloseAlert} />}
+          actionClose={<AlertActionCloseButton onClose={handleCloseAlert} data-testid="links-close-alert-button" />}
           title={t(
             'Links enable communication between sites. Once sites are linked, they form a network. Click issue token button to generate a downloadable token file for linking a remote site.'
           )}

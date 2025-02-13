@@ -39,8 +39,8 @@ export const FormPage: FC<{
 }> = function ({ name, onSetName, onSetValidFor, onSetValidForUnit, onSetClaims, onSetCode }) {
   const { t } = useTranslation(I18nNamespace);
 
-  const [expiration, setExpiration] = useState<number | undefined>(DEFAULT_EXPIRATION);
-  const [claims, setClaims] = useState<number | undefined>(DEFAULT_CLAIMS);
+  const [expiration, setExpiration] = useState<number | string>(DEFAULT_EXPIRATION);
+  const [claims, setClaims] = useState<number | string>(DEFAULT_CLAIMS);
   const [timeDimension, setTimeDimension] = useState(options[0].value);
   const [code, setCode] = useState<string>('');
 
@@ -56,12 +56,11 @@ export const FormPage: FC<{
       numberValue = DEFAULT_EXPIRATION;
     }
 
-    // If the input is empty, set numberValue to undefined
     if (!value) {
       numberValue = undefined;
     }
 
-    setExpiration(numberValue);
+    setExpiration(numberValue || '');
     onSetValidFor(numberValue);
   };
   const handleSetClaimsMade = (value: string) => {
@@ -75,7 +74,7 @@ export const FormPage: FC<{
       numberValue = undefined;
     }
 
-    setClaims(numberValue);
+    setClaims(numberValue || '');
     onSetClaims(numberValue);
   };
 
