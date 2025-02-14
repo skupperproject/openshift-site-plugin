@@ -43,8 +43,9 @@ export const FormPage = function () {
 
   return (
     <Form isHorizontal>
-      <FormGroup isRequired label={t('Token')} fieldId="form-access-token">
+      <FormGroup isRequired label={t('Token')} data-testid="form-access-token" fieldId="form-access-token">
         <FileUpload
+          data-testid="access-token-file"
           id="access-token-file"
           type="text"
           value={fileContent}
@@ -61,6 +62,7 @@ export const FormPage = function () {
       <FormGroup label={t('Name')} fieldId="form-name-input">
         <TextInput
           isRequired
+          data-testid="simple-form-name-01"
           id="simple-form-name-01"
           name="simple-form-name-01"
           value={name}
@@ -71,6 +73,7 @@ export const FormPage = function () {
       <FormGroup label={t('Cost')} fieldId="form-cost-input">
         <TextInput
           isRequired
+          data-testid="form-cost"
           id="form-cost"
           name="form-cost"
           aria-describedby="form cost input"
