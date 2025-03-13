@@ -59,7 +59,7 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
   });
 
   const handleSubmit = useCallback(() => {
-    if (!fileContent) {
+    if (!fileContent || !name) {
       setValidated(t('Fill out all required fields before continuing'));
 
       return;
@@ -67,7 +67,7 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
 
     try {
       const JsonFile = parse(fileContent) as AccessGrantCrdResponse;
-      const { metadata, status } = JsonFile;
+      const { status } = JsonFile;
 
       if (!status) {
         setValidated(t('Invalid Grant format'));
@@ -77,7 +77,7 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
 
       const data: AccessTokenCrdParams = createAccessTokenRequest({
         metadata: {
-          name: name || metadata.name
+          name
         },
         spec: {
           linkCost: Number(cost),

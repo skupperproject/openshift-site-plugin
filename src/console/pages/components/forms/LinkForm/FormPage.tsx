@@ -3,8 +3,10 @@ import { useCallback, FormEvent } from 'react';
 import { I18nNamespace } from '@config/config';
 import { Form, FormGroup, TextInput, FileUpload, DropEvent } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
+import { parse } from 'yaml';
 
 import { useLinkForm } from './hooks/useLinkForm';
+import { AccessGrantCrdResponse } from '../../../../interfaces/CRD_AccessGrant';
 
 export const FormPage = function () {
   const { t } = useTranslation(I18nNamespace);
@@ -22,7 +24,13 @@ export const FormPage = function () {
 
   const handleFileContentChange = useCallback(
     (_: DropEvent, value: string) => {
+      const JsonFile = parse(value) as AccessGrantCrdResponse;
+      const { metadata } = JsonFile;
       dispatch({ type: 'SET_FILE_CONTENT', payload: value });
+
+      if (metadata?.name) {
+        dispatch({ type: 'SET_NAME', payload: metadata.name });
+      }
     },
     [dispatch]
   );
@@ -59,7 +67,7 @@ export const FormPage = function () {
         />
       </FormGroup>
 
-      <FormGroup label={t('Name')} fieldId="form-name-input">
+      <FormGroup isRequired label={t('Name')} fieldId="form-name-input">
         <TextInput
           isRequired
           data-testid="simple-form-name-01"
