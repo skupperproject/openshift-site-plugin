@@ -21,7 +21,7 @@ export const SummaryPage = function () {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const { data: accessTokens } = useWatchedSkupperResource({
+  const { data: accessTokens, error: accessTokenError } = useWatchedSkupperResource({
     kind: 'AccessToken',
     isList: false,
     name: name || fileName
@@ -36,11 +36,19 @@ export const SummaryPage = function () {
   const hasError =
     accessToken?.status?.status === 'Error' ||
     (accessToken?.status?.status && link?.status?.status && link?.status?.status === 'Error');
-  const errorMessage = link?.status?.status || accessToken?.status?.status;
+  const errorMessage = link?.status?.status || accessToken?.status?.message;
 
   useEffect(() => {
-    if (!hasStatus) {
-      return;
+    if (accessTokenError) {
+      setIsLoading(false);
+      setExternalLoading(false);
+      setValidated('Generic error');
+    }
+
+    if (hasError) {
+      setIsLoading(false);
+      setExternalLoading(false);
+      setValidated(errorMessage);
     }
 
     if (isConfigured) {
@@ -51,12 +59,19 @@ export const SummaryPage = function () {
       return;
     }
 
-    if (hasError) {
-      setIsLoading(false);
-      setExternalLoading(false);
-      setValidated(errorMessage);
+    if (!hasStatus) {
+      return;
     }
-  }, [setValidated, setIsLoading, setExternalLoading, isConfigured, hasError, hasStatus, errorMessage]);
+  }, [
+    setValidated,
+    setIsLoading,
+    setExternalLoading,
+    accessTokenError,
+    isConfigured,
+    hasError,
+    hasStatus,
+    errorMessage
+  ]);
 
   if (isLoading) {
     return (

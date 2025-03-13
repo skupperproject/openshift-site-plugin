@@ -51,7 +51,7 @@ const DeploymentNetworkConsoleButton = function () {
   const watchResource = {
     groupVersionKind,
     namespace: NamespaceManager.getNamespace(),
-    isList: false,
+    isList: true,
     name: ROUTE
   };
 
@@ -64,7 +64,7 @@ const DeploymentNetworkConsoleButton = function () {
     }
   };
 
-  const [data] = useK8sWatchResource<RouteResource>(watchResource);
+  const [route] = useK8sWatchResource<RouteResource[]>(watchResource);
   const [deployment] = useK8sWatchResource<PodResource>(watchResourcePod);
 
   const mutationCreate = useMutation({
@@ -85,13 +85,15 @@ const DeploymentNetworkConsoleButton = function () {
   const handleDeleteConsole = async () => {
     mutationDelete.mutate();
   };
-
   useEffect(() => {
+    console.log('route', route);
+    const data = route?.find((r) => r.metadata?.name?.includes(ROUTE));
+
     if (data?.spec?.host && data?.spec?.port?.targetPort) {
       const newUrl = data?.spec?.host ? `${data?.spec?.port?.targetPort}://${data?.spec?.host}` : undefined;
       setUrl(newUrl);
     }
-  }, [data?.spec?.host, data?.spec?.port?.targetPort]);
+  }, [route]);
 
   const loaded = deployment?.status?.phase === POD_LOADED_STATUS && url;
 

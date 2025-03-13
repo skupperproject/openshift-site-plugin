@@ -19,7 +19,7 @@ This plugin for Openshift installs a tab in **Projects** -> **< project name >**
 
 To install the dynamic plugin, follow these steps:
 
-- **Authenticate with your cluster:**, then run the following command in the directory containing your `manifest.json` file.
+- **Authenticate with your cluster:**, then run the following command in the directory containing your `manifest.yaml` file.
 
   ```shell
   kubectl apply -f manifest.yaml
