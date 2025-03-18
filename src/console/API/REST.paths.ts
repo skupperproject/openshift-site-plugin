@@ -7,7 +7,8 @@ const BASE_PATHS = {
   cr: `${K8S_PREFIX_PATH}apis/${GROUP}/${API_VERSION}/namespaces`,
   rbac: `${K8S_PREFIX_PATH}apis/rbac.authorization.k8s.io/v1/namespaces`,
   k8s: `${K8S_PREFIX_PATH}api/v1/namespaces`,
-  route: `${K8S_PREFIX_PATH}apis/route.openshift.io/v1/namespaces`
+  route: `${K8S_PREFIX_PATH}apis/route.openshift.io/v1/namespaces`,
+  batch: `${K8S_PREFIX_PATH}apis/batch/v1/namespaces`
 };
 
 // Helper to build namespace paths
@@ -52,3 +53,4 @@ export const servicePath = () => buildPath(BASE_PATHS.k8s, 'services');
 export const serviceAccountPath = () => buildPath(BASE_PATHS.k8s, 'serviceaccounts');
 
 export const routePath = () => buildPath(BASE_PATHS.route, 'routes');
+export const jobPath = () => buildPath(BASE_PATHS.batch, 'jobs');

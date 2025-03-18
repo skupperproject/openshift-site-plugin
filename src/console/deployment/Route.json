@@ -3,10 +3,12 @@
   "kind": "Route",
   "metadata": {
     "labels": {
-      "app.kubernetes.io/part-of": "skupper-network-observer",
-      "app.kubernetes.io/name": "network-observer"
+      "app.kubernetes.io/name": "network-observer",
+      "app.kubernetes.io/instance": "skupper-network-observer",
+      "app.kubernetes.io/version": "2.0.0",
+      "app.kubernetes.io/part-of": "skupper-network-observer"
     },
-    "name": "network-observer"
+    "name": "skupper-network-observer"
   },
   "spec": {
     "tls": {
@@ -18,7 +20,7 @@
     },
     "to": {
       "kind": "Service",
-      "name": "network-observer",
+      "name": "skupper-network-observer",
       "weight": 100
     }
   }

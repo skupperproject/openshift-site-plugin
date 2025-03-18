@@ -2,7 +2,13 @@
   "apiVersion": "skupper.io/v2alpha1",
   "kind": "Certificate",
   "metadata": {
-    "name": "skupper-management-client"
+    "name": "skupper-network-observer-client",
+    "labels": {
+      "app.kubernetes.io/name": "network-observer",
+      "app.kubernetes.io/instance": "skupper-network-observer",
+      "app.kubernetes.io/version": "2.0.0",
+      "app.kubernetes.io/part-of": "skupper-network-observer"
+    }
   },
   "spec": {
     "ca": "skupper-local-ca",

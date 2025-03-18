@@ -40,8 +40,8 @@ interface PodResource extends K8sResourceCommon {
   };
 }
 
-const ROUTE = 'network-observer';
-const POD_SELECTOR = { 'app.kubernetes.io/name': 'network-observer' };
+const ROUTE = 'skupper-network-observer';
+const POD_SELECTOR = { 'app.kubernetes.io/part-of': 'skupper-network-observer' };
 const POD_LOADED_STATUS = 'Running';
 
 const DeploymentNetworkConsoleButton = function () {
@@ -51,21 +51,21 @@ const DeploymentNetworkConsoleButton = function () {
   const watchResource = {
     groupVersionKind,
     namespace: NamespaceManager.getNamespace(),
-    isList: true,
+    isList: false,
     name: ROUTE
   };
 
   const watchResourcePod = {
     groupVersionKind: groupVersionKindPod,
     namespace: NamespaceManager.getNamespace(),
-    isList: false,
+    isList: true,
     selector: {
       matchLabels: POD_SELECTOR
     }
   };
 
-  const [route] = useK8sWatchResource<RouteResource[]>(watchResource);
-  const [deployment] = useK8sWatchResource<PodResource>(watchResourcePod);
+  const [route] = useK8sWatchResource<RouteResource>(watchResource);
+  const [deployments] = useK8sWatchResource<PodResource[]>(watchResourcePod);
 
   const mutationCreate = useMutation({
     mutationFn: () => RESTApi.createDeployment()
@@ -86,8 +86,7 @@ const DeploymentNetworkConsoleButton = function () {
     mutationDelete.mutate();
   };
   useEffect(() => {
-    console.log('route', route);
-    const data = route?.find((r) => r.metadata?.name?.includes(ROUTE));
+    const data = route;
 
     if (data?.spec?.host && data?.spec?.port?.targetPort) {
       const newUrl = data?.spec?.host ? `${data?.spec?.port?.targetPort}://${data?.spec?.host}` : undefined;
@@ -95,7 +94,8 @@ const DeploymentNetworkConsoleButton = function () {
     }
   }, [route]);
 
-  const loaded = deployment?.status?.phase === POD_LOADED_STATUS && url;
+  const deployment = deployments?.[0];
+  const loaded = deployment?.status?.phase === POD_LOADED_STATUS && !!url;
 
   return (
     <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }}>

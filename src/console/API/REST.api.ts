@@ -26,20 +26,20 @@ import {
   serviceAccountPath,
   configMapPath,
   routePath,
-  linkPath
+  linkPath,
+  jobPath
 } from './REST.paths';
 import { convertSiteCRToSite } from './REST.utils';
 import certificateData from '../deployment/Certificate.json';
 import configMapPromData from '../deployment/ConfigMap-Prom.json';
-import configMapData from '../deployment/ConfigMap.json';
-import deploymentPromData from '../deployment/Deployment-Prom.json';
 import deploymentData from '../deployment/Deployment.json';
+import jobData from '../deployment/Job.json';
 import roleData from '../deployment/Role.json';
 import roleBindingData from '../deployment/RoleBinding.json';
-import RouteData from '../deployment/Route.json';
-import servicePromData from '../deployment/Service-Prom.json';
+import routeData from '../deployment/Route.json';
 import serviceData from '../deployment/Service.json';
 import serviceAccountData from '../deployment/ServiceAccount.json';
+import serviceAccountSetupData from '../deployment/ServiceAccountSetup.json';
 import { ListCrdResponse, PartialDeploymentResponse } from '../interfaces/CRD_Base';
 import { SiteView } from '../interfaces/REST.interfaces';
 
@@ -182,13 +182,12 @@ export const RESTApi = {
       { path: roleBindPath(), data: roleBindingData },
       { path: certificatePath(), data: certificateData },
       { path: deploymentsPath(), data: deploymentData },
-      { path: deploymentsPath(), data: deploymentPromData },
+      { path: jobPath(), data: jobData },
       { path: servicePath(), data: serviceData },
-      { path: servicePath(), data: servicePromData },
+      { path: serviceAccountPath(), data: serviceAccountSetupData },
       { path: serviceAccountPath(), data: serviceAccountData },
-      { path: configMapPath(), data: configMapData },
       { path: configMapPath(), data: configMapPromData },
-      { path: routePath(), data: RouteData }
+      { path: routePath(), data: routeData }
     ];
 
     const promises = requests.map(({ path, data }) =>
@@ -208,16 +207,15 @@ export const RESTApi = {
 
   deleteDeployment: async (): Promise<void> => {
     const requests = [
-      { path: `${routePath()}/${RouteData.metadata.name}` },
+      { path: `${routePath()}/${routeData.metadata.name}` },
       { path: `${rolePath()}/${roleData.metadata.name}` },
       { path: `${roleBindPath()}/${roleBindingData.metadata.name}` },
       { path: `${certificatePath()}/${certificateData.metadata.name}` },
       { path: `${deploymentsPath()}/${deploymentData.metadata.name}` },
-      { path: `${deploymentsPath()}/${deploymentPromData.metadata.name}` },
+      { path: `${deploymentsPath()}/${jobData.metadata.name}` },
       { path: `${servicePath()}/${serviceData.metadata.name}` },
-      { path: `${servicePath()}/${servicePromData.metadata.name}` },
+      { path: `${serviceAccountPath()}/${serviceAccountSetupData.metadata.name}` },
       { path: `${serviceAccountPath()}/${serviceAccountData.metadata.name}` },
-      { path: `${configMapPath()}/${configMapData.metadata.name}` },
       { path: `${configMapPath()}/${configMapPromData.metadata.name}` }
     ];
 

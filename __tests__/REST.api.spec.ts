@@ -396,7 +396,7 @@ describe('RESTApi', () => {
         .mockResolvedValue({}); // Rest succeed
 
       await expect(RESTApi.createDeployment()).resolves.not.toThrow();
-      expect(mockAxiosFetch).toHaveBeenCalledTimes(11); // Total number of requests
+      expect(mockAxiosFetch).toHaveBeenCalledTimes(10); // Total number of requests
     });
 
     it('handles network errors during deployment deletion', async () => {
@@ -415,7 +415,7 @@ describe('RESTApi', () => {
         .mockResolvedValue({}); // Rest succeed
 
       await expect(RESTApi.deleteDeployment()).resolves.not.toThrow();
-      expect(mockAxiosFetch).toHaveBeenCalledTimes(11); // Total number of requests
+      expect(mockAxiosFetch).toHaveBeenCalledTimes(10); // Total number of requests
     });
   });
 });
