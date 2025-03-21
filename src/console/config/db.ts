@@ -10,3 +10,16 @@ export const createNamespaceManager = () => {
 };
 
 export const NamespaceManager = createNamespaceManager();
+
+export const createConsoleRouteManager = () => {
+  let name = '';
+
+  return {
+    setName: (initialRouteName: string) => {
+      name = initialRouteName;
+    },
+    getName: () => name
+  };
+};
+
+export const ConsoleRouteManager = createConsoleRouteManager();

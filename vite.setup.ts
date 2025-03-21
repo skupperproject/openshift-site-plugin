@@ -33,12 +33,5 @@ vi.mock('@tanstack/react-query', () => ({
       }
     },
     isLoading: false
-  }),
-  useQueryClient: () => ({
-    invalidateQueries: vi.fn()
-  }),
-  useQuery: () => ({
-    data: undefined,
-    isLoading: false
   })
 }));

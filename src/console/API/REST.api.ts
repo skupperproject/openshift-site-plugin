@@ -30,6 +30,7 @@ import {
   jobPath
 } from './REST.paths';
 import { convertSiteCRToSite } from './REST.utils';
+import { ConsoleRouteManager } from '../config/db';
 import certificateData from '../deployment/Certificate.json';
 import configMapPromData from '../deployment/ConfigMap-Prom.json';
 import deploymentData from '../deployment/Deployment.json';
@@ -88,8 +89,6 @@ export const RESTApi = {
       method: 'DELETE'
     });
 
-    RESTApi.deleteDeployment();
-
     if (removeAllResources) {
       await Promise.all([
         axiosFetch(accessGrantsPath(), {
@@ -109,6 +108,8 @@ export const RESTApi = {
         })
       ]);
     }
+
+    await RESTApi.deleteDeployment();
   },
 
   createGrant: async (data?: AccessGrantParams): Promise<AccessGrantCrdResponse> =>
@@ -206,14 +207,16 @@ export const RESTApi = {
   },
 
   deleteDeployment: async (): Promise<void> => {
+    const name = ConsoleRouteManager.getName();
+
     const requests = [
-      { path: `${routePath()}/${routeData.metadata.name}` },
+      { path: `${routePath()}/${name}` },
       { path: `${rolePath()}/${roleData.metadata.name}` },
       { path: `${roleBindPath()}/${roleBindingData.metadata.name}` },
       { path: `${certificatePath()}/${certificateData.metadata.name}` },
-      { path: `${deploymentsPath()}/${deploymentData.metadata.name}` },
+      { path: `${deploymentsPath()}/${name}` },
       { path: `${deploymentsPath()}/${jobData.metadata.name}` },
-      { path: `${servicePath()}/${serviceData.metadata.name}` },
+      { path: `${servicePath()}/${name}` },
       { path: `${serviceAccountPath()}/${serviceAccountSetupData.metadata.name}` },
       { path: `${serviceAccountPath()}/${serviceAccountData.metadata.name}` },
       { path: `${configMapPath()}/${configMapPromData.metadata.name}` }
