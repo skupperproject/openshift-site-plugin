@@ -40,7 +40,6 @@ interface PodResource extends K8sResourceCommon {
   };
 }
 
-const ROUTE = 'skupper-network-observer';
 const POD_SELECTOR = { 'app.kubernetes.io/part-of': 'skupper-network-observer' };
 const POD_LOADED_STATUS = 'Running';
 
@@ -52,7 +51,9 @@ const DeploymentNetworkConsoleButton = function () {
     groupVersionKind,
     namespace: NamespaceManager.getNamespace(),
     isList: false,
-    name: ROUTE
+    selector: {
+      matchLabels: POD_SELECTOR
+    }
   };
 
   const watchResourcePod = {
@@ -86,10 +87,8 @@ const DeploymentNetworkConsoleButton = function () {
     mutationDelete.mutate();
   };
   useEffect(() => {
-    const data = route;
-
-    if (data?.spec?.host && data?.spec?.port?.targetPort) {
-      const newUrl = data?.spec?.host ? `${data?.spec?.port?.targetPort}://${data?.spec?.host}` : undefined;
+    if (route?.spec?.host && route?.spec?.port?.targetPort) {
+      const newUrl = route?.spec?.host ? `${route?.spec?.port?.targetPort}://${route?.spec?.host}` : undefined;
       setUrl(newUrl);
     }
   }, [route]);
