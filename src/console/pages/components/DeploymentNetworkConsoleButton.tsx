@@ -86,6 +86,7 @@ const DeploymentNetworkConsoleButton = function () {
   const handleDeleteConsole = async () => {
     mutationDelete.mutate();
   };
+
   useEffect(() => {
     if (route?.spec?.host && route?.spec?.port?.targetPort) {
       const newUrl = route?.spec?.host ? `${route?.spec?.port?.targetPort}://${route?.spec?.host}` : undefined;
