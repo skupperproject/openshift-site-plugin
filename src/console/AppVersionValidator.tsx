@@ -1,17 +1,25 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 
 import { RESTApi } from '@API/REST.api';
-import { QueryKeys } from '@config/reactQuery';
 import ErrorOldSkupperVersionPage from '@pages/ErrorOldSkupperVersionPage';
-import { useQuery } from '@tanstack/react-query';
 
 const AppVersionValidator = function ({ children }: { children: ReactNode }) {
-  const { data: isOldVersionSkupper } = useQuery({
-    queryKey: [QueryKeys.IsOldAppVersion],
-    queryFn: () => RESTApi.isOldVersion()
-  });
+  const [isOldVersionSkupper, setIsOldVersionSkupper] = useState<boolean | null>(null);
 
-  if (isOldVersionSkupper) {
+  useEffect(() => {
+    const checkVersion = async () => {
+      try {
+        const isOld = await RESTApi.isOldVersion();
+        setIsOldVersionSkupper(isOld);
+      } catch {
+        setIsOldVersionSkupper(false);
+      }
+    };
+
+    checkVersion();
+  }, []);
+
+  if (isOldVersionSkupper === true) {
     return <ErrorOldSkupperVersionPage />;
   }
 

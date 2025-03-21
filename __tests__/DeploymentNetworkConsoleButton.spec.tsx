@@ -8,6 +8,7 @@ const mockUseMutationImpl = vi.hoisted(() => vi.fn());
 const mockRESTApiCreateDeployment = vi.hoisted(() => vi.fn());
 const mockRESTApiDeleteDeployment = vi.hoisted(() => vi.fn());
 const mockNamespaceManagerGetNamespace = vi.hoisted(() => vi.fn());
+const mockConsoleRouteManagerFunctionName = vi.hoisted(() => vi.fn());
 
 vi.mock('@openshift-console/dynamic-plugin-sdk', () => ({
   useK8sWatchResource: mockUseK8sWatchResource
@@ -23,6 +24,10 @@ vi.mock('../src/console/API/REST.api', () => ({
 vi.mock('../src/console/config/db', () => ({
   NamespaceManager: {
     getNamespace: mockNamespaceManagerGetNamespace
+  },
+  ConsoleRouteManager: {
+    getName: mockConsoleRouteManagerFunctionName,
+    setName: mockConsoleRouteManagerFunctionName
   }
 }));
 
