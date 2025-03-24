@@ -55,6 +55,9 @@ const config: webpack.Configuration & {
     new ConsoleRemotePlugin({ pluginMetadata, extensions }),
     new CopyWebpackPlugin({
       patterns: [{ from: path.resolve(__dirname, 'locales'), to: 'locales' }]
+    }),
+    new webpack.DefinePlugin({
+      'process.env.SKUPPER_NAME': JSON.stringify(process.env.SKUPPER_NAME || 'Skupper')
     })
   ],
   devtool: 'source-map',

@@ -9,7 +9,7 @@ const consoleSection: EncodedExtension = {
       group: 'project.openshift.io'
     },
     page: {
-      name: 'Service Interconnect',
+      name: process.env.SKUPPER_NAME || 'Skupper',
       href: 'openshift-site-plugin'
     },
     component: { $codeRef: 'ProjectEntryTab' }

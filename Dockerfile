@@ -3,9 +3,14 @@ FROM  registry.access.redhat.com/ubi9/nodejs-18 AS build
 USER root
 RUN command -v yarn || npm i -g yarn
 
+
 ADD . /usr/src/app/skupper_console
 WORKDIR /usr/src/app/skupper_console
-RUN yarn install && yarn build
+RUN yarn install
+
+ARG SKUPPER_NAME
+ENV SKUPPER_NAME=$SKUPPER_NAME
+RUN yarn build
 
 FROM registry.access.redhat.com/ubi9/nginx-122:1-45
 

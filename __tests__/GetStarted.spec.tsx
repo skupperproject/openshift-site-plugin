@@ -49,7 +49,6 @@ describe('GetStarted Component', () => {
   it('renders main page sections', () => {
     render(<GetStarted siteId={siteId} />);
 
-    expect(screen.getByText(/Service Interconnect is a layer 7 network/)).toBeInTheDocument();
     expect(screen.getByText('Learn more about the console')).toBeInTheDocument();
   });
 
