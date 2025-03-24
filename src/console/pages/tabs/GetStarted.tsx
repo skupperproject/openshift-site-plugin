@@ -112,7 +112,8 @@ const GetStarted: FC<{ siteId: string }> = function ({ siteId }) {
         <TextContent>
           <Text component="p">
             {t(
-              'Service Interconnect is a layer 7 network. It enables secure communication across Kubernetes clusters with no VPNs or special firewall rules'
+              'Skupper is a layer 7 network. It enables secure communication across Kubernetes clusters with no VPNs or special firewall rules',
+              { skupperName: process.env.SKUPPER_NAME }
             )}
             <br />
             {t('The site console is used during network setup.')}

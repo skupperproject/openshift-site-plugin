@@ -15,8 +15,7 @@
     "ts-node": "ts-node -O '{\"module\":\"commonjs\"}'",
     "format": "prettier --write 'src/**/*.{ts,tsx,json,css}'",
     "lint": "TIMING=1 eslint --cache",
-    "lint-fix": "yarn lint --fix",
-    "build-and-push-image": "PUSH=1 ./build-image.sh"
+    "lint-fix": "yarn lint --fix"
   },
   "dependencies": {
     "@patternfly/patternfly": "5.4.2",
