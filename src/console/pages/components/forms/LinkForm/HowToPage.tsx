@@ -23,8 +23,8 @@ export const HowToPage = function () {
       <StackItem>
         <InstructionBlock
           img={step2}
-          title={t('Step 2 - Generate a grant from the remote site')}
-          description={t('Generate the grant with the web console or the CLI.')}
+          title={t('Step 2 - Generate a access token from the remote site')}
+          description={t('Generate the access token with the web console or the CLI.')}
           link1="https://skupper.io/docs/cli/tokens.html"
           link1Text="More information on token creation"
           link2="https://skupper.io/docs/cli/index.html"
@@ -35,16 +35,16 @@ export const HowToPage = function () {
       <StackItem>
         <InstructionBlock
           img={step3}
-          title={t('Step 3 - Download the grant file')}
-          description={t('Download the grant file from the remote site after generating it.')}
+          title={t('Step 3 - Download the access token file')}
+          description={t('Download the access token file from the remote site after generating it.')}
         />
       </StackItem>
 
       <StackItem>
         <InstructionBlock
           img={step4}
-          title={t('Step 4 - Use the grant to create a link')}
-          description={t('Use the grant to create a link from the local site to the remote site.')}
+          title={t('Step 4 - Use the access token to create a link')}
+          description={t('Use the access token to create a link from the local site to the remote site.')}
         />
       </StackItem>
     </Stack>

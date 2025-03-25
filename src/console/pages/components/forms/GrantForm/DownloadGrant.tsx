@@ -11,6 +11,9 @@ import { DownloadIcon } from '@patternfly/react-icons';
 import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
+import { createAccessTokenRequest } from '../../../../core/utils/createCRD';
+import { AccessTokenCrdParams } from '../../../../interfaces/CRD_AccessToken';
+
 export const DownloadGrant: FC<{
   name?: string;
 }> = function ({ name = '' }) {
@@ -20,13 +23,25 @@ export const DownloadGrant: FC<{
   const grant = grants?.[0]?.rawData;
 
   const handleDownload = useCallback(() => {
-    if (grant) {
-      const blob = new Blob([stringify(grant)], { type: 'application/json' });
+    if (grant?.status) {
+      const accessToken: AccessTokenCrdParams = createAccessTokenRequest({
+        metadata: {
+          name: grant.metadata.name
+        },
+        spec: {
+          linkCost: 1,
+          ca: grant.status.ca,
+          code: grant.status.code,
+          url: grant.status.url
+        }
+      });
+
+      const blob = new Blob([stringify(accessToken)], { type: 'application/json' });
 
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
-      link.download = `${grant.metadata.name}.yaml`;
-      link.setAttribute('download', `${grant.metadata.name}.yaml`);
+      link.download = `${accessToken.metadata.name}.yaml`;
+      link.setAttribute('download', `${accessToken.metadata.name}.yaml`);
 
       document.body.appendChild(link).click();
       document.body.removeChild(link);
@@ -44,8 +59,8 @@ export const DownloadGrant: FC<{
       <StackItem>
         <InstructionBlock
           img={cStep1}
-          title={t('Step 1 - Download the grant file')}
-          description={t('Click the button to download the grant file.')}
+          title={t('Step 1 - Download the access token file')}
+          description={t('Click the button to download the access token file.')}
           component={
             <Button
               variant="link"
@@ -55,7 +70,7 @@ export const DownloadGrant: FC<{
               isDisabled={isDisabled}
             >
               <small>
-                {isDisabled ? t('Generating the grant, please wait...') : t('Download the grant')}
+                {isDisabled ? t('Generating the access token, please wait...') : t('Download the access token')}
                 {isDisabled && <Spinner size="md" />}
               </small>
             </Button>

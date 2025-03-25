@@ -95,7 +95,7 @@ const Links: FC<{ siteId: string }> = function ({ siteId }) {
         )}
 
         <StackItem>
-          <Title headingLevel="h1">{t('Grants')}</Title>
+          <Title headingLevel="h1">{t('Access tokens')}</Title>
 
           <AccessGrantTable
             grants={data.accessGrants || []}

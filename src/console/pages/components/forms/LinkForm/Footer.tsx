@@ -2,7 +2,6 @@ import { FC, useCallback, useEffect } from 'react';
 
 import { RESTApi } from '@API/REST.api';
 import { createAccessTokenRequest } from '@core/utils/createCRD';
-import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
 import { AccessTokenCrdParams } from '@interfaces/CRD_AccessToken';
 import { HTTPError } from '@interfaces/REST.interfaces';
 import {
@@ -66,11 +65,11 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
     }
 
     try {
-      const JsonFile = parse(fileContent) as AccessGrantCrdResponse;
-      const { status } = JsonFile;
+      const JsonFile = parse(fileContent) as AccessTokenCrdParams;
+      const { spec } = JsonFile;
 
-      if (!status) {
-        setValidated(t('Invalid Grant format'));
+      if (!spec) {
+        setValidated(t('Invalid Access Token format'));
 
         return;
       }
@@ -81,15 +80,15 @@ export const Footer: FC<FooterProps> = function ({ onCancel, onSubmit }) {
         },
         spec: {
           linkCost: Number(cost),
-          ca: status.ca,
-          code: status.code,
-          url: status.url
+          ca: spec.ca,
+          code: spec.code,
+          url: spec.url
         }
       });
 
       mutationCreate.mutate(data);
     } catch {
-      setValidated(t('Invalid Grant format'));
+      setValidated(t('Invalid Access Token format'));
     }
   }, [cost, fileContent, mutationCreate, name, setValidated, t]);
 
