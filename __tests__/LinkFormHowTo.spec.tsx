@@ -44,19 +44,21 @@ describe('HowToPage', () => {
     render(<HowToPage />);
 
     expect(screen.getByText('Step 1 - Visit a remote site')).toBeInTheDocument();
-    expect(screen.getByText('Step 2 - Generate a grant from the remote site')).toBeInTheDocument();
-    expect(screen.getByText('Step 3 - Download the grant file')).toBeInTheDocument();
-    expect(screen.getByText('Step 4 - Use the grant to create a link')).toBeInTheDocument();
+    expect(screen.getByText('Step 2 - Generate a access token from the remote site')).toBeInTheDocument();
+    expect(screen.getByText('Step 3 - Download the access token file')).toBeInTheDocument();
+    expect(screen.getByText('Step 4 - Use the access token to create a link')).toBeInTheDocument();
   });
 
   it('displays step descriptions', () => {
     render(<HowToPage />);
 
     expect(screen.getByText('Open a new browser window or tab and visit the remote site.')).toBeInTheDocument();
-    expect(screen.getByText('Generate the grant with the web console or the CLI.')).toBeInTheDocument();
-    expect(screen.getByText('Download the grant file from the remote site after generating it.')).toBeInTheDocument();
+    expect(screen.getByText('Generate the access token with the web console or the CLI.')).toBeInTheDocument();
     expect(
-      screen.getByText('Use the grant to create a link from the local site to the remote site.')
+      screen.getByText('Download the access token file from the remote site after generating it.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Use the access token to create a link from the local site to the remote site.')
     ).toBeInTheDocument();
   });
 

@@ -141,6 +141,7 @@ export const RESTApi = {
       method: 'DELETE'
     });
   },
+
   createOrUpdateListener: async (data?: ListenerCrdParams, name?: string): Promise<'Updated' | 'Created'> => {
     const path = name ? `${listenerPath(name)}` : listenersPath();
     const method = name ? 'PUT' : 'POST';
