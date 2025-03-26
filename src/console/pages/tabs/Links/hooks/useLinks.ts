@@ -3,6 +3,7 @@ import { AccessGrantCrdResponse } from '@interfaces/CRD_AccessGrant';
 import { useMutation } from '@tanstack/react-query';
 import { stringify } from 'yaml';
 
+import { handleYamlFilename } from '../../../../core/utils/handleYamlFilename';
 import { useWatchedSkupperResource } from '../../../../hooks/useSkupperWatchResource';
 
 export const useLinks = () => {
@@ -44,9 +45,11 @@ export const useLinks = () => {
   const handleDownloadGrant = (grant: AccessGrantCrdResponse) => {
     if (grant?.status) {
       const blob = new Blob([stringify(grant)], { type: 'application/json' });
+      const filename = handleYamlFilename(grant.metadata.name);
+
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
-      link.download = `${grant.metadata.name}.yaml`;
+      link.download = filename;
       document.body.appendChild(link).click();
       document.body.removeChild(link);
     }
