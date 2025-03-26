@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { stringify } from 'yaml';
 
 import { createAccessTokenRequest } from '../../../../core/utils/createCRD';
+import { handleYamlFilename } from '../../../../core/utils/handleYamlFilename';
 import { AccessTokenCrdParams } from '../../../../interfaces/CRD_AccessToken';
 
 export const DownloadGrant: FC<{
@@ -37,11 +38,12 @@ export const DownloadGrant: FC<{
       });
 
       const blob = new Blob([stringify(accessToken)], { type: 'application/json' });
+      const filename = handleYamlFilename(accessToken.metadata.name);
 
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
-      link.download = `${accessToken.metadata.name}.yaml`;
-      link.setAttribute('download', `${accessToken.metadata.name}.yaml`);
+      link.download = filename;
+      link.setAttribute('download', filename);
 
       document.body.appendChild(link).click();
       document.body.removeChild(link);
