@@ -40,7 +40,7 @@ describe('useLinks', () => {
     accessGrants: [
       {
         metadata: { name: 'test-grant' },
-        status: { message: 'OK' }
+        status: { status: 'Ready', url: 'u', code: 'c', ca: 'ca', message: 'OK' }
       }
     ],
     accessTokens: [

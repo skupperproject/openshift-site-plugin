@@ -42,7 +42,7 @@ const AccessGrantTable: FC<AccessGrantTableProps> = function ({ grants, onDelete
           onClick={() => onDownloadGrant(grantData.rawData)}
           variant="link"
           isDisabled={
-            !grantData.status ||
+            grantData.rawData?.status?.status !== 'Ready' ||
             grantData.hasError ||
             new Date() > new Date(grantData.expirationTime as ISO8601Timestamp) ||
             (grantData.redemptions || 0) >= (grantData.redemptionsAllowed || 0)
